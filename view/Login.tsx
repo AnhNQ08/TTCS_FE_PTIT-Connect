@@ -1,7 +1,14 @@
-import { StyleSheet, Text, View, Image, TextInput, Button, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 
-export default function Login() {
+export default function Login(props: any) {
+
+    const { navigation } = props;
+
+    const padLogin = () => {
+        navigation.navigate("Home")
+    }
+
     return (
         <View style={style.container}>
             {/* Logo */}
@@ -24,6 +31,7 @@ export default function Login() {
             {/* Button */}
             <TouchableOpacity
                 style={style.button}
+                onPress={padLogin}
             >
                 <Text style={style.textButton}>Đăng nhập</Text>
             </TouchableOpacity>
@@ -41,19 +49,19 @@ export default function Login() {
 
 const style = StyleSheet.create({
     container: {
-        flex: 1,  // Tận dụng toàn bộ không gian màn hình
-        alignItems: 'center', // Căn giữa theo chiều ngang
+        flex: 1,
+        alignItems: 'center',
     },
     logo: {
         marginTop: 250,
         marginBottom: 60,
-        width: '100%',  // Chiều rộng của container là 100%
-        height: 100,    // Đặt chiều cao của container
+        width: '100%',
+        height: 100,
     },
     imageLogo: {
-        width: '100%',   // Chiều rộng của ảnh sẽ chiếm 100% của container
-        height: '100%',  // Chiều cao của ảnh cũng sẽ chiếm 100% chiều cao của container
-        resizeMode: 'contain', // Đảm bảo ảnh không bị méo và giữ tỷ lệ
+        width: '100%',
+        height: '100%',
+        resizeMode: 'contain',
     },
     input: {
         width: '90%',
