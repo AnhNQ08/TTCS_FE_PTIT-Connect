@@ -2,6 +2,7 @@ import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity } from 'reac
 import { login, signUp } from '../service/authentication';
 import { useNavigation } from '@react-navigation/native';
 import { useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Login() {
 
@@ -10,23 +11,25 @@ export default function Login() {
 
     const navigation = useNavigation<any>()
 
-    const padLogin = () => {
-        navigation.navigate("Home")
-    }
-
-    const padSignUp = async () => {
+    const padLogin = async () => {
         try {
-            const respone = await login(userName, password);
-            if (respone.message === "User not found!") {
+            const response = await login(userName, password);
+            if (response.message === "User not found!") {
                 alert("Tài khoản không tồn tại. Vui lòng kiểm tra lại!")
-            } else if (respone.message === "Wrong password!") {
+            } else if (response.message === "Wrong password!") {
                 alert("Sai mật khẩu. Vui lòng kiểm tra lại!")
-            } else if (respone.masage === "User login successfully!") {
+            } else if (response.masage === "User login successfully!") {
+                await AsyncStorage.setItem("accessToken", response.accessToken);
+                await AsyncStorage.setItem("refreshToken", response.refreshToken);
                 navigation.navigate("Home")
             }
         } catch (err) {
             console.log("Lỗi đăng nhập: ", err);
         }
+    }
+
+    const padSignUp = async () => {
+        navigation.navigate("SignUp");
     }
 
     return (
