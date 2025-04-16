@@ -9,6 +9,7 @@ import Friend from './view/Friend';
 import Messenger from './view/Messenger';
 import Notification from './view/Notification';
 import SignUp from './view/SIgnUp';
+import MyProFile from './view/MyProfile';
 
 const Stack = createNativeStackNavigator();
 
@@ -44,6 +45,11 @@ export default function App() {
         <Stack.Screen
           name="SignUp"
           component={SignUp}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="MyProfile"
+          component={MyProFile}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>

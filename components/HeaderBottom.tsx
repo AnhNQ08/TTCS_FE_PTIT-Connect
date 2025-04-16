@@ -1,13 +1,23 @@
 import React from "react";
-import { View, Image, StyleSheet, TextInput } from "react-native";
+import { View, Image, StyleSheet, TextInput, TouchableOpacity } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 
 export default function headerBottom() {
+
+    const navigation = useNavigation<any>();
+
+    const padMyProfile = () => {
+        navigation.navigate("MyProfile");
+    }
+
     return (
         <View style={styles.headerBottom}>
-            <Image
-                source={require('../assets/picture/avatar/avatardefault.jpg')}
-                style={styles.imgAvatar}
-            />
+            <TouchableOpacity onPress={padMyProfile}>
+                <Image
+                    source={require('../assets/picture/avatar/avatardefault.jpg')}
+                    style={styles.imgAvatar}
+                />
+            </TouchableOpacity>
             <TextInput style={styles.input}
                 placeholder='Bạn đang nghĩ gì?'
             />
