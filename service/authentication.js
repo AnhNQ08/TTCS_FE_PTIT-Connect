@@ -1,10 +1,10 @@
-import * as request from './request.js'
+import * as request from './request';
 
 export const login = async (email, password) => {
     return await request.post('authenticate/login', { email, password });
 }
 
-export const singUp = async (email, password, userName) => {
+export const signUp = async (email, password, userName) => {
     return await request.post('authenticate/register', { email, password, userName });
 }
 

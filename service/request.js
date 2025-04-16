@@ -1,7 +1,9 @@
 import axios from 'axios';
 
+import * as authService from './authentication.js'
+
 const request = axios.create({
-    baseURL: 'http://localhost:8080/',
+    baseURL: 'http://10.0.2.2:8080/',
     timeout: 5000
 })
 
@@ -57,6 +59,8 @@ export const post = async (api, options = {}, config = {}) => {
     const response = await request.post(api, options, config);
     return response.data;
 }
+
+
 
 export const erase = async (api, config = {}) => {
     const response = await request.delete(api, config);
