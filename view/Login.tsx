@@ -1,4 +1,5 @@
 import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity } from 'react-native';
+import { login, signUp } from '../service/authentication';
 import { useNavigation } from '@react-navigation/native';
 
 export default function Login() {

@@ -2,7 +2,7 @@ import { useState } from "react";
 import React from "react";
 import { View, TextInput, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
 
-import { singUp } from "../service/authentication"; // sửa tên hàm cho đúng với file service
+import { signUp } from "../service/authentication"; // sửa tên hàm cho đúng với file service
 
 export default function SignUp() {
 
@@ -12,8 +12,7 @@ export default function SignUp() {
 
     const handleSignUp = async () => {
         try {
-            const response = await singUp(username, password, name);
-            console.log("Đăng ký thành công:", response);
+            await signUp(username, password, name);
         } catch (error) {
             console.error("Lỗi đăng ký:", error);
         }
