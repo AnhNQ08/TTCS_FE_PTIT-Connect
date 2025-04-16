@@ -1,8 +1,12 @@
 import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity } from 'react-native';
 import { login, signUp } from '../service/authentication';
 import { useNavigation } from '@react-navigation/native';
+import { useState } from 'react';
 
 export default function Login() {
+
+    const [userName, setUsername] = useState("");
+    const [password, setPassword] = useState("");
 
     const navigation = useNavigation<any>()
 
@@ -10,8 +14,19 @@ export default function Login() {
         navigation.navigate("Home")
     }
 
-    const padSignUp = () => {
-        navigation.navigate("SignUp")
+    const padSignUp = async () => {
+        try {
+            const respone = await login(userName, password);
+            if (respone.message === "User not found!") {
+                alert("Tài khoản không tồn tại. Vui lòng kiểm tra lại!")
+            } else if (respone.message === "Wrong password!") {
+                alert("Sai mật khẩu. Vui lòng kiểm tra lại!")
+            } else if (respone.masage === "User login successfully!") {
+                navigation.navigate("Home")
+            }
+        } catch (err) {
+            console.log("Lỗi đăng nhập: ", err);
+        }
     }
 
     return (
@@ -27,11 +42,13 @@ export default function Login() {
             <TextInput
                 style={style.input}
                 placeholder="Số di động hoặc email"
+                onChangeText={setUsername}
             />
             {/* Input Password */}
             <TextInput
                 style={style.input}
                 placeholder="Mật khẩu"
+                onChangeText={setPassword}
             />
             {/* Button */}
             <TouchableOpacity

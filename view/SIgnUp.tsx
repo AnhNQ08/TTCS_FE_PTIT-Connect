@@ -2,17 +2,18 @@ import { useState } from "react";
 import React from "react";
 import { View, TextInput, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
 
-import { signUp } from "../service/authentication"; // sửa tên hàm cho đúng với file service
+import { signUp } from "../service/authentication";
 
 export default function SignUp() {
 
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
-    const [name, setName] = useState(""); // Thêm state cho tên người dùng
+    const [name, setName] = useState("");
 
     const handleSignUp = async () => {
         try {
-            await signUp(username, password, name);
+            const response = await signUp(username, password, name);
+            console.log("Đăng ký thành công:", response);
         } catch (error) {
             console.error("Lỗi đăng ký:", error);
         }
