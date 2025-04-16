@@ -6,12 +6,15 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Home from './view/Home';
 import Login from './view/Login';
 import Friend from './view/Friend';
+import Messenger from './view/Messenger';
+import Notification from './view/Notification';
+import SignUp from './view/SIgnUp';
 
 const Stack = createNativeStackNavigator();
 
 export default function App() {
   return (
-    <NavigationContainer>
+    <NavigationContainer >
       <Stack.Navigator initialRouteName='Login'>
         <Stack.Screen
           name="Login"
@@ -26,6 +29,21 @@ export default function App() {
         <Stack.Screen
           name="Friend"
           component={Friend}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Messenger"
+          component={Messenger}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Notification"
+          component={Notification}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="SignUp"
+          component={SignUp}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>

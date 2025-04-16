@@ -1,12 +1,16 @@
 import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity } from 'react-native';
-import { StatusBar } from 'expo-status-bar';
+import { useNavigation } from '@react-navigation/native';
 
-export default function Login(props: any) {
+export default function Login() {
 
-    const { navigation } = props;
+    const navigation = useNavigation<any>()
 
     const padLogin = () => {
         navigation.navigate("Home")
+    }
+
+    const padSignUp = () => {
+        navigation.navigate("SignUp")
     }
 
     return (
@@ -40,7 +44,7 @@ export default function Login(props: any) {
                 <Text style={style.forgotPassword}>Bạn quên mật khẩu?</Text>
             </TouchableOpacity>
             {/* Register */}
-            <TouchableOpacity style={style.register}>
+            <TouchableOpacity style={style.register} onPress={padSignUp}>
                 <Text style={style.textRegister}>Tạo tài khoản mới</Text>
             </TouchableOpacity>
         </View>

@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, FlatList } from 'react-native';
 import Header from '../components/Header';
 import Post from '../components/Post';
+import HeaderBottom from '../components/HeaderBottom';
 
 export default function Home() {
     const listPost = [
@@ -29,8 +30,9 @@ export default function Home() {
     ];
     return (
         <View>
-            <View style={styles.header}>
+            <View>
                 <Header />
+                <HeaderBottom />
             </View>
             <Post />
         </View>
@@ -41,8 +43,4 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
     },
-    header: {
-        width: "100%",
-        marginTop: 50,
-    }
 });

@@ -37,15 +37,15 @@ export default function Post(props: any) {
             <View style={style.postButton}>
                 <View style={style.like}>
                     <AntDesign name="like2" size={24} color="black" />
-                    <Text>Thích</Text>
+                    <Text style={style.textButton}>Thích</Text>
                 </View>
                 <View style={style.comment}>
                     <FontAwesome5 name="comment" size={24} color="black" />
-                    <Text>Bình luận</Text>
+                    <Text style={style.textButton}>Bình luận</Text>
                 </View>
                 <View style={style.share}>
                     <FontAwesome name="share" size={24} color="black" />
-                    <Text>Chia sẻ</Text>
+                    <Text style={style.textButton}>Chia sẻ</Text>
                 </View>
             </View>
         </View>
@@ -126,5 +126,8 @@ const style = StyleSheet.create({
         flexDirection: "row",
         alignContent: 'center',
         justifyContent: 'center'
+    },
+    textButton: {
+        fontSize: 17
     }
 })

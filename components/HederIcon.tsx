@@ -6,7 +6,9 @@ export default function HeaderIcon(props: any) {
     const countNotification = props.countNotification;
 
     return (
-        <View style={styles.container}>
+        <View
+            style={styles.container}
+        >
             {iconTag}
             {countNotification > 0 && (
                 <Badge style={styles.badge}>{countNotification}</Badge>

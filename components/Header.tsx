@@ -1,72 +1,77 @@
 import React from 'react';
-import { Image, View, StyleSheet, Text, TextInput } from 'react-native';
-import { FontAwesome5, AntDesign, Ionicons, Entypo } from '@expo/vector-icons'; // Import icon libraries
+import { Image, View, StyleSheet, Text, TextInput, TouchableOpacity } from 'react-native';
+import { FontAwesome5, Ionicons, Entypo } from '@expo/vector-icons'; // Import icon libraries
 import HeaderIcon from '../components/HederIcon'; // Import HeaderIcon
+import { useNavigation } from '@react-navigation/native';
 
 export default function Header() {
+
+    const navigation = useNavigation<any>();
+
     const listIconHeader = [
         {
             id: 0,
             iconName: `homePage`,
             iconTag: <Entypo name="home" size={24} color="black" />,
-            countNotification: 4
+            countNotification: 4,
+            screenName: `Home`
         },
         {
             id: 1,
             iconName: `friend`,
             iconTag: <FontAwesome5 name="user-friends" size={24} color="black" />,
-            countNotification: 0
+            countNotification: 0,
+            screenName: `Friend`
         },
         {
             id: 2,
             iconName: `messenger`,
             iconTag: <Entypo name="message" size={24} color="black" />,
-            countNotification: 4
+            countNotification: 4,
+            screenName: `Messenger`
         },
         {
             id: 3,
             iconName: `notification`,
             iconTag: <Ionicons name="notifications" size={24} color="black" />,
-            countNotification: 3
+            countNotification: 3,
+            screenName: `Notification`
         }
     ];
 
+    const handlePad = (screenName: String) => {
+        navigation.navigate(screenName)
+    }
     return (
-        <View style={styles.header}>
-            <View>
+        <View>
+            <View style={styles.container}>
                 <Text style={styles.facebook}>facebook</Text>
             </View>
             <View style={styles.headerIcon} >
                 {
                     listIconHeader.map((item) => {
                         return (
-                            <HeaderIcon
-                                key={item.id}
-                                iconTag={item.iconTag}
-                                countNotification={item.countNotification}
-                                style={{
-                                    with: '25%'
-                                }}
-                            />
+                            <TouchableOpacity key={item.id} onPress={() => handlePad(item.screenName)}>
+                                <HeaderIcon
+                                    iconTag={item.iconTag}
+                                    countNotification={item.countNotification}
+                                    style={{
+                                        with: '25%'
+                                    }}
+                                />
+                            </TouchableOpacity>
                         );
                     })
                 }
-            </View>
-            <View style={styles.headerBottom}>
-                <Image
-                    source={require('../assets/picture/avatar/avatardefault.jpg')}
-                    style={styles.imgAvatar}
-                />
-                <TextInput style={styles.input}
-                    placeholder='Bạn đang nghĩ gì?'
-                />
             </View>
         </View >
     );
 }
 
 const styles = StyleSheet.create({
-    header: {
+    container: {
+        width: "100%",
+        marginTop: 50
     },
     facebook: {
         marginLeft: 15,
