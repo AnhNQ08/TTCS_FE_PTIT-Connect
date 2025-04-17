@@ -1,23 +1,16 @@
 import React from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import Home from "./pages/Home";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import HomePage from "./pages/HomePage";
+import Profile from "./pages/Profile";
 
 function App() {
-  const isLoggedIn = false;
   return (
-    <BrowserRouter>
+    <Router>
       <Routes>
-        <Route
-          path="/"
-          element={isLoggedIn ? <Home /> : <Navigate to="/login" />}
-        />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/home" element={<Home />} />
+        <Route path="/" element={<HomePage />} />
+        <Route path="/profile" element={<Profile />} />
       </Routes>
-    </BrowserRouter>
+    </Router>
   );
 }
 
