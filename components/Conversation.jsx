@@ -15,7 +15,7 @@ export default function Conversation() {
                     numberOfLines={1}
                     ellipsizeMode="tail"
                 >
-                    Hứa Duy Anh: Thằng nào có tiền thì nạp vào donate cho tao, it thi 5 cu nhieu thi 5 ty
+                    Hứa Duy Anh: Thằng nào có tiền thì nạp vào donate cho tao
                 </Text>
             </View>
         </View>

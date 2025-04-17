@@ -1,8 +1,11 @@
 import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity } from 'react-native';
 import { login, signUp } from '../service/authentication';
-import { useNavigation } from '@react-navigation/native';
-import { useState } from 'react';
+import { CurrentRenderContext, useNavigation } from '@react-navigation/native';
+import { useContext, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getCurrentUser } from '../service/userAPI';
+
+
 
 export default function Login() {
 
@@ -21,6 +24,9 @@ export default function Login() {
             } else if (response.masage === "User login successfully!") {
                 await AsyncStorage.setItem("accessToken", response.accessToken);
                 await AsyncStorage.setItem("refreshToken", response.refreshToken);
+                const dataCurrentUser = await getCurrentUser();
+                const dataCurrentUserJSON = JSON.stringify(dataCurrentUser);
+                await AsyncStorage.setItem("dataCurrentUser", dataCurrentUserJSON)
                 navigation.navigate("Home")
             }
         } catch (err) {

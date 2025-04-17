@@ -2,7 +2,14 @@ import React from "react";
 import { View, Image, StyleSheet, TextInput, TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 
-export default function headerBottom() {
+export default function headerBottom(props: any) {
+
+    function getImageMime(base64String: string): string {
+        if (base64String.startsWith('/9j')) return 'image/jpeg';      // JPEG
+        if (base64String.startsWith('iVBOR')) return 'image/png';     // PNG
+        if (base64String.startsWith('R0lGOD')) return 'image/gif';    // GIF
+        return 'image/jpeg'; // fallback nếu không khớp
+    }
 
     const navigation = useNavigation<any>();
 
@@ -14,7 +21,7 @@ export default function headerBottom() {
         <View style={styles.headerBottom}>
             <TouchableOpacity onPress={padMyProfile}>
                 <Image
-                    source={require('../assets/picture/avatar/avatardefault.jpg')}
+                    source={{ uri: `data:${getImageMime(props.srcAvartar.avartar)};base64,${props.srcAvartar.avartar}` }}
                     style={styles.imgAvatar}
                 />
             </TouchableOpacity>

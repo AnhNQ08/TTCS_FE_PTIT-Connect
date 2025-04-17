@@ -96,13 +96,6 @@ const styles = StyleSheet.create({
         marginTop: 20,
         borderRadius: 50
     },
-    headerBottom: {
-        width: "100%",
-        height: 80,
-        display: 'flex',
-        flexDirection: 'row',
-        alignContent: 'center'
-    },
     input: {
         borderWidth: 1,
         width: 310,

@@ -1,5 +1,3 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -10,6 +8,8 @@ import Messenger from './view/Messenger';
 import Notification from './view/Notification';
 import SignUp from './view/SIgnUp';
 import MyProFile from './view/MyProfile';
+
+
 
 const Stack = createNativeStackNavigator();
 

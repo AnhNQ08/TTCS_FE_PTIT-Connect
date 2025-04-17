@@ -4,18 +4,15 @@ import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
 export default function FriendRequest() {
     return (
         <View style={styles.container}>
-            {/* Avatar */}
             <Image
                 source={require('../assets/picture/avatar/avatardefault.jpg')}
                 style={styles.avatar}
             />
-            {/* Thông tin bạn bè */}
             <View style={styles.textContainer}>
                 <Text style={styles.name}>Phan Van Bien</Text>
                 <Text style={styles.time}>1 tuần trước</Text>
             </View>
 
-            {/* Nút hành động */}
             <View style={styles.buttonContainer}>
                 <TouchableOpacity style={styles.acceptButton}>
                     <Text style={styles.buttonText}>Xác nhận</Text>

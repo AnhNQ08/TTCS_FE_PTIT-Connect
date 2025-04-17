@@ -56,7 +56,7 @@ const style = StyleSheet.create({
     container: {
         width: "100%",
         height: "auto",
-        borderTopWidth: 2
+        borderBottomWidth: 3
     },
     postHeader: {
         display: 'flex',
