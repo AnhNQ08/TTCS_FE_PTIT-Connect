@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, {useEffect, useState} from "react";
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
 import AvatarAndBackground from "../components/AvatarAndBackground";
 import MyPosts from "../components/MyPosts";
@@ -10,34 +10,35 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 export default function MyProFile() {
     const [section, setSection] = useState("post");
     const [showUpdate, setShowUpdate] = useState<"avatar" | "background" | null>(null);
+    const [user, setUser] = useState<UserProfile | null>(null);
 
-    // type UserProfile = {
-    //     id: number;
-    //     username: string;
-    //     bio: string;
-    //     avatar: Uint8Array;
-    //     backgroundImage: Uint8Array;
-    // };
+    type UserProfile = {
+        id: number;
+        username: string;
+        bio: string;
+        avatar: Uint8Array;
+        backgroundImage: Uint8Array;
+    };
 
-    // useEffect(() => {
-    //     const fetchUserProfile = async () => {
-    //         try {
-    //             const userJSON = await AsyncStorage.getItem("currentUser");
-    //             if (userJSON !== null) {
-    //                 const currentUser = JSON.parse(userJSON);
-    //                 const userId = currentUser?.id;
-    //                 if (userId) {
-    //                     const profile = await getUserProfile(userId);
-    //                     setUser(profile);
-    //                 }
-    //             }
-    //         } catch (e) {
-    //             console.error("Lỗi khi fetch user profile:", e);
-    //         }
-    //     };
-
-    //     fetchUserProfile();
-    // }, []);
+    useEffect(() => {
+        const fetchUserProfile = async () => {
+            try {
+                const userJSON = await AsyncStorage.getItem("dataCurrentUser");
+                if (userJSON !== null) {
+                    const currentUser = JSON.parse(userJSON);
+                    const userId = currentUser.id;
+                    console.log(userId);
+                    if (userId) {
+                        const profile = await getUserProfile(userId);
+                        setUser(profile);
+                    }
+                }
+            } catch (e) {
+                console.error("Lỗi khi fetch user profile:", e);
+            }
+        };
+        fetchUserProfile();
+    }, []);
 
 
     const renderSection = () => {
@@ -55,14 +56,6 @@ export default function MyProFile() {
 
     const handleTabSelect = (tab: string) => {
         setSection(tab);
-    };
-
-    const user = {
-        id: "test",
-        username: "test",
-        bio: "test",
-        avatar: "test",
-        backgroundImage: "test",
     };
 
     const handleAvatarPress = () => {

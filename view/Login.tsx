@@ -22,7 +22,6 @@ export default function Login() {
             } else if (response.message === "Wrong password!") {
                 alert("Sai mật khẩu. Vui lòng kiểm tra lại!");
             } else if (response.message === "User login successfully!") {
-                alert("DSFDSFDSF");
                 await AsyncStorage.setItem("accessToken", response.accessToken);
                 await AsyncStorage.setItem("refreshToken", response.refreshToken);
                 const dataCurrentUser = await getCurrentUser();

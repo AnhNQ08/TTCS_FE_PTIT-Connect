@@ -3,35 +3,35 @@ import { View, Image, StyleSheet, TouchableOpacity } from "react-native";
 import getImageMime from "../service/getImageFromUnit8";
 
 type AvatarAndBackgroundProps = {
-    userAvatar: string;
-    userBackground: string;
+    userAvatar: Uint8Array;
+    userBackground: Uint8Array;
     onAvatarPress: () => void;
     onBackgroundPress: () => void;
 };
-const AvatarAndBackground: React.FC<AvatarAndBackgroundProps> = ({
-    userAvatar,
+const AvatarAndBackground = (
+    {userAvatar,
     userBackground,
     onAvatarPress,
-    onBackgroundPress,
-}) => {
-
+    onBackgroundPress} : AvatarAndBackgroundProps) => {
     return (
         <View>
             <TouchableOpacity>
                 <Image
-                    source={{ uri: `data:${getImageMime(backgroundImage)};base64,${backgroundImage}` }}
+                    source={{ uri: `data:${getImageMime(userBackground)};base64,${userBackground}` }}
                     style={styles.background}
                 />
             </TouchableOpacity>
             <TouchableOpacity>
                 <Image
-                    source={{ uri: `data:${getImageMime(avatar)};base64,${avatar}` }}
+                    source={{ uri: `data:${getImageMime(userAvatar)};base64,${userAvatar}` }}
                     style={styles.avatar}
                 />
             </TouchableOpacity>
         </View>
     )
 }
+
+export default AvatarAndBackground;
 
 const styles = StyleSheet.create({
     background: {
