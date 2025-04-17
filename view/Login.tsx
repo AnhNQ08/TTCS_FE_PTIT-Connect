@@ -18,10 +18,11 @@ export default function Login() {
         try {
             const response = await login(userName, password);
             if (response.message === "User not found!") {
-                alert("Tài khoản không tồn tại. Vui lòng kiểm tra lại!")
+                alert("Tài khoản không tồn tại. Vui lòng kiểm tra lại!");
             } else if (response.message === "Wrong password!") {
-                alert("Sai mật khẩu. Vui lòng kiểm tra lại!")
-            } else if (response.masage === "User login successfully!") {
+                alert("Sai mật khẩu. Vui lòng kiểm tra lại!");
+            } else if (response.message === "User login successfully!") {
+                alert("DSFDSFDSF");
                 await AsyncStorage.setItem("accessToken", response.accessToken);
                 await AsyncStorage.setItem("refreshToken", response.refreshToken);
                 const dataCurrentUser = await getCurrentUser();

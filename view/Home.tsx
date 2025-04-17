@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import { View, Text, StyleSheet, FlatList } from 'react-native';
 import Header from '../components/Header';
 import Post from '../components/Post';
@@ -7,24 +7,32 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Home() {
 
-    let dataCurrentUserJSON;
-
-    const getDataCurrentUser = async () => {
-        return dataCurrentUserJSON = await AsyncStorage.getItem("dataCurrentUser")
+    type User = {
+        id: number;
+        name: string;
+        avatar: Uint8Array;
     }
 
-    let dataCurrentUser;
-    if (dataCurrentUserJSON !== null) {
-        dataCurrentUser = JSON.parse(getDataCurrentUser());
-    }
+    const [currentUser, setCurrentUser] = useState<User | null>(null);
 
-    const srcAvatar = dataCurrentUser.avatar
+    useEffect(() => {
+        const fetchCurrentUser = async () => {
+            try{
+                const tmp = await AsyncStorage.getItem('dataCurrentUser');
+                console.log(tmp);
+                if (tmp != null) setCurrentUser(JSON.parse(tmp));
+            }catch (e){
+                console.error(e);
+            }
+        }
+        fetchCurrentUser();
+    },[])
 
     return (
         <View>
             <View>
                 <Header />
-                <HeaderBottom srcAvartar={srcAvatar} />
+                {currentUser && <HeaderBottom userAvatar={currentUser.avatar}/>}
             </View>
             <Post />
         </View>

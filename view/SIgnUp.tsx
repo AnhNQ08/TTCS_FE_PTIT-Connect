@@ -3,6 +3,8 @@ import React from "react";
 import { View, TextInput, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
 import { signUp } from "../service/authentication";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import {getCurrentUser} from "../service/userAPI";
+import {useNavigation} from "@react-navigation/native";
 
 export default function SignUp() {
 
@@ -10,11 +12,17 @@ export default function SignUp() {
     const [password, setPassword] = useState("");
     const [name, setName] = useState("");
 
+    const navigation = useNavigation<any>()
+
     const handleSignUp = async () => {
         try {
             const response = await signUp(username, password, name);
             await AsyncStorage.setItem("accessToken", response.accessToken);
             await AsyncStorage.setItem("refreshToken", response.refreshToken);
+            const dataCurrentUser = await getCurrentUser();
+            const dataCurrentUserJSON = JSON.stringify(dataCurrentUser);
+            await AsyncStorage.setItem("dataCurrentUser", dataCurrentUserJSON)
+            navigation.navigate("Home")
         } catch (error) {
             console.error("Lỗi đăng ký:", error);
         }

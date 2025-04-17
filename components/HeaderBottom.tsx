@@ -1,8 +1,9 @@
 import React from "react";
-import { View, Image, StyleSheet, TextInput, TouchableOpacity } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import {View, Image, StyleSheet, TextInput, TouchableOpacity} from "react-native";
+import {useNavigation} from "@react-navigation/native";
 
 export default function headerBottom(props: any) {
+    const navigation = useNavigation<any>();
 
     function getImageMime(base64String: string): string {
         if (base64String.startsWith('/9j')) return 'image/jpeg';      // JPEG
@@ -10,8 +11,6 @@ export default function headerBottom(props: any) {
         if (base64String.startsWith('R0lGOD')) return 'image/gif';    // GIF
         return 'image/jpeg'; // fallback nếu không khớp
     }
-
-    const navigation = useNavigation<any>();
 
     const padMyProfile = () => {
         navigation.navigate("MyProfile");
@@ -21,12 +20,12 @@ export default function headerBottom(props: any) {
         <View style={styles.headerBottom}>
             <TouchableOpacity onPress={padMyProfile}>
                 <Image
-                    source={{ uri: `data:${getImageMime(props.srcAvartar.avartar)};base64,${props.srcAvartar.avartar}` }}
+                    source={{uri: `data:${getImageMime(props.userAvatar)};base64,${props.userAvatar}`}}
                     style={styles.imgAvatar}
                 />
             </TouchableOpacity>
             <TextInput style={styles.input}
-                placeholder='Bạn đang nghĩ gì?'
+                       placeholder='Bạn đang nghĩ gì?'
             />
         </View>
     )
