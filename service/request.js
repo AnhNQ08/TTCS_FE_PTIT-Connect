@@ -60,7 +60,10 @@ export const post = async (api, options = {}, config = {}) => {
     return response.data;
 }
 
-
+export const put = async (api, options = {}, config = {}) => {
+    const response = await request.put(api, options, config);
+    return response.data;
+}
 
 export const erase = async (api, config = {}) => {
     const response = await request.delete(api, config);
