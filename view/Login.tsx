@@ -10,11 +10,7 @@ export default function Login() {
 
     const navigation = useNavigation<any>()
 
-    const padLogin = () => {
-        navigation.navigate("Home")
-    }
-
-    const padSignUp = async () => {
+    const padLogin = async () => {
         try {
             const respone = await login(userName, password);
             if (respone.message === "User not found!") {
@@ -27,6 +23,10 @@ export default function Login() {
         } catch (err) {
             console.log("Lỗi đăng nhập: ", err);
         }
+    }
+
+    const padSignUp = () => {
+        navigation.navigate("SingUp")
     }
 
     return (
