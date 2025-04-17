@@ -1,7 +1,15 @@
 import React from "react";
 import { View, Text, Image, StyleSheet, Dimensions } from "react-native";
 
-export default function AvatarAndBackground() {
+export default function AvatarAndBackground(props: any) {
+
+    function getImageMime(base64String: string): string {
+        if (base64String.startsWith('/9j')) return 'image/jpeg';      // JPEG
+        if (base64String.startsWith('iVBOR')) return 'image/png';     // PNG
+        if (base64String.startsWith('R0lGOD')) return 'image/gif';    // GIF
+        return 'image/jpeg'; // fallback nếu không khớp
+    }
+
     return (
         <View>
             <Image
@@ -9,7 +17,7 @@ export default function AvatarAndBackground() {
                 style={styles.background}
             />
             <Image
-                source={require(`../assets/picture/avatar/avatardefault.jpg`)}
+                source={{ uri: `data:${getImageMime(props.userAvatar)};base64,${props.userAvatar}` }}
                 style={styles.avatar}
             />
         </View>

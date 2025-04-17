@@ -73,7 +73,7 @@ export default function Login() {
                 <Text style={style.forgotPassword}>Bạn quên mật khẩu?</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => {
-                navigation.navigate("Home")
+                navigation.navigate("MyProfile")
             }}>
                 <Text>Go to home</Text>
             </TouchableOpacity>

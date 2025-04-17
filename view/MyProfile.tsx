@@ -1,13 +1,35 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
 
 import AvatarAndBackground from "../components/AvatarAndBackground";
 import MyPosts from "../components/MyPosts";
 import MyImages from "../components/MyImages";
 import MyVideos from "../components/MyVideos";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function MyProFile() {
     const [section, setSection] = useState("post");
+
+    type User = {
+        id: number;
+        username: string;
+        avatar: Uint8Array;
+    }
+
+    const [currentUser, setCurrentUser] = useState<User | null>(null);
+
+    useEffect(() => {
+        const fetchCurrentUser = async () => {
+            try {
+                const tmp = await AsyncStorage.getItem('dataCurrentUser');
+                console.log(tmp);
+                if (tmp != null) setCurrentUser(JSON.parse(tmp));
+            } catch (e) {
+                console.error(e);
+            }
+        }
+        fetchCurrentUser();
+    }, [])
 
     const renderSection = () => {
         switch (section) {
@@ -28,9 +50,9 @@ export default function MyProFile() {
 
     return (
         <ScrollView style={styles.container}>
-            <AvatarAndBackground />
+            {currentUser && <AvatarAndBackground userAvatar={currentUser.avatar} />}
             <View style={styles.content}>
-                <Text style={styles.userName}>Phan Bien</Text>
+                <Text style={styles.userName}>{currentUser?.username}</Text>
                 <TouchableOpacity style={styles.buttonAddPost}>
                     <Text style={styles.textButtonAddPost}>+ Thêm bài viết</Text>
                 </TouchableOpacity>
