@@ -31,7 +31,7 @@ const HomePage = () => {
               </li>
               <li>
                 <Link to="/messages">
-                  <i className="fa fa-comments"></i>
+                  <i className="fa fa-envelope"></i>
                 </Link>
               </li>
               <li>

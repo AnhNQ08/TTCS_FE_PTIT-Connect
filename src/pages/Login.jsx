@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { login } from "../api/authentication";
-import { useNavigate } from "react-router-dom"; // Để redirect tới các trang khác
+import { useNavigate } from "react-router-dom";
 import "../styles/login.css";
 
 const Login = () => {
@@ -21,9 +21,11 @@ const Login = () => {
       setError(err);
     }
   };
+
   const handleForgotPassword = () => {
     navigate("/forgot-password");
   };
+
   const handleRegister = () => {
     navigate("/register");
   };

@@ -21,7 +21,6 @@ const Register = () => {
       setError("Mật khẩu không khớp!");
       return;
     }
-    // Thực hiện đăng ký (giả lập)
     alert(`Chào mừng ${form.fullname}! Bạn đã đăng ký thành công.`);
     setError("");
   };

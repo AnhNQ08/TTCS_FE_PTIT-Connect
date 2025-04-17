@@ -1,4 +1,3 @@
-/* Toàn bộ trang */
 .login-page {
   display: flex;
   justify-content: center;
@@ -8,7 +7,6 @@
   font-family: Arial, sans-serif;
 }
 
-/* Phần logo và mô tả bên trái */
 .login-left {
   flex: 1;
   padding: 40px;
@@ -27,7 +25,6 @@
   line-height: 1.4;
 }
 
-/* Phần form đăng nhập bên phải */
 .login-right {
   flex: 1;
   display: flex;
@@ -35,7 +32,6 @@
   padding: 20px;
 }
 
-/* Phần form đăng nhập */
 .login-box {
   background: #fff;
   padding: 30px;
@@ -45,7 +41,6 @@
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-/* Các input trong form */
 .login-box input {
   width: 100%;
   padding: 12px;
@@ -55,7 +50,6 @@
   font-size: 16px;
 }
 
-/* Nút đăng nhập */
 .login-btn {
   width: 100%;
   padding: 12px;
@@ -73,13 +67,11 @@
   background-color: #166fe5;
 }
 
-/* Lỗi đăng nhập */
 .error {
   color: red;
   margin-bottom: 10px;
 }
 
-/* Liên kết quên mật khẩu */
 .forgot {
   display: block;
   text-align: center;
@@ -92,12 +84,10 @@
   text-decoration: underline;
 }
 
-/* Dòng phân cách */
 hr {
   margin: 12px 0;
 }
 
-/* Nút đăng ký */
 .register-btn {
   width: 100%;
   padding: 12px;

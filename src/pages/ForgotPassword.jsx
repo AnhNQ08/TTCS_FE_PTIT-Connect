@@ -7,7 +7,6 @@ const ForgotPassword = () => {
 
   const handleReset = (e) => {
     e.preventDefault();
-    // Gửi yêu cầu reset mật khẩu (giả lập)
     if (!email.includes("@")) {
       setMessage("Email không hợp lệ!");
     } else {
