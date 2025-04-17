@@ -10,7 +10,7 @@
 }
 
 * {
-  margin: 0 auto;
+  margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
@@ -22,47 +22,47 @@ body {
   line-height: 1.6;
 }
 
+/* Homepage Container */
 .homepage-container {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
 }
 
-.header {
+/* Header */
+.homepage-container .header {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   background-color: var(--primary-blue);
   padding: 10px 20px;
   box-shadow: 0 2px 8px var(--card-shadow);
   position: sticky;
   top: 0;
   z-index: 100;
-  min-width: 1650px;
 }
 
-.header .logo a {
-  text-decoration: none;
+.homepage-container .header-left a {
   color: #fff;
-  flex: 0;
+  font-size: 20px;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.homepage-container .header-center {
   display: flex;
+  align-items: center;
+  flex: 1;
   justify-content: center;
 }
 
-.header .logo h1 {
-  font-size: 20px;
-  font-weight: bold;
-  margin: 0px;
-  color: #fff;
+.homepage-container .header-center .search-bar {
+  position: relative;
+  max-width: 400px;
+  width: 100%;
 }
 
-.logo-search_bar {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.search-bar input {
+.homepage-container .header-center .search-bar input {
   width: 100%;
   padding: 10px 45px 10px 15px;
   border-radius: 30px;
@@ -72,11 +72,14 @@ body {
   transition: border-color 0.2s;
 }
 
-.search-bar input:focus {
+.homepage-container .header-center .search-bar input:focus {
   border-color: var(--primary-blue);
 }
 
-.search-bar i {
+.homepage-container .header-center .search-bar::after {
+  content: "\f002";
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
   position: absolute;
   right: 15px;
   top: 50%;
@@ -84,48 +87,47 @@ body {
   color: var(--text-muted);
 }
 
-.header-nav {
+.homepage-container .header-right .header-nav ul {
   display: flex;
-  justify-content: flex-end;
-}
-
-.header-nav ul {
-  display: flex;
-  gap: 50px;
+  gap: 20px;
   list-style: none;
-  align-items: center;
+  margin: 0;
+  padding: 0;
 }
 
-.header-nav ul li a {
+.homepage-container .header-right .header-nav ul li a {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 50px;
-  height: 50px;
-  font-size: 24px;
+  width: 40px;
+  height: 40px;
+  font-size: 20px;
   color: white;
   border-radius: 50%;
+  text-decoration: none;
   transition: background-color 0.2s, color 0.2s;
 }
 
-.header-nav ul li a:hover {
+.homepage-container .header-right .header-nav ul li a:hover {
   background-color: var(--bg-light);
   color: var(--primary-blue);
 }
 
-.main-content {
+/* Main Content */
+.homepage-container .main-content {
   flex: 1;
   display: flex;
   justify-content: center;
   padding: 20px;
 }
 
-.news-feed {
-  width: 100%;
+.homepage-container .main-content .news-feed {
   max-width: 600px;
+  width: 100%;
 }
 
-.post-box {
+/* Post Box */
+.homepage-container .main-content .post-box {
   background-color: var(--bg-white);
   border-radius: 12px;
   padding: 20px;
@@ -133,7 +135,7 @@ body {
   box-shadow: 0 2px 8px var(--card-shadow);
 }
 
-.post-box textarea {
+.homepage-container .main-content .post-box textarea {
   width: 100%;
   padding: 12px;
   border-radius: 8px;
@@ -143,11 +145,11 @@ body {
   transition: border-color 0.2s;
 }
 
-.post-box textarea:focus {
+.homepage-container .main-content .post-box textarea:focus {
   border-color: var(--primary-blue);
 }
 
-.post-box button {
+.homepage-container .main-content .post-box button {
   margin-top: 12px;
   padding: 10px 24px;
   background-color: var(--primary-blue);
@@ -159,20 +161,19 @@ body {
   transition: background-color 0.2s;
 }
 
-.post-box button:hover {
+.homepage-container .main-content .post-box button:hover {
   background-color: var(--primary-blue-dark);
 }
 
-/* ============ POST ============ */
-.post {
+/* Post */
+.homepage-container .main-content .post {
   background-color: var(--bg-white);
   border-radius: 12px;
   box-shadow: 0 2px 8px var(--card-shadow);
   margin-bottom: 20px;
-  overflow: hidden;
 }
 
-.post-header {
+.homepage-container .main-content .post .post-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -180,39 +181,40 @@ body {
   border-bottom: 1px solid var(--border-light);
 }
 
-.user-info {
+.homepage-container .main-content .post .user-info {
   display: flex;
   align-items: center;
+  gap: 10px;
 }
 
-.user-info .avatar {
+.homepage-container .main-content .post .user-info .avatar {
   width: 40px;
   height: 40px;
   border-radius: 50%;
   object-fit: cover;
 }
 
-.user-name {
+.homepage-container .main-content .post .user-name {
   font-size: 16px;
   font-weight: 600;
 }
 
-.post-time {
+.homepage-container .main-content .post .post-time {
   font-size: 13px;
   color: var(--text-muted);
 }
 
-.post-content {
+.homepage-container .main-content .post .post-content {
   padding: 15px 20px;
 }
 
-.post-content p {
+.homepage-container .main-content .post .post-content p {
   font-size: 15px;
   line-height: 1.6;
   margin-bottom: 12px;
 }
 
-.post-content textarea {
+.homepage-container .main-content .post .post-content textarea {
   width: 100%;
   padding: 10px;
   border-radius: 8px;
@@ -222,25 +224,18 @@ body {
   transition: border-color 0.2s;
 }
 
-.post-content textarea:focus {
+.homepage-container .main-content .post .post-content textarea:focus {
   border-color: var(--primary-blue);
 }
 
-.post-image {
-  width: 100%;
-  margin-top: 12px;
-  border-radius: 8px;
-  object-fit: cover;
-}
-
-.post-actions {
+.homepage-container .main-content .post .post-actions {
   display: flex;
   justify-content: space-around;
   padding: 12px 0;
   background-color: var(--bg-light);
 }
 
-.post-actions button {
+.homepage-container .main-content .post .post-actions button {
   background: none;
   border: none;
   color: var(--text-muted);
@@ -254,12 +249,13 @@ body {
   transition: background-color 0.2s, color 0.2s;
 }
 
-.post-actions button:hover {
+.homepage-container .main-content .post .post-actions button:hover {
   background-color: var(--bg-white);
   color: var(--primary-blue);
 }
 
-.footer {
+/* Footer */
+.homepage-container .footer {
   background-color: var(--bg-white);
   text-align: center;
   padding: 12px 0;

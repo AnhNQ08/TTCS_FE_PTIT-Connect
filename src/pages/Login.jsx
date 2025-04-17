@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { login } from "../api/authentication";
+import { useNavigate } from "react-router-dom"; // Để redirect tới các trang khác
 import "../styles/login.css";
 
 const Login = () => {
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -13,9 +15,17 @@ const Login = () => {
       const res = await login(username, password);
       alert("Đăng nhập thành công!\nToken: " + res.data.token);
       setError("");
+
+      navigate("/home");
     } catch (err) {
       setError(err);
     }
+  };
+  const handleForgotPassword = () => {
+    navigate("/forgot-password");
+  };
+  const handleRegister = () => {
+    navigate("/register");
   };
 
   return (
@@ -47,12 +57,16 @@ const Login = () => {
           <button type="submit" className="login-btn">
             Đăng nhập
           </button>
-          {error && <p className="error">{error}</p>}{" "}
-          <a href="#" className="forgot">
+          {error && <p className="error">{error}</p>}
+          <a href="#" className="forgot" onClick={handleForgotPassword}>
             Quên mật khẩu?
           </a>
           <hr />
-          <button type="button" className="register-btn">
+          <button
+            type="button"
+            className="register-btn"
+            onClick={handleRegister}
+          >
             Tạo tài khoản mới
           </button>
         </form>
