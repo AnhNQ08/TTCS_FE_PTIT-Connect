@@ -1,8 +1,8 @@
 import { useState } from "react";
 import React from "react";
 import { View, TextInput, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
-
 import { signUp } from "../service/authentication";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function SignUp() {
 
@@ -13,7 +13,8 @@ export default function SignUp() {
     const handleSignUp = async () => {
         try {
             const response = await signUp(username, password, name);
-            console.log("Đăng ký thành công:", response);
+            await AsyncStorage.setItem("accessToken", response.accessToken);
+            await AsyncStorage.setItem("refreshToken", response.refreshToken);
         } catch (error) {
             console.error("Lỗi đăng ký:", error);
         }
