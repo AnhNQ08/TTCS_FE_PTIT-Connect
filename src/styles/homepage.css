@@ -1,0 +1,257 @@
+:root {
+  --bg-light: #f0f2f5;
+  --bg-white: #ffffff;
+  --primary-blue: #4267b2;
+  --primary-blue-dark: #375095;
+  --text-default: #1c1e21;
+  --text-muted: #65676b;
+  --border-light: #dadde1;
+  --card-shadow: rgba(0, 0, 0, 0.1);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  background-color: var(--bg-light);
+  color: var(--text-default);
+  line-height: 1.6;
+}
+
+.homepage-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.homepage-container .header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--primary-blue);
+  padding: 10px 20px;
+  box-shadow: 0 2px 8px var(--card-shadow);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.homepage-container .header-left a {
+  color: #fff;
+  font-size: 20px;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.homepage-container .header-center {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  justify-content: center;
+}
+
+.homepage-container .header-center .search-bar {
+  position: relative;
+  max-width: 400px;
+  width: 100%;
+}
+
+.homepage-container .header-center .search-bar input {
+  width: 100%;
+  padding: 10px 45px 10px 15px;
+  border-radius: 30px;
+  border: 1px solid var(--border-light);
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.homepage-container .header-center .search-bar input:focus {
+  border-color: var(--primary-blue);
+}
+
+.homepage-container .header-center .search-bar::after {
+  content: "\f002";
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+}
+
+.homepage-container .header-right .header-nav ul {
+  display: flex;
+  gap: 20px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.homepage-container .header-right .header-nav ul li a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  font-size: 20px;
+  color: white;
+  border-radius: 50%;
+  text-decoration: none;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.homepage-container .header-right .header-nav ul li a:hover {
+  background-color: var(--bg-light);
+  color: var(--primary-blue);
+}
+
+.homepage-container .main-content {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+}
+
+.homepage-container .main-content .news-feed {
+  max-width: 600px;
+  width: 100%;
+}
+
+.homepage-container .main-content .post-box {
+  background-color: var(--bg-white);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px var(--card-shadow);
+}
+
+.homepage-container .main-content .post-box textarea {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border-light);
+  resize: none;
+  font-size: 15px;
+  transition: border-color 0.2s;
+}
+
+.homepage-container .main-content .post-box textarea:focus {
+  border-color: var(--primary-blue);
+}
+
+.homepage-container .main-content .post-box button {
+  margin-top: 12px;
+  padding: 10px 24px;
+  background-color: var(--primary-blue);
+  color: var(--bg-white);
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.2s;
+}
+
+.homepage-container .main-content .post-box button:hover {
+  background-color: var(--primary-blue-dark);
+}
+
+.homepage-container .main-content .post {
+  background-color: var(--bg-white);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px var(--card-shadow);
+  margin-bottom: 20px;
+}
+
+.homepage-container .main-content .post .post-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 20px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.homepage-container .main-content .post .user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.homepage-container .main-content .post .user-info .avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.homepage-container .main-content .post .user-name {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.homepage-container .main-content .post .post-time {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.homepage-container .main-content .post .post-content {
+  padding: 15px 20px;
+}
+
+.homepage-container .main-content .post .post-content p {
+  font-size: 15px;
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+
+.homepage-container .main-content .post .post-content textarea {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border-light);
+  resize: none;
+  font-size: 14px;
+  transition: border-color 0.2s;
+}
+
+.homepage-container .main-content .post .post-content textarea:focus {
+  border-color: var(--primary-blue);
+}
+
+.homepage-container .main-content .post .post-actions {
+  display: flex;
+  justify-content: space-around;
+  padding: 12px 0;
+  background-color: var(--bg-light);
+}
+
+.homepage-container .main-content .post .post-actions button {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 8px;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.homepage-container .main-content .post .post-actions button:hover {
+  background-color: var(--bg-white);
+  color: var(--primary-blue);
+}
+
+.homepage-container .footer {
+  background-color: var(--bg-white);
+  text-align: center;
+  padding: 12px 0;
+  box-shadow: 0 -2px 8px var(--card-shadow);
+}
