@@ -1,25 +1,34 @@
 import React from "react";
-import { View, Text, Image, StyleSheet, Dimensions } from "react-native";
+import { View, Image, StyleSheet, TouchableOpacity } from "react-native";
+import getImageMime from "../service/getImageFromUnit8";
 
-export default function AvatarAndBackground(props: any) {
-
-    function getImageMime(base64String: string): string {
-        if (base64String.startsWith('/9j')) return 'image/jpeg';      // JPEG
-        if (base64String.startsWith('iVBOR')) return 'image/png';     // PNG
-        if (base64String.startsWith('R0lGOD')) return 'image/gif';    // GIF
-        return 'image/jpeg'; // fallback nếu không khớp
-    }
+type AvatarAndBackgroundProps = {
+    userAvatar: string;
+    userBackground: string;
+    onAvatarPress: () => void;
+    onBackgroundPress: () => void;
+};
+const AvatarAndBackground: React.FC<AvatarAndBackgroundProps> = ({
+    userAvatar,
+    userBackground,
+    onAvatarPress,
+    onBackgroundPress,
+}) => {
 
     return (
         <View>
-            <Image
-                source={require(`../assets/picture/background/backgroundDefault.jpg`)}
-                style={styles.background}
-            />
-            <Image
-                source={{ uri: `data:${getImageMime(props.userAvatar)};base64,${props.userAvatar}` }}
-                style={styles.avatar}
-            />
+            <TouchableOpacity>
+                <Image
+                    source={{ uri: `data:${getImageMime(backgroundImage)};base64,${backgroundImage}` }}
+                    style={styles.background}
+                />
+            </TouchableOpacity>
+            <TouchableOpacity>
+                <Image
+                    source={{ uri: `data:${getImageMime(avatar)};base64,${avatar}` }}
+                    style={styles.avatar}
+                />
+            </TouchableOpacity>
         </View>
     )
 }

@@ -1,41 +1,44 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
 import AvatarAndBackground from "../components/AvatarAndBackground";
 import MyPosts from "../components/MyPosts";
 import MyImages from "../components/MyImages";
 import MyVideos from "../components/MyVideos";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import {RouteProp, useRoute} from "@react-navigation/native";
-import {RouteStackParamList} from "../routeParams";
 import { getUserProfile } from "../service/userAPI";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-type MyProfileRouteProp = RouteProp<RouteStackParamList, 'MyProfile'>;
-
-export default function MyProFile({}) {
-    type UserProfile = {
-        id: number;
-        username: string;
-        bio: string;
-        avatar: Uint8Array;
-        backgroundImage: Uint8Array;
-    }
-
+export default function MyProFile() {
     const [section, setSection] = useState("post");
-    const route = useRoute<MyProfileRouteProp>();
-    const { userId } = route.params;
-    const [user, setUser] = useState<UserProfile | null>(null);
+    const [showUpdate, setShowUpdate] = useState<"avatar" | "background" | null>(null);
 
-    useEffect(() => {
-        const fetchCurrentUser = async () => {
-            try {
-                const response = await getUserProfile(userId);
-                setUser(response);
-            } catch (e) {
-                console.error(e);
-            }
-        }
-        fetchCurrentUser();
-    }, [])
+    // type UserProfile = {
+    //     id: number;
+    //     username: string;
+    //     bio: string;
+    //     avatar: Uint8Array;
+    //     backgroundImage: Uint8Array;
+    // };
+
+    // useEffect(() => {
+    //     const fetchUserProfile = async () => {
+    //         try {
+    //             const userJSON = await AsyncStorage.getItem("currentUser");
+    //             if (userJSON !== null) {
+    //                 const currentUser = JSON.parse(userJSON);
+    //                 const userId = currentUser?.id;
+    //                 if (userId) {
+    //                     const profile = await getUserProfile(userId);
+    //                     setUser(profile);
+    //                 }
+    //             }
+    //         } catch (e) {
+    //             console.error("Lỗi khi fetch user profile:", e);
+    //         }
+    //     };
+
+    //     fetchUserProfile();
+    // }, []);
+
 
     const renderSection = () => {
         switch (section) {
@@ -54,46 +57,90 @@ export default function MyProFile({}) {
         setSection(tab);
     };
 
+    const user = {
+        id: "test",
+        username: "test",
+        bio: "test",
+        avatar: "test",
+        backgroundImage: "test",
+    };
+
+    const handleAvatarPress = () => {
+        setShowUpdate("avatar");
+    };
+
+    const handleBackgroundPress = () => {
+        setShowUpdate("background");
+    };
+
     return (
-        <ScrollView style={styles.container}>
-            {user && (
-                <>
-                    <AvatarAndBackground userAvatar={user.avatar} />
-                    <View style={styles.content}>
-                        <Text style={styles.userName}>{user?.username}</Text>
-                        <TouchableOpacity style={styles.buttonAddPost}>
-                            <Text style={styles.textButtonAddPost}>+ Thêm bài viết</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.buttonEditProfile}>
-                            <Text style={styles.textButtonEditProfile}>Chỉnh sửa trang cá nhân</Text>
-                        </TouchableOpacity>
+        <View style={{ flex: 1 }}>
+            <ScrollView style={styles.container}>
+                {user && (
+                    <>
+                        <AvatarAndBackground
+                            userAvatar={user.avatar}
+                            userBackground={user.backgroundImage}
+                            onAvatarPress={handleAvatarPress}  // Thêm onPress cho avatar
+                            onBackgroundPress={handleBackgroundPress}  // Thêm onPress cho background
+                        />
 
-                        <View style={styles.section}>
-                            <TouchableOpacity
-                                onPress={() => handleTabSelect("post")}
-                                style={[styles.nameSection, section === "post" && styles.activeTab]}
-                            >
-                                <Text style={styles.textSection}>Bài viết</Text>
+                        <View style={styles.content}>
+                            <Text style={styles.userName}>{user.username}</Text>
+                            <Text>{user.bio}</Text>
+
+                            <TouchableOpacity style={styles.buttonAddPost}>
+                                <Text style={styles.textButtonAddPost}>+ Thêm bài viết</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity
-                                onPress={() => handleTabSelect("image")}
-                                style={[styles.nameSection, section === "image" && styles.activeTab]}
-                            >
-                                <Text style={styles.textSection}>Ảnh</Text>
+
+                            <TouchableOpacity style={styles.buttonEditProfile}>
+                                <Text style={styles.textButtonEditProfile}>Chỉnh sửa trang cá nhân</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity
-                                onPress={() => handleTabSelect("video")}
-                                style={[styles.nameSection, section === "video" && styles.activeTab]}
-                            >
-                                <Text style={styles.textSection}>Video</Text>
-                            </TouchableOpacity>
+
+                            <View style={styles.section}>
+                                <TouchableOpacity
+                                    onPress={() => handleTabSelect("post")}
+                                    style={[styles.nameSection, section === "post" && styles.activeTab]}
+                                >
+                                    <Text style={styles.textSection}>Bài viết</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    onPress={() => handleTabSelect("image")}
+                                    style={[styles.nameSection, section === "image" && styles.activeTab]}
+                                >
+                                    <Text style={styles.textSection}>Ảnh</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    onPress={() => handleTabSelect("video")}
+                                    style={[styles.nameSection, section === "video" && styles.activeTab]}
+                                >
+                                    <Text style={styles.textSection}>Video</Text>
+                                </TouchableOpacity>
+                            </View>
+
+                            {renderSection()}
                         </View>
+                    </>
+                )}
+            </ScrollView>
 
-                        {renderSection()}
-                    </View>
-                </>
+            {/* Hiển thị các nút khi người dùng nhấn vào avatar hoặc background */}
+            {showUpdate && (
+                <View style={styles.fixedBottom}>
+                    {showUpdate === "avatar" && (
+                        <TouchableOpacity style={[styles.updateButton, styles.updateAvatar]}>
+                            <Text style={styles.updateText}>Thay đổi ảnh đại diện</Text>
+                        </TouchableOpacity>
+                    )}
+
+                    {showUpdate === "background" && (
+                        <TouchableOpacity style={[styles.updateButton, styles.updateBackground]}>
+                            <Text style={styles.updateText}>Thay đổi ảnh nền</Text>
+                        </TouchableOpacity>
+                    )}
+                </View>
             )}
-        </ScrollView>
+        </View>
     );
 }
 
@@ -162,4 +209,31 @@ const styles = StyleSheet.create({
         backgroundColor: "#D0E6FF",
         borderRadius: 5,
     },
+    fixedBottom: {
+        position: "absolute",
+        bottom: 0,
+        left: 0,
+        right: 0,
+        backgroundColor: "#fff",
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        borderTopWidth: 1,
+        borderTopColor: "#ccc",
+        alignItems: "center",
+    },
+    updateButton: {
+        marginVertical: 5,
+        paddingVertical: 10,
+        borderRadius: 10,
+        backgroundColor: "#E6F0FF",
+        width: "100%",
+        alignItems: "center",
+    },
+    updateText: {
+        fontSize: 16,
+        color: "#1877F2",
+        fontWeight: "500",
+    },
+    updateAvatar: {},
+    updateBackground: {},
 });
