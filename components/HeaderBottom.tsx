@@ -1,9 +1,13 @@
 import React from "react";
 import {View, Image, StyleSheet, TextInput, TouchableOpacity} from "react-native";
 import {useNavigation} from "@react-navigation/native";
+import {NativeStackNavigationProp} from "@react-navigation/native-stack";
+import {RouteStackParamList} from "../routeParams";
+
+type NavigationProp = NativeStackNavigationProp<RouteStackParamList, 'MyProfile'>;
 
 export default function headerBottom(props: any) {
-    const navigation = useNavigation<any>();
+    const navigation = useNavigation<NavigationProp>();
 
     function getImageMime(base64String: string): string {
         if (base64String.startsWith('/9j')) return 'image/jpeg';      // JPEG
@@ -13,14 +17,14 @@ export default function headerBottom(props: any) {
     }
 
     const padMyProfile = () => {
-        navigation.navigate("MyProfile");
+        navigation.navigate("MyProfile", {userId: props.currentUser.id});
     }
 
     return (
         <View style={styles.headerBottom}>
             <TouchableOpacity onPress={padMyProfile}>
                 <Image
-                    source={{uri: `data:${getImageMime(props.userAvatar)};base64,${props.userAvatar}`}}
+                    source={{uri: `data:${getImageMime(props.currentUser.avatar)};base64,${props.currentUser.avatar}`}}
                     style={styles.imgAvatar}
                 />
             </TouchableOpacity>

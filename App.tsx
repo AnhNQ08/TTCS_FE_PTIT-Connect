@@ -1,6 +1,6 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-
+import { RouteStackParamList } from './routeParams';
 import Home from './view/Home';
 import Login from './view/Login';
 import Friend from './view/Friend';
@@ -9,9 +9,7 @@ import Notification from './view/Notification';
 import SignUp from './view/SIgnUp';
 import MyProFile from './view/MyProfile';
 
-
-
-const Stack = createNativeStackNavigator();
+const Stack = createNativeStackNavigator<RouteStackParamList>();
 
 export default function App() {
   return (

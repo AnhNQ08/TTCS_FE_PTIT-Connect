@@ -32,7 +32,7 @@ export default function Home() {
         <View>
             <View>
                 <Header />
-                {currentUser && <HeaderBottom userAvatar={currentUser.avatar} />}
+                {currentUser && <HeaderBottom currentUser={currentUser} />}
             </View>
             <Post />
         </View>

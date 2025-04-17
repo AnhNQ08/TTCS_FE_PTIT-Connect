@@ -1,29 +1,35 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
-
 import AvatarAndBackground from "../components/AvatarAndBackground";
 import MyPosts from "../components/MyPosts";
 import MyImages from "../components/MyImages";
 import MyVideos from "../components/MyVideos";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import {RouteProp, useRoute} from "@react-navigation/native";
+import {RouteStackParamList} from "../routeParams";
+import { getUserProfile } from "../service/userAPI";
 
-export default function MyProFile() {
-    const [section, setSection] = useState("post");
+type MyProfileRouteProp = RouteProp<RouteStackParamList, 'MyProfile'>;
 
-    type User = {
+export default function MyProFile({}) {
+    type UserProfile = {
         id: number;
         username: string;
+        bio: string;
         avatar: Uint8Array;
+        backgroundImage: Uint8Array;
     }
 
-    const [currentUser, setCurrentUser] = useState<User | null>(null);
+    const [section, setSection] = useState("post");
+    const route = useRoute<MyProfileRouteProp>();
+    const { userId } = route.params;
+    const [user, setUser] = useState<UserProfile | null>(null);
 
     useEffect(() => {
         const fetchCurrentUser = async () => {
             try {
-                const tmp = await AsyncStorage.getItem('dataCurrentUser');
-                console.log(tmp);
-                if (tmp != null) setCurrentUser(JSON.parse(tmp));
+                const response = await getUserProfile(userId);
+                setUser(response);
             } catch (e) {
                 console.error(e);
             }
@@ -50,39 +56,43 @@ export default function MyProFile() {
 
     return (
         <ScrollView style={styles.container}>
-            {currentUser && <AvatarAndBackground userAvatar={currentUser.avatar} />}
-            <View style={styles.content}>
-                <Text style={styles.userName}>{currentUser?.username}</Text>
-                <TouchableOpacity style={styles.buttonAddPost}>
-                    <Text style={styles.textButtonAddPost}>+ Thêm bài viết</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.buttonEditProfile}>
-                    <Text style={styles.textButtonEditProfile}>Chỉnh sửa trang cá nhân</Text>
-                </TouchableOpacity>
+            {user && (
+                <>
+                    <AvatarAndBackground userAvatar={user.avatar} />
+                    <View style={styles.content}>
+                        <Text style={styles.userName}>{user?.username}</Text>
+                        <TouchableOpacity style={styles.buttonAddPost}>
+                            <Text style={styles.textButtonAddPost}>+ Thêm bài viết</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.buttonEditProfile}>
+                            <Text style={styles.textButtonEditProfile}>Chỉnh sửa trang cá nhân</Text>
+                        </TouchableOpacity>
 
-                <View style={styles.section}>
-                    <TouchableOpacity
-                        onPress={() => handleTabSelect("post")}
-                        style={[styles.nameSection, section === "post" && styles.activeTab]}
-                    >
-                        <Text style={styles.textSection}>Bài viết</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        onPress={() => handleTabSelect("image")}
-                        style={[styles.nameSection, section === "image" && styles.activeTab]}
-                    >
-                        <Text style={styles.textSection}>Ảnh</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        onPress={() => handleTabSelect("video")}
-                        style={[styles.nameSection, section === "video" && styles.activeTab]}
-                    >
-                        <Text style={styles.textSection}>Video</Text>
-                    </TouchableOpacity>
-                </View>
+                        <View style={styles.section}>
+                            <TouchableOpacity
+                                onPress={() => handleTabSelect("post")}
+                                style={[styles.nameSection, section === "post" && styles.activeTab]}
+                            >
+                                <Text style={styles.textSection}>Bài viết</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={() => handleTabSelect("image")}
+                                style={[styles.nameSection, section === "image" && styles.activeTab]}
+                            >
+                                <Text style={styles.textSection}>Ảnh</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={() => handleTabSelect("video")}
+                                style={[styles.nameSection, section === "video" && styles.activeTab]}
+                            >
+                                <Text style={styles.textSection}>Video</Text>
+                            </TouchableOpacity>
+                        </View>
 
-                {renderSection()}
-            </View>
+                        {renderSection()}
+                    </View>
+                </>
+            )}
         </ScrollView>
     );
 }

@@ -9,3 +9,12 @@ export const getCurrentUser = async () => {
         }
     });
 }
+
+export const getUserProfile = async (userId) => {
+    const accessToken = await AsyncStorage.getItem('accessToken');
+    return await request.get('/user/profile/' + userId, {
+        headers: {
+            Authorization: "Bearer " + accessToken
+        }
+    })
+}
