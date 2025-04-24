@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Image, StyleSheet, TouchableOpacity } from "react-native";
-import getImageMime from "../service/getImageFromUnit8";
+import getImageMime from "../services/getImageFromUnit8";
 
 type AvatarAndBackgroundProps = {
     userAvatar: Uint8Array;
@@ -9,19 +9,19 @@ type AvatarAndBackgroundProps = {
     onBackgroundPress: () => void;
 };
 const AvatarAndBackground = (
-    {userAvatar,
-    userBackground,
-    onAvatarPress,
-    onBackgroundPress} : AvatarAndBackgroundProps) => {
+    { userAvatar,
+        userBackground,
+        onAvatarPress,
+        onBackgroundPress }: AvatarAndBackgroundProps) => {
     return (
         <View>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={onBackgroundPress}>
                 <Image
                     source={{ uri: `data:${getImageMime(userBackground)};base64,${userBackground}` }}
                     style={styles.background}
                 />
             </TouchableOpacity>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={onAvatarPress}>
                 <Image
                     source={{ uri: `data:${getImageMime(userAvatar)};base64,${userAvatar}` }}
                     style={styles.avatar}

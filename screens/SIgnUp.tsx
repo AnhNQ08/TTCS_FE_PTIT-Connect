@@ -2,9 +2,9 @@ import { useState } from "react";
 import React from "react";
 import { View, TextInput, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
 
-import { signUp } from "../service/authentication";
+import { signUp } from "../services/authentication";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { getCurrentUser } from "../service/userAPI";
+import { getCurrentUser } from "../services/userAPI";
 
 export default function SignUp() {
 

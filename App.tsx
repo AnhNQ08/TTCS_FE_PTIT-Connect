@@ -1,13 +1,13 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { RouteStackParamList } from './routeParams';
-import Home from './view/Home';
-import Login from './view/Login';
-import Friend from './view/Friend';
-import Messenger from './view/Messenger';
-import Notification from './view/Notification';
-import SignUp from './view/SIgnUp';
-import MyProFile from './view/MyProfile';
+import Home from './screens/Home';
+import Login from './screens/Login';
+import Friend from './screens/Friend';
+import Messenger from './screens/Messenger';
+import Notification from './screens/Notification';
+import SignUp from './screens/SIgnUp';
+import MyProFile from './screens/MyProfile';
 
 const Stack = createNativeStackNavigator<RouteStackParamList>();
 
