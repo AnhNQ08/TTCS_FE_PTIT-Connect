@@ -7,7 +7,7 @@ const HomePage = () => {
     <div className="homepage-container">
       <header className="header">
         <div className="header-left">
-          <a href="/">PTIT CONNECT</a>
+          <Link to="/">PTIT CONNECT</Link>
         </div>
 
         <div className="header-center">
@@ -30,7 +30,7 @@ const HomePage = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/messages">
+                <Link to="/message">
                   <i className="fa fa-envelope"></i>
                 </Link>
               </li>
@@ -43,6 +43,7 @@ const HomePage = () => {
           </nav>
         </div>
       </header>
+
       <main className="main-content">
         <div className="news-feed">
           <div className="post-box">
