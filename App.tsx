@@ -8,6 +8,7 @@ import Messenger from './screens/Messenger';
 import Notification from './screens/Notification';
 import SignUp from './screens/SIgnUp';
 import MyProFile from './screens/MyProfile';
+import MessengerBox from './screens/MessengerBox';
 
 const Stack = createNativeStackNavigator<RouteStackParamList>();
 
@@ -48,6 +49,11 @@ export default function App() {
         <Stack.Screen
           name="MyProfile"
           component={MyProFile}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="MessengerBox"
+          component={MessengerBox}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>

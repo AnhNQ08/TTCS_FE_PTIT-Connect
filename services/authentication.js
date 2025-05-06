@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as request from './request';
 
 export const login = async (email, password) => {
@@ -11,7 +12,7 @@ export const signUp = async (email, password, userName) => {
 export const refreshToken = async () => {
     return await request.post('authenticate/refresh-token', {}, {
         headers: {
-            Authorization: "Bearer " + localStorage.getItem("refreshToken"),
+            Authorization: "Bearer " + AsyncStorage.getItem("refreshToken"),
         }
     });
 }
@@ -19,7 +20,7 @@ export const refreshToken = async () => {
 export const logout = async () => {
     const response = await request.post('logout', {}, {
         headers: {
-            Authorization: "Bearer " + localStorage.getItem('accessToken'),
+            Authorization: "Bearer " + AsyncStorage.getItem('accessToken'),
         }
     })
     return response;

@@ -40,6 +40,10 @@ export default function Login() {
         navigation.navigate("SignUp");
     }
 
+    const pad = async () => {
+        navigation.navigate("MessengerBox");
+    }
+
     return (
         <View style={style.container}>
             {/* Logo */}
@@ -69,6 +73,9 @@ export default function Login() {
                 <Text style={style.textButton}>Đăng nhập</Text>
             </TouchableOpacity>
             {/* forgot password */}
+            <TouchableOpacity onPress={pad}>
+                <Text>Go to MessengerBox</Text>
+            </TouchableOpacity>
             <TouchableOpacity>
                 <Text style={style.forgotPassword}>Bạn quên mật khẩu?</Text>
             </TouchableOpacity>
