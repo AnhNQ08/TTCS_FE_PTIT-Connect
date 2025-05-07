@@ -17,6 +17,7 @@ import MyPosts from "../components/MyPosts";
 import MyImages from "../components/MyImages";
 import MyVideos from "../components/MyVideos";
 import { getUserProfile, updateUserAvatar, updateUserBackground } from "../services/userAPI";
+import { useNavigation } from "@react-navigation/native";
 
 export default function MyProFile() {
     const [userId, setUserId] = useState<number | null>(null)
@@ -25,6 +26,8 @@ export default function MyProFile() {
     const [showUpdateTmp, setShowUpdateTmp] = useState<"avatar" | "background" | null>(null);
     const [user, setUser] = useState<UserProfile | null>(null);
     const [imageSelected, setImageSelected] = useState<ImagePickerAsset | null>(null);
+
+    const navigation = useNavigation<any>();
 
     type UserProfile = {
         id: number;
@@ -73,6 +76,10 @@ export default function MyProFile() {
     const handleBackgroundPress = () => {
         setShowUpdate("background");
         setShowUpdateTmp("background");
+    }
+
+    const padAddPost = () => {
+        navigation.navigate("AddPost");
     }
 
     const handleImagePickerPress = async () => {
@@ -205,7 +212,7 @@ export default function MyProFile() {
                             <Text style={styles.userName}>{user.username}</Text>
                             <Text>{user.bio}</Text>
 
-                            <TouchableOpacity style={styles.buttonAddPost}>
+                            <TouchableOpacity style={styles.buttonAddPost} onPress={padAddPost}>
                                 <Text style={styles.textButtonAddPost}>+ Thêm bài viết</Text>
                             </TouchableOpacity>
 

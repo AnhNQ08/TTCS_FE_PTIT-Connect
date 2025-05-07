@@ -1,6 +1,7 @@
 import axios from 'axios';
 
 import * as authService from './authentication.js'
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const request = axios.create({
     baseURL: 'http://100.114.40.116:8081/',
@@ -14,7 +15,7 @@ const refreshToken = async () => {
     try {
         const response = await authService.refreshToken();
         const newAccessToken = response.accessToken;
-        localStorage.setItem('accessToken', newAccessToken);
+        AsyncStorage.setItem('accessToken', newAccessToken);
         return newAccessToken;
     } catch (e) {
         console.error("Error refreshing token:", e);

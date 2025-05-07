@@ -9,6 +9,7 @@ import Notification from './screens/Notification';
 import SignUp from './screens/SIgnUp';
 import MyProFile from './screens/MyProfile';
 import MessengerBox from './screens/MessengerBox';
+import AddPost from './screens/AddPost';
 
 const Stack = createNativeStackNavigator<RouteStackParamList>();
 
@@ -54,6 +55,11 @@ export default function App() {
         <Stack.Screen
           name="MessengerBox"
           component={MessengerBox}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="AddPost"
+          component={AddPost}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>

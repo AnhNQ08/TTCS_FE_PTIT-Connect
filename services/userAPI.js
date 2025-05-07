@@ -49,3 +49,18 @@ export const updateUserBackground = async (formData) => {
         }
     );
 };
+
+export const createNewPost = async (formData) => {
+    const accessToken = await AsyncStorage.getItem('accessToken');
+
+    return await request.post(
+        'post/createPersonal',
+        formData,
+        {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                'Content-Type': 'multipart/form-data',
+            },
+        }
+    )
+}
