@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import "../styles/homepage.css";
 import userAvatar from "../assets/user.jpg";
+import Header from "../components/Header.jsx";
 
 const HomePage = () => {
   const [posts, setPosts] = useState([
@@ -30,45 +31,7 @@ const HomePage = () => {
 
   return (
     <div className="homepage-container">
-      <header className="header">
-        <div className="header-left">
-          <Link to="/">PTIT CONNECT</Link>
-        </div>
-
-        <div className="header-center">
-          <div className="search-bar">
-            <input type="text" placeholder="Tìm kiếm..." />
-          </div>
-        </div>
-
-        <div className="header-right">
-          <nav className="header-nav">
-            <ul>
-              <li>
-                <Link to="/">
-                  <i className="fa fa-home"></i>
-                </Link>
-              </li>
-              <li>
-                <Link to="/friends">
-                  <i className="fa fa-users"></i>
-                </Link>
-              </li>
-              <li>
-                <Link to="/message">
-                  <i className="fa fa-envelope"></i>
-                </Link>
-              </li>
-              <li>
-                <Link to="/profile">
-                  <i className="fa fa-user"></i>
-                </Link>
-              </li>
-            </ul>
-          </nav>
-        </div>
-      </header>
-
+      <Header />
       <main className="main-content">
         <div className="news-feed">
           <div className="post-box">
@@ -78,6 +41,7 @@ const HomePage = () => {
 
           {posts.map((post) => (
             <div key={post.id} className="post">
+              {/* ... phần hiển thị bài post ... */}
               <div className="post-header">
                 <div className="user-info">
                   <img src={post.avatar} alt={post.user} className="avatar" />
@@ -105,7 +69,6 @@ const HomePage = () => {
           ))}
         </div>
       </main>
-
       <footer className="footer">
         <p>&copy; 2025 PTIT CONNECT. All rights reserved.</p>
       </footer>
