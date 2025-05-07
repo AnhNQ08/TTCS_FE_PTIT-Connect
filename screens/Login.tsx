@@ -17,7 +17,6 @@ export default function Login() {
     const padLogin = async () => {
         try {
             const response = await login(userName, password);
-            console.log("response login: ", response);
             if (response.message === "User not found!") {
                 alert("Tài khoản không tồn tại. Vui lòng kiểm tra lại!");
             } else if (response.message === "Wrong password!") {

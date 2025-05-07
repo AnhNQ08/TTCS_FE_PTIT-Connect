@@ -58,7 +58,7 @@ export default function MyProFile() {
     const renderSection = () => {
         switch (section) {
             case "post":
-                return <MyPosts />;
+                return <Text>My post</Text>;
             case "image":
                 return <MyImages />;
             case "video":

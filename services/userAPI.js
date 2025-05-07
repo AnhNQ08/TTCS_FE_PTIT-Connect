@@ -64,3 +64,15 @@ export const createNewPost = async (formData) => {
         }
     )
 }
+
+export const getNewestPost = async () => {
+    const accessToken = await AsyncStorage.getItem('accessToken');
+    return await request.get(
+        'post/newestPost',
+        {
+            headers: {
+                Authorization: "Bearer " + accessToken
+            }
+        }
+    )
+}

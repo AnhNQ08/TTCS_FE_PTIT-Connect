@@ -1,32 +1,52 @@
 import React from 'react';
-import { Image, View, StyleSheet, Text, TextInput } from 'react-native';
+import { Image, View, StyleSheet, Text, TextInput, TouchableOpacity } from 'react-native';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 
 export default function Post(props: any) {
+    function getImageMime(base64String: string): string {
+        if (base64String.startsWith('/9j')) return 'image/jpeg';      // JPEG
+        if (base64String.startsWith('iVBOR')) return 'image/png';     // PNG
+        if (base64String.startsWith('R0lGOD')) return 'image/gif';    // GIF
+        return 'image/jpeg'; // fallback nếu không khớp
+    }
+
+
+    const handlePadAvatarPoster = () => {
+        alert(props.post.author.id);
+    }
     return (
         <View style={style.container}>
             {/*Post Header*/}
             <View style={style.postHeader}>
                 {/*Avartar Poster */}
-                <Image
-                    style={style.imgAvatarPoster}
-                    source={require(`../assets/picture/avatar/avatardefault.jpg`)}
-                />
+                <TouchableOpacity onPress={handlePadAvatarPoster}>
+                    <Image
+                        style={style.imgAvatarPoster}
+                        source={{ uri: `data:${getImageMime(props.post.author.avatar)};base64,${props.post.author.avatar}` }}
+                    />
+                </TouchableOpacity>
                 {/*Name poster and time*/}
                 <View style={style.namePosterAndTime}>
-                    <Text style={style.namePoster}>Phan Van Bien</Text>
+                    <Text style={style.namePoster}>{props.post.author.username}</Text>
                     <Text>16 phút</Text>
                 </View>
             </View>
             {/*Content*/}
-            <Text style={style.content}>Chao mung ban den voi Facebook</Text>
+            <Text style={style.content}>{props.post.content}</Text>
             {/*ImgPost*/}
-            <Image
-                style={style.imgPost}
-                source={require('../assets/picture/logo.jpg')}
-            />
+            {props.post.postMediaList.length > 0 &&
+                props.post.postMediaList.map((item: any, index: any) => (
+                    <Image
+                        source={{
+                            uri: item.url,
+                        }}
+                        key={index}
+                        style={{ width: "100%", height: 400, marginTop: 10 }}
+                    />
+                ))
+            }
             {/*Number Post*/}
             <View style={style.numberPost}>
                 <Text style={style.numberLike}>11.900</Text>
@@ -83,7 +103,7 @@ const style = StyleSheet.create({
     },
     imgPost: {
         width: '100%',
-        marginTop: 10
+        marginTop: 10,
     },
     numberPost: {
         display: 'flex',
