@@ -3,13 +3,13 @@ import "../styles/message.css";
 import Header from "../components/Header";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch } from "@fortawesome/free-solid-svg-icons";
-import userAvatar from "../assets/user.jpg"; // Import userAvatar
+import userAvatar from "../assets/user.jpg";
 
 const recentChats = [
   {
     id: 1,
     user: "Nguyễn Văn A",
-    avatar: userAvatar, // Sử dụng userAvatar
+    avatar: userAvatar,
     lastMessage: "Chào bạn!",
     time: "1 phút trước",
     messages: [
@@ -24,7 +24,7 @@ const recentChats = [
   {
     id: 2,
     user: "Trần Thị B",
-    avatar: userAvatar, // Sử dụng userAvatar
+    avatar: userAvatar,
     lastMessage: "Bạn khỏe không?",
     time: "5 phút trước",
     messages: [
@@ -43,7 +43,7 @@ const recentChats = [
   {
     id: 3,
     user: "Lê Công C",
-    avatar: userAvatar, // Sử dụng userAvatar
+    avatar: userAvatar,
     lastMessage: "Ok, mình sẽ đến.",
     time: "10 phút trước",
     messages: [
@@ -57,7 +57,7 @@ const recentChats = [
   },
 ];
 
-const MessagePage = () => {
+const Messager = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedChat, setSelectedChat] = useState(recentChats[0] || null);
   const [newMessage, setNewMessage] = useState("");
@@ -165,4 +165,4 @@ const MessagePage = () => {
   );
 };
 
-export default MessagePage;
+export default Messager;

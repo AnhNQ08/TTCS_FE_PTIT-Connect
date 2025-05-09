@@ -25,7 +25,7 @@ const currentFriends = [
   { id: 5, name: "Hoàng Minh Tuấn", avatar: userAvatar },
 ];
 
-const FriendsPage = () => {
+const Friend = () => {
   const [searchTerm, setSearchTerm] = useState("");
 
   const filteredFriends = currentFriends.filter((friend) =>
@@ -108,4 +108,4 @@ const FriendsPage = () => {
   );
 };
 
-export default FriendsPage;
+export default Friend;

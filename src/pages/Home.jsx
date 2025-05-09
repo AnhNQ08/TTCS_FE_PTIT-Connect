@@ -4,7 +4,7 @@ import "../styles/homepage.css";
 import userAvatar from "../assets/user.jpg";
 import Header from "../components/Header.jsx";
 
-const HomePage = () => {
+const Home = () => {
   const [posts, setPosts] = useState([
     {
       id: 1,
@@ -38,10 +38,8 @@ const HomePage = () => {
             <textarea placeholder="Bạn đang nghĩ gì?" rows="4"></textarea>
             <button>Đăng</button>
           </div>
-
           {posts.map((post) => (
             <div key={post.id} className="post">
-              {/* ... phần hiển thị bài post ... */}
               <div className="post-header">
                 <div className="user-info">
                   <img src={post.avatar} alt={post.user} className="avatar" />
@@ -76,4 +74,4 @@ const HomePage = () => {
   );
 };
 
-export default HomePage;
+export default Home;

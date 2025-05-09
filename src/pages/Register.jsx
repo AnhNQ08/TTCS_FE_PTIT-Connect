@@ -31,7 +31,6 @@ const Register = () => {
         <h1 className="fb-logo">PTIT CONNECT</h1>
         <p>Đăng ký tài khoản để kết nối với cộng đồng sinh viên PTIT.</p>
       </div>
-
       <div className="login-right">
         <form className="login-box" onSubmit={handleRegister}>
           <h2 style={{ textAlign: "center", marginBottom: "20px" }}>

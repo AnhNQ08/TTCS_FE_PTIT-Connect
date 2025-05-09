@@ -1,0 +1,177 @@
+/* AddPost.css */
+
+.container {
+  padding: 12px;
+  background-color: #f0f2f5; /* Màu nền xám nhạt, tương tự Facebook */
+  min-height: 100vh; /* Đảm bảo chiều cao tối thiểu bằng 100% viewport height */
+}
+
+.add-post-header {
+  display: flex;
+  justify-content: space-between; /* Các phần tử nằm ở hai đầu */
+  align-items: center; /* Căn chỉnh theo chiều dọc */
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #ddd; /* Đường kẻ dưới header */
+}
+
+.add-post-header h1 {
+  font-size: 18px;
+  font-weight: 600; /* Đậm vừa */
+  margin: 0;
+}
+
+.back-button {
+  padding: 8px;
+  border-radius: 50%; /* Hình tròn */
+  background-color: #e4e6eb; /* Màu xám nhạt */
+  color: #000;
+  cursor: pointer;
+  display: flex; /* Để căn chỉnh icon bên trong */
+  align-items: center;
+  justify-content: center;
+}
+
+.back-button:hover {
+  background-color: #d8dadf; /* Màu xám đậm hơn khi hover */
+}
+
+.post-button {
+  background-color: #1877f2; /* Màu xanh dương Facebook */
+  color: white;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+}
+
+.post-button:hover {
+  background-color: #1665d8; /* Màu xanh dương đậm hơn khi hover */
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 12px;
+  object-fit: cover; /* Đảm bảo ảnh không bị méo */
+}
+
+.username {
+  font-size: 16px;
+  font-weight: 500; /* Medium font weight */
+  color: #000;
+}
+
+.post-content {
+  background-color: white;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Tạo bóng đổ nhẹ */
+}
+
+.text-area {
+  width: 100%;
+  border: none;
+  resize: none;
+  font-size: 16px;
+  line-height: 1.5; /* Tăng khoảng cách dòng cho dễ đọc */
+  min-height: 100px; /* Đặt chiều cao tối thiểu */
+}
+
+.text-area:focus {
+  outline: none; /* Loại bỏ viền mặc định khi focus */
+}
+.text-white {
+  color: white;
+}
+
+.add-media-button {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  color: #1877f2;
+  font-weight: 600;
+}
+
+.add-media-button:hover {
+  background-color: #e4e6eb;
+}
+.hidden {
+  display: none;
+}
+
+.selected-images-container {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+
+.image-wrapper {
+  position: relative;
+  margin-right: 8px;
+  margin-bottom: 8px;
+}
+
+.selected-image {
+  max-height: 150px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.remove-image-button {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background-color: rgba(0, 0, 0, 0.5); /* Nền đen mờ */
+  border-radius: 50%;
+  padding: 4px;
+  cursor: pointer;
+  color: white;
+}
+
+.remove-image-button:hover {
+  background-color: rgba(0, 0, 0, 0.7); /* Đậm hơn khi hover */
+}
+.color-button {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  color: #000;
+  font-weight: 600;
+  background-color: #e4e6eb;
+  margin-bottom: 10px;
+}
+.color-button:hover {
+  background-color: #d8dadf;
+}
+.background-color-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  background-color: #fff;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.color-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
