@@ -60,9 +60,7 @@ const Login = () => {
             Đăng nhập
           </button>
           {error && <p className="error">{error}</p>}
-          <a href="#" className="forgot" onClick={handleForgotPassword}>
-            Quên mật khẩu?
-          </a>
+          <a href="#" className="forgot" onClick={handleForgotPassword}></a>
           <hr />
           <button
             type="button"

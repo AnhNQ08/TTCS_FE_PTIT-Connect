@@ -29,7 +29,7 @@ const Header = () => {
               </Link>
             </li>
             <li>
-              <Link to="/messager">
+              <Link to="/messenger">
                 <i className="fa fa-envelope"></i>
               </Link>
             </li>

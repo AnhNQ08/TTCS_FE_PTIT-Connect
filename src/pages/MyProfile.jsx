@@ -2,13 +2,16 @@ import React, { useState } from "react";
 import Header from "../components/Header";
 import "../styles/profile.css";
 
+import userAvatar from "../assets/user.jpg"; // Import ảnh
+import background from "../assets/background.jpg";
+
 const ProfilePage = () => {
   const [userData, setUserData] = useState({
     name: "Quang Anh",
     username: "@anhnq.22cn030",
     bio: "This is a short bio about Quang Anh.",
-    avatarUrl: "/user.jpg",
-    backgroundImageUrl: "/background.jpg",
+    avatarUrl: userAvatar,
+    backgroundImageUrl: background,
   });
 
   const handleAvatarChange = (e) => {
