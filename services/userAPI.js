@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as request from './request';
+import { refreshToken } from './authentication';
 
 export const getCurrentUser = async () => {
     const accessToken = await AsyncStorage.getItem('accessToken');
@@ -69,6 +70,96 @@ export const getNewestPost = async () => {
     const accessToken = await AsyncStorage.getItem('accessToken');
     return await request.get(
         'post/newestPost',
+        {
+            headers: {
+                Authorization: "Bearer " + accessToken
+            }
+        }
+    )
+}
+
+export const searchUser = async (nameUser) => {
+    const accessToken = await AsyncStorage.getItem('accessToken');
+    return await request.get(
+        `user/search?username=${nameUser}`,
+        {
+            headers: {
+                Authorization: "Bearer " + accessToken
+            }
+        }
+    )
+}
+
+export const checkFriendShip = async (idUser) => {
+    const accessToken = await AsyncStorage.getItem('accessToken');
+    return await request.get(
+        `friend/checkFriendship/${idUser}`,
+        {
+            headers: {
+                Authorization: "Bearer " + accessToken
+            }
+        }
+    )
+}
+
+export const checkFriendRequest = async (idUser) => {
+    const accessToken = await AsyncStorage.getItem('accessToken');
+    return await request.get(
+        `friendRequest/check/${idUser}`,
+        {
+            headers: {
+                Authorization: "Bearer " + accessToken
+            }
+        }
+    )
+}
+
+export const sendRequestMakeFriend = async (idUser) => {
+    const accessToken = await AsyncStorage.getItem('accessToken');
+    return await request.post(
+        `friendRequest/send/${idUser}`,
+        {}
+        ,
+        {
+            headers: {
+                Authorization: "Bearer " + accessToken
+            }
+        }
+    )
+}
+
+export const acceptRequestMakeFriend = async (idUser) => {
+    const accessToken = await AsyncStorage.getItem('accessToken');
+    return await request.post(
+        `friend/acceptRequest/${idUser}`,
+        {}
+        ,
+        {
+            headers: {
+                Authorization: "Bearer " + accessToken
+            }
+        }
+    )
+}
+
+export const deleteFriend = async (idUser) => {
+    const accessToken = await AsyncStorage.getItem('accessToken');
+    return await request.erase(
+        `friend/delete/${idUser}`,
+        {
+            headers: {
+                Authorization: "Bearer " + accessToken
+            }
+        }
+    )
+}
+
+export const deleteFriendRequest = async (sengerId, reciverId) => {
+    const accessToken = await AsyncStorage.getItem('accessToken');
+    return await request.post(
+        `friendRequest/delete?senderId=${sengerId}&receiverId=${reciverId}`,
+        {}
+        ,
         {
             headers: {
                 Authorization: "Bearer " + accessToken

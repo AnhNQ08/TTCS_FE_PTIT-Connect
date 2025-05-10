@@ -26,7 +26,7 @@ export default function Home() {
         emotion: "LIKE" | "LOVE" | "HAHA" | "WOW" | "SAD" | "ANGRY";
     };
 
-    type Author = {
+    type userSummary = {
         id: number;
         username: string;
         avatar: string;
@@ -39,7 +39,7 @@ export default function Home() {
         postMediaList: PostMedia[];
         createdAt: string;
         updatedAt: string;
-        author: Author;
+        userSumary: userSummary;
         emotions: string[];
         reactionsDto: Reaction[];
     };
@@ -74,7 +74,7 @@ export default function Home() {
     }, [])
 
     return (
-        <View>
+        <View style={{ flex: 1 }}>
             <View>
                 <Header />
                 {currentUser && <HeaderBottom currentUser={currentUser} />}

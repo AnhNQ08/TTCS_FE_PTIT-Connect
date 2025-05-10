@@ -10,9 +10,10 @@ export const signUp = async (email, password, userName) => {
 }
 
 export const refreshToken = async () => {
-    return await request.post('authenticate/refresh-token', {}, {
+    const refreshToken = await AsyncStorage.getItem("refreshToken");
+    return await request.post('authenticate/refreshToken', {}, {
         headers: {
-            Authorization: "Bearer " + AsyncStorage.getItem("refreshToken"),
+            Authorization: "Bearer " + refreshToken,
         }
     });
 }

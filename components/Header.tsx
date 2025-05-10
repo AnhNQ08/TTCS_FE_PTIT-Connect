@@ -4,9 +4,15 @@ import { FontAwesome5, Ionicons, Entypo } from '@expo/vector-icons'; // Import i
 import HeaderIcon from '../components/HederIcon'; // Import HeaderIcon
 import { useNavigation } from '@react-navigation/native';
 
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+
 export default function Header() {
 
     const navigation = useNavigation<any>();
+
+    const handlePadSearch = () => {
+        navigation.navigate("SearchOtherPeople");
+    }
 
     const listIconHeader = [
         {
@@ -46,6 +52,9 @@ export default function Header() {
         <View>
             <View style={styles.container}>
                 <Text style={styles.facebook}>facebook</Text>
+                <TouchableOpacity onPress={handlePadSearch}>
+                    <FontAwesome name="search" size={24} color="black" style={{ marginLeft: 200 }} />
+                </TouchableOpacity>
             </View>
             <View style={styles.headerIcon} >
                 {
@@ -71,12 +80,15 @@ export default function Header() {
 const styles = StyleSheet.create({
     container: {
         width: "100%",
-        marginTop: 50
+        height: "auto",
+        marginTop: 50,
+        flexDirection: "row",
+        alignItems: "center",
+        top: -15
     },
     facebook: {
         marginLeft: 15,
         marginRight: 15,
-        top: -15,
         color: "#26b8f1",
         fontSize: 30
     },

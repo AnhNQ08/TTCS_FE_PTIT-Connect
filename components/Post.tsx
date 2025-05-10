@@ -3,8 +3,13 @@ import { Image, View, StyleSheet, Text, TextInput, TouchableOpacity } from 'reac
 import AntDesign from '@expo/vector-icons/AntDesign';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNavigation } from '@react-navigation/native';
 
 export default function Post(props: any) {
+
+    const navigation = useNavigation<any>();
+
     function getImageMime(base64String: string): string {
         if (base64String.startsWith('/9j')) return 'image/jpeg';      // JPEG
         if (base64String.startsWith('iVBOR')) return 'image/png';     // PNG
@@ -13,8 +18,19 @@ export default function Post(props: any) {
     }
 
 
-    const handlePadAvatarPoster = () => {
-        alert(props.post.author.id);
+    const handlePadAvatarPoster = async () => {
+        const userID = props.post.userSummary.id;
+        const dataCurrentUserJSON = await AsyncStorage.getItem('dataCurrentUser');
+        let dataCurrentUserId
+        if (dataCurrentUserJSON !== null) {
+            const dataCurrentUser = JSON.parse(dataCurrentUserJSON);
+            dataCurrentUserId = dataCurrentUser.id
+        }
+        if (dataCurrentUserId === userID) {
+            navigation.navigate("MyProfile");
+        } else {
+            navigation.navigate("OtherUserProfile", { userID });
+        }
     }
     return (
         <View style={style.container}>
@@ -24,12 +40,12 @@ export default function Post(props: any) {
                 <TouchableOpacity onPress={handlePadAvatarPoster}>
                     <Image
                         style={style.imgAvatarPoster}
-                        source={{ uri: `data:${getImageMime(props.post.author.avatar)};base64,${props.post.author.avatar}` }}
+                        source={{ uri: `data:${getImageMime(props.post.userSummary.avatar)};base64,${props.post.userSummary.avatar}` }}
                     />
                 </TouchableOpacity>
                 {/*Name poster and time*/}
                 <View style={style.namePosterAndTime}>
-                    <Text style={style.namePoster}>{props.post.author.username}</Text>
+                    <Text style={style.namePoster}>{props.post.userSummary.username}</Text>
                     <Text>16 phút</Text>
                 </View>
             </View>

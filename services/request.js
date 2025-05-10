@@ -13,9 +13,11 @@ let failedRequestsQueue = [];
 
 const refreshToken = async () => {
     try {
+        const refresToken = await AsyncStorage.getItem('refreshToken');
+        console.log("me m", refresToken);
         const response = await authService.refreshToken();
         const newAccessToken = response.accessToken;
-        AsyncStorage.setItem('accessToken', newAccessToken);
+        await AsyncStorage.setItem('accessToken', newAccessToken);
         return newAccessToken;
     } catch (e) {
         console.error("Error refreshing token:", e);
@@ -32,7 +34,7 @@ request.interceptors.response.use(
                 return new Promise(resolve => {
                     failedRequestsQueue.push(newToken => {
                         originalRequest.headers["Authorization"] = `Bearer ${newToken}`;
-                        resolve(axios(originalRequest));
+                        resolve(request(originalRequest));
                     });
                 });
             }
@@ -41,7 +43,7 @@ request.interceptors.response.use(
             isRefreshing = false;
             if (newAccessToken) {
                 originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
-                const res = await axios(originalRequest);
+                const res = await request(originalRequest);
                 failedRequestsQueue.forEach(callback => callback(newAccessToken));
                 failedRequestsQueue = [];
                 return res;
@@ -50,6 +52,7 @@ request.interceptors.response.use(
         return Promise.reject(error);
     }
 );
+
 
 export const get = async (api, options = {}) => {
     const response = await request.get(api, options);

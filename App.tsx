@@ -10,6 +10,8 @@ import SignUp from './screens/SIgnUp';
 import MyProFile from './screens/MyProfile';
 import MessengerBox from './screens/MessengerBox';
 import AddPost from './screens/AddPost';
+import SearchOtherPeople from './screens/SearchOtherPeople';
+import OtherUserProfile from './screens/OtherUserProfile';
 
 const Stack = createNativeStackNavigator<RouteStackParamList>();
 
@@ -60,6 +62,16 @@ export default function App() {
         <Stack.Screen
           name="AddPost"
           component={AddPost}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="SearchOtherPeople"
+          component={SearchOtherPeople}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="OtherUserProfile"
+          component={OtherUserProfile}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>

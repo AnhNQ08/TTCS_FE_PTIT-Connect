@@ -13,7 +13,6 @@ import * as ImagePicker from "expo-image-picker";
 import { ImagePickerAsset } from "expo-image-picker";
 
 import AvatarAndBackground from "../components/AvatarAndBackground";
-import MyPosts from "../components/MyPosts";
 import MyImages from "../components/MyImages";
 import MyVideos from "../components/MyVideos";
 import { getUserProfile, updateUserAvatar, updateUserBackground } from "../services/userAPI";
