@@ -1,8 +1,8 @@
 import React from "react";
-import {View, Image, StyleSheet, TextInput, TouchableOpacity} from "react-native";
-import {useNavigation} from "@react-navigation/native";
-import {NativeStackNavigationProp} from "@react-navigation/native-stack";
-import {RouteStackParamList} from "../routeParams";
+import { View, Image, StyleSheet, TextInput, TouchableOpacity } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { RouteStackParamList } from "../routeParams";
 
 type NavigationProp = NativeStackNavigationProp<RouteStackParamList, 'MyProfile'>;
 
@@ -17,19 +17,19 @@ export default function headerBottom(props: any) {
     }
 
     const padMyProfile = () => {
-        navigation.navigate("MyProfile", {userId: props.currentUser.id});
+        navigation.navigate("MyProfile", { userId: props.currentUser.id });
     }
 
     return (
         <View style={styles.headerBottom}>
             <TouchableOpacity onPress={padMyProfile}>
                 <Image
-                    source={{uri: `data:${getImageMime(props.currentUser.avatar)};base64,${props.currentUser.avatar}`}}
                     style={styles.imgAvatar}
+                    source={{ uri: `data:${getImageMime(props.currentUser.avatar)};base64,${props.currentUser.avatar}` }}
                 />
             </TouchableOpacity>
             <TextInput style={styles.input}
-                       placeholder='Bạn đang nghĩ gì?'
+                placeholder='Bạn đang nghĩ gì?'
             />
         </View>
     )

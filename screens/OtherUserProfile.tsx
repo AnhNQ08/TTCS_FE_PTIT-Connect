@@ -21,9 +21,9 @@ export default function OtherUserProfile() {
     const [avatar, setAvatar] = useState<Uint8Array>(); // base64
     const [background, setBackground] = useState<Uint8Array>(); // base64
     const [bio, setBio] = useState<string>("");
-    const [isFriendShip, setFriendShip] = useState<true | false>();
-    const [isFriendRequest, setFriendRequest] = useState<true | false>();
-    const [isPersonMakeFriendRequest, setPersonMakeFrindRequsest] = useState<true | false>();
+    const [isFriendShip, setFriendShip] = useState<true | false | null>(null);
+    const [isFriendRequest, setFriendRequest] = useState<true | false | null>(null);
+    const [isPersonMakeFriendRequest, setPersonMakeFrindRequsest] = useState<true | false | null>(null);
     const [isShowAcceptOrDenyBox, setShowAcceptOrDenyBox] = useState<true | false>(false);
     const [isShowUnFriendBox, setShowUnFriendBox] = useState<true | false>(false);
 
@@ -77,7 +77,7 @@ export default function OtherUserProfile() {
             try {
                 const { userID } = route.params;
                 const response = await checkFriendRequest(userID);
-                console.log("friendRequest: ", response.length);
+                console.log("friendRequest: ", response);
                 if (response.length !== 0) {
                     setFriendRequest(true);
                     if (response.recipientId === userID) {
@@ -118,6 +118,7 @@ export default function OtherUserProfile() {
         try {
             const { userID } = route.params;
             const response = await acceptRequestMakeFriend(userID);
+            console.log("makeFriend: ", response);
             if (response === "New friend request accepted") {
                 setFriendShip(true);
                 setFriendRequest(false);
@@ -135,6 +136,7 @@ export default function OtherUserProfile() {
         try {
             const { userID } = route.params;
             const response = await deleteFriend(userID);
+            console.log("DeleteFriend: ", response);
             if (response === "Friend deleted") {
                 setFriendShip(false);
                 setFriendRequest(false);
@@ -170,6 +172,30 @@ export default function OtherUserProfile() {
     const handlePadDeleteRequestFriend1 = async () => {
         await fetchDeleteRequestFriend1();
     }
+
+    const fetchDeleteRequestFriend2 = async () => {
+        try {
+            const { userID } = route.params;
+            let currentUSerId
+            const userJSON = await AsyncStorage.getItem("dataCurrentUser");
+            if (userJSON !== null) {
+                const currentUser = JSON.parse(userJSON);
+                currentUSerId = currentUser.id;
+            }
+            const response = await deleteFriendRequest(userID, currentUSerId);
+            if (response === "Friend request deleted") {
+                setFriendShip(false);
+                setFriendRequest(false);
+            }
+        } catch (e) {
+            console.log("Loi fetchDeleteRequestFriend: ", e);
+        }
+    }
+
+    const handlePadDeleteRequestFriend2 = async () => {
+        await fetchDeleteRequestFriend2();
+    }
+
 
     return (
         <>
@@ -244,11 +270,15 @@ export default function OtherUserProfile() {
                                 <Pressable
                                     onPress={(e) => e.stopPropagation()} // Ngăn sự kiện onPress lan ra ngoài
                                 >
-                                    <TouchableOpacity style={styles.acceptOrDenyBox} onPress={handlePadAcceptRequestMakeFriend}>
+                                    <TouchableOpacity style={styles.acceptOrDenyBox} onPress={() => {
+                                        handlePadAcceptRequestMakeFriend();
+                                        setShowAcceptOrDenyBox(false);
+                                    }
+                                    }>
                                         <AntDesign name="check" size={24} color="white" />
                                         <Text style={{ color: "white", fontSize: 20, marginLeft: 5 }}>Chấp nhận</Text>
                                     </TouchableOpacity>
-                                    <TouchableOpacity style={styles.acceptOrDenyBox} onPress={() => setShowAcceptOrDenyBox(false)}>
+                                    <TouchableOpacity style={styles.acceptOrDenyBox} onPress={() => { setShowAcceptOrDenyBox(false); handlePadDeleteRequestFriend2() }}>
                                         <Feather name="user-x" size={24} color="white" />
                                         <Text style={{ color: "white", fontSize: 20, marginLeft: 5 }}>Từ chối</Text>
                                     </TouchableOpacity>
@@ -263,7 +293,10 @@ export default function OtherUserProfile() {
                         >
                             <View style={styles.acceptOrDenyBoxContainer}>
                                 <Pressable onPress={(e) => e.stopPropagation()}>
-                                    <TouchableOpacity style={styles.acceptOrDenyBox} onPress={handlePadDeleteFriend}>
+                                    <TouchableOpacity style={styles.acceptOrDenyBox} onPress={() => {
+                                        setShowUnFriendBox(false);
+                                        handlePadDeleteFriend();
+                                    }}>
                                         <Feather name="user-x" size={24} color="white" />
                                         <Text style={{ color: "white", fontSize: 20, marginLeft: 5 }}>Hủy kết bạn</Text>
                                     </TouchableOpacity>

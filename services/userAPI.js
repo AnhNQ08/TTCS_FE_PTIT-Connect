@@ -55,7 +55,7 @@ export const createNewPost = async (formData) => {
     const accessToken = await AsyncStorage.getItem('accessToken');
 
     return await request.post(
-        'post/createPersonal',
+        'post/create',
         formData,
         {
             headers: {

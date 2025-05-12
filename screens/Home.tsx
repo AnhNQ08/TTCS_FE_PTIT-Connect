@@ -52,6 +52,7 @@ export default function Home() {
         const fetchCurrentUser = async () => {
             try {
                 const tmp = await AsyncStorage.getItem('dataCurrentUser');
+                console.log(tmp);
                 if (tmp != null) setCurrentUser(JSON.parse(tmp));
             } catch (e) {
                 console.error(e);

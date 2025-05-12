@@ -5,6 +5,7 @@ import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
+import FastImage from 'react-native-fast-image';
 
 export default function Post(props: any) {
 
@@ -32,6 +33,7 @@ export default function Post(props: any) {
             navigation.navigate("OtherUserProfile", { userID });
         }
     }
+
     return (
         <View style={style.container}>
             {/*Post Header*/}
@@ -56,7 +58,7 @@ export default function Post(props: any) {
                 props.post.postMediaList.map((item: any, index: any) => (
                     <Image
                         source={{
-                            uri: item.url,
+                            uri: `${item.url}`,
                         }}
                         key={index}
                         style={{ width: "100%", height: 400, marginTop: 10 }}

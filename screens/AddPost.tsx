@@ -7,6 +7,8 @@ import { TextInput } from "react-native-paper";
 import * as ImagePicker from "expo-image-picker";
 import { ImagePickerAsset } from "expo-image-picker";
 import { createNewPost } from "../services/userAPI";
+import AntDesign from '@expo/vector-icons/AntDesign';
+import { FontAwesome5, MaterialIcons } from "@expo/vector-icons";
 
 export default function AddPost() {
     type User = {
@@ -21,6 +23,8 @@ export default function AddPost() {
     const [backgroundColor, setBackgroundColor] = useState<any>(null);
     const [isSelectedImagesEdit, setSelectedImagesEdit] = useState<true | false>(false);
     const [content, setContent] = useState<string>("");
+    const [privacy, setPrivacy] = useState<true | false>(false);
+    const [isSetPrivacy, setIsPrivacy] = useState<true | false>(false);
 
     const colorMap = [
         { img: require('../assets/picture/backgroundColor/color1.jpg'), },
@@ -60,7 +64,17 @@ export default function AddPost() {
             return 0;
         } else {
             const formData = new FormData();
-            formData.append('content', content);
+            if (privacy === true) {
+                formData.append("data", JSON.stringify({
+                    content: content,
+                    privacy: "PRIVATE"
+                }));
+            } else {
+                formData.append("data", JSON.stringify({
+                    content: content,
+                    privacy: "PUBLIC"
+                }));
+            }
             if (selectedImages.length != 0) {
                 selectedImages.forEach((image, index) => {
                     const uriParts = image.uri.split(".");
@@ -89,6 +103,7 @@ export default function AddPost() {
 
 
     const handlePadPost = () => {
+        console.log("padPOst");
         handlePost();
     }
 
@@ -133,8 +148,8 @@ export default function AddPost() {
                     <Ionicons name="arrow-back" size={24} color="black" />
                 </TouchableOpacity>
                 <Text style={[styles.text1, { marginLeft: 15 }]}>Tạo bài viết</Text>
-                <TouchableOpacity>
-                    <Text style={styles.postPress} onPress={handlePadPost}>Đăng</Text>
+                <TouchableOpacity onPress={() => { handlePadPost() }}>
+                    <Text style={styles.postPress}>Đăng</Text>
                 </TouchableOpacity>
             </View>
 
@@ -145,6 +160,52 @@ export default function AddPost() {
                 />
                 <Text style={styles.userName}>{currentUser?.username}</Text>
             </View>
+
+            {privacy ?
+                <TouchableOpacity style={styles.buttomPrivacy} onPress={() => { setIsPrivacy(true) }}>
+                    <FontAwesome5 name="user-friends" size={24} color="black" />
+                    <Text style={{ marginLeft: 10, fontSize: 15, fontWeight: 600 }}>
+                        Bạn bè
+                    </Text>
+                    <MaterialIcons name="expand-more" size={24} color="black" />
+                </TouchableOpacity>
+                :
+                <TouchableOpacity style={styles.buttomPrivacy} onPress={() => { setIsPrivacy(true) }}>
+                    <AntDesign name="earth" size={24} color="black" />
+                    <Text style={{ marginLeft: 10, fontSize: 15, fontWeight: 600 }}>
+                        Công khai
+                    </Text>
+                    <MaterialIcons name="expand-more" size={24} color="black" />
+                </TouchableOpacity>
+            }
+
+            {isSetPrivacy &&
+                <View style={styles.sellectedPrivacy}>
+                    <TouchableOpacity
+                        style={{ flexDirection: "row", justifyContent: "center" }}
+                        onPress={() => {
+                            setIsPrivacy(false);
+                            setPrivacy(false)
+                        }}>
+                        <AntDesign name="earth" size={24} color="black" />
+                        <Text>
+                            Công khai
+                        </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={{ flexDirection: "row", justifyContent: "center" }}
+                        onPress={() => {
+                            setIsPrivacy(false);
+                            setPrivacy(true)
+                        }}
+                    >
+                        <FontAwesome5 name="user-friends" size={24} color="black" />
+                        <Text style={{ marginLeft: 10 }}>
+                            Bạn bè
+                        </Text>
+                    </TouchableOpacity>
+                </View>
+            }
 
             <ImageBackground
                 source={backgroundColor}
@@ -324,5 +385,24 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top: 0,
         right: 0,
+    },
+    buttomPrivacy: {
+        width: 140,
+        flexDirection: "row",
+        marginLeft: 20,
+        marginTop: 20,
+        alignContent: "center",
+        justifyContent: "center",
+        backgroundColor: "#E0E0E0",
+        paddingVertical: 5,
+    },
+    sellectedPrivacy: {
+        width: 140,
+        marginLeft: 20,
+        marginTop: 5,
+        alignContent: "center",
+        justifyContent: "center",
+        backgroundColor: "#E0E0E0",
+        paddingVertical: 5,
     }
 });
