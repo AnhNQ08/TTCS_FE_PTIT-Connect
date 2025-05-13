@@ -167,3 +167,49 @@ export const deleteFriendRequest = async (sengerId, reciverId) => {
         }
     )
 }
+
+export const sendReaction = async (type, emotion, id) => {
+    const accessToken = await AsyncStorage.getItem('accessToken');
+    return await request.post(
+        `react/send`,
+        {
+            "type": type,
+            "emotion": emotion,
+            "id": id
+        },
+        {
+            headers: {
+                Authorization: "Bearer " + accessToken
+            }
+        }
+    )
+}
+
+export const changeReaction = async (type, emotion, id) => {
+    const accessToken = await AsyncStorage.getItem('accessToken');
+    return await request.put(
+        `react/change`,
+        {
+            "type": type,
+            "emotion": emotion,
+            "id": id
+        },
+        {
+            headers: {
+                Authorization: "Bearer " + accessToken
+            }
+        }
+    )
+}
+
+export const deletePostReaction = async (postID) => {
+    const accessToken = await AsyncStorage.getItem('accessToken');
+    return await request.erase(
+        `react/deletePostReaction/${postID}`,
+        {
+            headers: {
+                Authorization: "Bearer " + accessToken
+            }
+        }
+    )
+}
