@@ -8,7 +8,7 @@ import userAvatar from "../assets/user.jpg";
 const recentChats = [
   {
     id: 1,
-    user: "Nguyễn Văn A",
+    user: "Nguyễn Quang Anh",
     avatar: userAvatar,
     lastMessage: "Chào bạn!",
     time: "1 phút trước",
@@ -23,7 +23,7 @@ const recentChats = [
   },
   {
     id: 2,
-    user: "Trần Thị B",
+    user: "Hứa Duy Anh",
     avatar: userAvatar,
     lastMessage: "Bạn khỏe không?",
     time: "5 phút trước",
@@ -42,7 +42,7 @@ const recentChats = [
   },
   {
     id: 3,
-    user: "Lê Công C",
+    user: "Phan Văn Biên",
     avatar: userAvatar,
     lastMessage: "Ok, mình sẽ đến.",
     time: "10 phút trước",

@@ -5,6 +5,7 @@ import { ArrowLeft, Image as ImageIcon, XCircle, Palette } from "lucide-react";
 import { cn } from "@/lib/utils";
 import "../styles/AddPost.css";
 import Header from "../components/Header.jsx";
+import avataruser from "../assets/user.jpg";
 
 const AddPostPage = () => {
   const [currentUser, setCurrentUser] = useState({
@@ -70,11 +71,10 @@ const AddPostPage = () => {
   };
 
   useEffect(() => {
-    // Simulate fetching current user
     const simulatedUser = {
       id: 1,
-      username: "testuser",
-      avatar: "/avatar.jpg", // provide a valid path
+      username: "Quang Anh",
+      avatar: avataruser,
     };
     setCurrentUser(simulatedUser);
   }, []);

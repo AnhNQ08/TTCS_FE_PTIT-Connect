@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Header from "../components/Header";
 import "../styles/profile.css";
 
-import userAvatar from "../assets/user.jpg"; // Import ảnh
+import userAvatar from "../assets/user.jpg";
 import background from "../assets/background.jpg";
 
 const ProfilePage = () => {

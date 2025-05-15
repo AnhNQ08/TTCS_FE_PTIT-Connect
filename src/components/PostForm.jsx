@@ -9,11 +9,11 @@ const PostForm = ({ onPostSuccess }) => {
 
     try {
       await axios.post("http://localhost:8080/api/posts", {
-        userId: 1, // sửa lại theo login
+        userId: 1,
         content,
       });
       setContent("");
-      onPostSuccess?.(); // reload nếu có truyền
+      onPostSuccess?.();
     } catch (err) {
       console.error("Lỗi khi đăng bài:", err);
     }

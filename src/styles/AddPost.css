@@ -1,23 +1,22 @@
-.container {
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 1rem;
-  background-color: #f0f2f5;
-  min-height: 100vh;
-  box-sizing: border-box;
+.add-post-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
 }
 
 .post-button {
   background-color: #1877f2;
-  color: white;
+  color: #fff;
   font-weight: 600;
-  padding: 0.5rem 1.25rem;
-  border-radius: 6px;
-  transition: background-color 0.2s ease;
+  padding: 0.75rem 1.5rem; /* Tăng padding để nút đẹp hơn */
+  border-radius: 0.5rem;
+  transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 .post-button:hover {
   background-color: #166fe5;
+  transform: scale(1.05); /* Thêm hiệu ứng phóng to khi hover */
 }
 
 .back-button {
@@ -31,6 +30,12 @@
   background-color: #e4e6eb;
 }
 
+.header-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #050505;
+}
+
 .user-info {
   display: flex;
   align-items: center;
@@ -41,7 +46,7 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  margin-right: 0.75rem;
+  margin-right: 1rem; /* Tăng khoảng cách giữa avatar và tên */
   object-fit: cover;
 }
 
@@ -57,6 +62,7 @@
   padding: 1rem;
   margin-bottom: 1rem;
   min-height: 8rem;
+  transition: background-color 0.3s ease;
 }
 
 .text-area {
@@ -71,13 +77,13 @@
 }
 
 .text-area.text-white {
-  color: white;
+  color: #fff;
 }
 
 .color-button {
   display: flex;
   align-items: center;
-  padding: 0.5rem 1rem;
+  padding: 0.75rem 1rem; /* Tăng padding để nút đẹp hơn */
   border-radius: 0.5rem;
   background-color: white;
   cursor: pointer;
@@ -85,6 +91,7 @@
   color: #1c1e21;
   margin-bottom: 1rem;
   transition: background-color 0.2s ease;
+  border: none;
 }
 
 .color-button:hover {
@@ -94,7 +101,7 @@
 .background-color-container {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 1rem; /* Tăng khoảng cách giữa các vòng màu */
   margin-bottom: 1rem;
   flex-wrap: wrap;
 }
@@ -118,7 +125,7 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.6rem 1rem;
+  padding: 0.75rem 1.25rem; /* Tăng padding để nút đẹp hơn */
   border-radius: 0.5rem;
   background-color: white;
   color: #1c1e21;
@@ -126,6 +133,7 @@
   cursor: pointer;
   transition: background-color 0.2s ease;
   margin-bottom: 1rem;
+  border: none;
 }
 
 .add-media-button:hover {
@@ -135,7 +143,7 @@
 .selected-images-container {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem;
+  gap: 1rem; /* Tăng khoảng cách giữa các hình ảnh */
   margin-bottom: 1rem;
 }
 
@@ -144,8 +152,8 @@
 }
 
 .selected-image {
-  max-width: 120px;
-  max-height: 120px;
+  width: 120px;
+  height: 120px;
   border-radius: 0.5rem;
   object-fit: cover;
   border: 1px solid #ddd;
@@ -159,4 +167,5 @@
   border-radius: 50%;
   background-color: white;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  z-index: 1;
 }

@@ -1,9 +1,6 @@
 import React from "react";
-import "../styles/Notification.css"; // Import file CSS
-import Header from "../components/Header"; // Đảm bảo đường dẫn chính xác
-// import NotificationBox from '../components/NotificationBox'; // Bạn cần tạo component này
-
-// Giả sử bạn cần tạo component NotificationBox
+import "../styles/Notification.css";
+import Header from "../components/Header";
 const NotificationBox = () => {
   return (
     <div className="notification-box">
@@ -18,7 +15,6 @@ const NotificationPage = () => {
       <Header />
       <h2 className="screen-name">Thông báo</h2>
       <NotificationBox />
-      {/* thêm các NotificationBox khác */}
     </div>
   );
 };
