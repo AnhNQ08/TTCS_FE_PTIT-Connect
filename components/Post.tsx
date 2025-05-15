@@ -7,7 +7,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import FastImage from 'react-native-fast-image';
 import { TouchableWithoutFeedback } from 'react-native';
-import { changeReaction, deletePostReaction, sendReaction } from '../services/userAPI';
+import { changeReaction, deleteReaction, sendReaction } from '../services/userAPI';
 
 export default function Post(props: any) {
 
@@ -207,7 +207,7 @@ export default function Post(props: any) {
                             if (reaction !== null) {
                                 setReaction(null);
                                 try {
-                                    const response = await deletePostReaction(props.post.id);
+                                    const response = await deleteReaction(props.post.id);
                                     console.log("deletePostReaction: ", response);
                                 } catch (e) {
                                     console.log("Loi deleteReactionPost ", e);
@@ -228,9 +228,11 @@ export default function Post(props: any) {
                         {renderReaction()}
                     </TouchableOpacity>
                 </View>
-                <View style={style.comment}>
-                    <FontAwesome5 name="comment" size={30} color="black" />
-                    <Text style={style.textButton}>Bình luận</Text>
+                <View>
+                    <TouchableOpacity onPress={props.padComment} style={style.comment}>
+                        <FontAwesome5 name="comment" size={30} color="black" />
+                        <Text style={style.textButton}>Bình luận</Text>
+                    </TouchableOpacity>
                 </View>
                 <View style={style.share}>
                     <AntDesign name="sharealt" size={30} color="black" />

@@ -171,7 +171,7 @@ export const deleteFriendRequest = async (sengerId, reciverId) => {
 export const sendReaction = async (type, emotion, id) => {
     const accessToken = await AsyncStorage.getItem('accessToken');
     return await request.post(
-        `react/send`,
+        `reaction/send`,
         {
             "type": type,
             "emotion": emotion,
@@ -188,7 +188,7 @@ export const sendReaction = async (type, emotion, id) => {
 export const changeReaction = async (type, emotion, id) => {
     const accessToken = await AsyncStorage.getItem('accessToken');
     return await request.put(
-        `react/change`,
+        `reaction/change`,
         {
             "type": type,
             "emotion": emotion,
@@ -202,13 +202,27 @@ export const changeReaction = async (type, emotion, id) => {
     )
 }
 
-export const deletePostReaction = async (postID) => {
+export const deleteReaction = async (postID) => {
     const accessToken = await AsyncStorage.getItem('accessToken');
     return await request.erase(
-        `react/deletePostReaction/${postID}`,
+        `reaction/deletePostReaction/${postID}`,
         {
             headers: {
                 Authorization: "Bearer " + accessToken
+            }
+        }
+    )
+}
+
+export const createCommentPost = async (formData, postID) => {
+    const accessToken = await AsyncStorage.getItem('accessToken');
+    return await request.post(
+        `postComment/create/post/${postID}`,
+        formData,
+        {
+            headers: {
+                Authorization: "Bearer " + accessToken,
+                'Content-Type': 'multipart/form-data',
             }
         }
     )

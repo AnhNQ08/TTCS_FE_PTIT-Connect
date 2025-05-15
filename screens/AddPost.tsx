@@ -92,6 +92,7 @@ export default function AddPost() {
             }
             try {
                 const response = await createNewPost(formData);
+                console.log(response);
                 if (response === "Post created successfully") {
                     alert("Bạn đẫ đăng bài thành công!");
                 }

@@ -5,6 +5,7 @@ import Post from '../components/Post';
 import HeaderBottom from '../components/HeaderBottom';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getNewestPost } from '../services/userAPI';
+import CommentContainer from '../components/Comment/CommentContainer';
 
 export default function Home() {
 
@@ -47,6 +48,9 @@ export default function Home() {
 
     const [currentUser, setCurrentUser] = useState<User | null>(null);
     const [newestPost, setNewestPost] = useState<NewestPost[] | null>(null);
+    const [isShowCommentContainer, setShowCommentContainer] = useState<true | false>(false);
+
+    const [selectedPostId, setSelectedPostId] = useState<number>();
 
     useEffect(() => {
         const fetchCurrentUser = async () => {
@@ -74,6 +78,11 @@ export default function Home() {
         fetchNewestPost();
     }, [])
 
+    const padComment = (postId: number) => {
+        setShowCommentContainer(true);
+        setSelectedPostId(postId)
+    }
+
     return (
         <View style={{ flex: 1 }}>
             <View>
@@ -83,8 +92,14 @@ export default function Home() {
             <FlatList
                 data={newestPost}
                 keyExtractor={(item) => item.id.toString()}
-                renderItem={({ item }) => <Post post={item} />}
+                renderItem={({ item }) => <Post post={item} padComment={() => padComment(item.id)} />}
             />
+            <CommentContainer
+                isVisible={isShowCommentContainer}
+                onClose={() => setShowCommentContainer(false)}
+                postId={selectedPostId}
+            />
+
         </View>
     );
 }
