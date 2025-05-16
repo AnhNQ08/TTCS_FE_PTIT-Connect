@@ -1,5 +1,6 @@
-import React from "react";
-import { View, Text, Image, StyleSheet } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import React, { useEffect, useState } from "react";
+import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 
 // Kiểu dữ liệu nhận từ prop
 type SearchResultType = {
@@ -18,10 +19,29 @@ function getImageMime(base64String: string): string {
 
 // Nhận prop `user` đúng kiểu
 export default function SearchResultBox({ user }: { user: SearchResultType }) {
+
+    const navigation = useNavigation<any>();
+
+    const [userID, setUserId] = useState<string>("");
+
+    useEffect(() => {
+        setUserId(user.id.toString());
+    })
+
+    const handlePadResult = async () => {
+        console.log('ID otherUser: ', userID);
+        navigation.navigate('OtherUserProfile', { userID })
+    }
+
+
+
+
     return (
-        <View style={styles.container}>
-            <Image source={{ uri: `data:${getImageMime(user.avatar)};base64,${user.avatar}` }} style={styles.avatar} />
-            <Text style={styles.username}>{user.username}</Text>
+        <View>
+            <TouchableOpacity style={styles.container} onPress={handlePadResult}>
+                <Image source={{ uri: `data:${getImageMime(user.avatar)};base64,${user.avatar}` }} style={styles.avatar} />
+                <Text style={styles.username}>{user.username}</Text>
+            </TouchableOpacity>
         </View>
     );
 }

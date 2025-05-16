@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Alert, StyleSheet, Text, View, Image } from "react-native";
+import React, { useEffect, useState } from "react";
+import { Alert, StyleSheet, Text, View, Image, ScrollView } from "react-native";
 import Modal from "react-native-modal";
 import { TextInput } from "react-native-paper";
 
@@ -9,14 +9,32 @@ import AntDesign from "react-native-vector-icons/AntDesign";
 
 import * as ImagePicker from "expo-image-picker";
 import { ImagePickerAsset } from "expo-image-picker";
-import { createCommentPost } from "../../services/userAPI";
+import { createCommentPost, getPostComment } from "../../services/userAPI";
+import Comment from "./Comment";
 
 
 export default function CommentContainer({ isVisible, onClose, postId }: any) {
 
     const [contentInput, setContentInput] = useState<string>("");
     const [selectedImages, setSelectedImages] = useState<ImagePickerAsset[]>([]);
-    const [resetComponet, setResetComponet] = useState<true | false>(true);
+    const [listComment, setListComment] = useState<null | any>();
+    const [refreshFlag, setRefreshFlag] = useState<true | false>(true);
+
+    useEffect(() => {
+        const fetchComments = async () => {
+            try {
+                const response = await getPostComment(postId);
+                console.log("refresFlag :", refreshFlag);
+                setListComment(response);
+            } catch (e) {
+                console.log("Lỗi getPostComment: ", e);
+            }
+        };
+
+        if (postId) {
+            fetchComments();
+        }
+    }, [postId, refreshFlag]);
 
     const handleImagePickerPress = async () => {
         const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -55,7 +73,7 @@ export default function CommentContainer({ isVisible, onClose, postId }: any) {
                 selectedImages.forEach((image, index) => {
                     const uriParts = image.uri.split(".");
                     const fileType = uriParts[uriParts.length - 1];
-                    formData.append("files", {
+                    formData.append("file", {
                         uri: image.uri,
                         name: `photo_${index}.${fileType}`,
                         type: `image/${fileType}`,
@@ -63,7 +81,7 @@ export default function CommentContainer({ isVisible, onClose, postId }: any) {
                 });
             } else {
                 formData.append(
-                    "files", null as any
+                    "file", null as any
                 )
             }
             try {
@@ -71,7 +89,7 @@ export default function CommentContainer({ isVisible, onClose, postId }: any) {
                 if (response !== null) {
                     setContentInput("");
                     setSelectedImages([]);
-                    console.log(response)
+                    console.log(response);
                 }
             } catch (e) {
                 console.log("Loi createCommentPost.", e);
@@ -80,7 +98,8 @@ export default function CommentContainer({ isVisible, onClose, postId }: any) {
     }
 
     const handlePadSendComment = async () => {
-        await handleCreateComment()
+        await handleCreateComment();
+        setRefreshFlag(!refreshFlag);
     }
 
     console.log("PostID: ", postId);
@@ -95,6 +114,21 @@ export default function CommentContainer({ isVisible, onClose, postId }: any) {
         >
             <View style={styles.container}>
                 <Text style={styles.text}>Đây là commentContainer</Text>
+                <ScrollView style={{ marginTop: 20 }}>
+                    {listComment?.map((cmt: any, index: any) => (
+                        <Comment
+                            key={index}
+                            content={cmt.content}
+                            backgroundUrl={cmt.backgroundUrl}
+                            mediaUrl={cmt.mediaUrl}
+                            commentedAt={cmt.commentedAt}
+                            userSummary={cmt.userSummary}
+                            reactionSummary={cmt.reactionSummary}
+                            currentUserReaction={cmt.currentUserReaction}
+                            reactionDTO={cmt.reactionDTO}
+                        />
+                    ))}
+                </ScrollView>
                 <View>
                     <View style={styles.inputRow}>
                         <TextInput
@@ -116,7 +150,7 @@ export default function CommentContainer({ isVisible, onClose, postId }: any) {
                                 disabled={
                                     (contentInput === null || contentInput.trim() === "") && selectedImages.length === 0
                                 }
-                                onPress={handleCreateComment}
+                                onPress={handlePadSendComment}
                             >
                                 <Ionicons
                                     name="send"
@@ -188,7 +222,8 @@ const styles = StyleSheet.create({
     imageContainer: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        justifyContent: 'flex-start'
+        justifyContent: 'flex-start',
+        marginBottom: 50
     },
     imageWrapper: {
         position: 'relative',

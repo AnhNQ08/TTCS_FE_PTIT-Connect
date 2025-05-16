@@ -68,6 +68,7 @@ export default function Home() {
             try {
                 const newestPostTmp = await getNewestPost();
                 setNewestPost(newestPostTmp);
+                console.log("newestPost: ", newestPostTmp);
             }
             catch (e) {
                 console.log("Loi lay bai viet moi nhat: ", e)

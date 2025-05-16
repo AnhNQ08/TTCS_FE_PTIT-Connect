@@ -25,8 +25,9 @@ export default function Login() {
                 await AsyncStorage.setItem("accessToken", response.accessToken);
                 await AsyncStorage.setItem("refreshToken", response.refreshToken);
                 const dataCurrentUser = await getCurrentUser();
+                await AsyncStorage.setItem("myID", dataCurrentUser.id.toString());
                 const dataCurrentUserJSON = JSON.stringify(dataCurrentUser);
-                await AsyncStorage.setItem("dataCurrentUser", dataCurrentUserJSON)
+                await AsyncStorage.setItem("dataCurrentUser", dataCurrentUserJSON);
                 navigation.navigate("Home")
             }
         } catch (err) {

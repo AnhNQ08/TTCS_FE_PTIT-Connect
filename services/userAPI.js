@@ -13,6 +13,7 @@ export const getCurrentUser = async () => {
 
 export const getUserProfile = async (userId) => {
     const accessToken = await AsyncStorage.getItem('accessToken');
+    console.log("url getUserProfile: /user/profile/", userId)
     return await request.get('/user/profile/' + userId, {
         headers: {
             Authorization: "Bearer " + accessToken
@@ -66,6 +67,20 @@ export const createNewPost = async (formData) => {
     )
 }
 
+export const syncPublicPost = async () => {
+    const accessToken = await AsyncStorage.getItem('accessToken');
+    return await request.post(
+        'post/syncPublicPost',
+        formData,
+        {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                'Content-Type': 'multipart/form-data',
+            },
+        }
+    )
+}
+
 export const getNewestPost = async () => {
     const accessToken = await AsyncStorage.getItem('accessToken');
     return await request.get(
@@ -78,10 +93,10 @@ export const getNewestPost = async () => {
     )
 }
 
-export const searchUser = async (nameUser) => {
+export const searchUser = async (userName) => {
     const accessToken = await AsyncStorage.getItem('accessToken');
     return await request.get(
-        `user/search?username=${nameUser}`,
+        `user/search?username=${userName}`,
         {
             headers: {
                 Authorization: "Bearer " + accessToken
@@ -206,6 +221,18 @@ export const deleteReaction = async (postID) => {
     const accessToken = await AsyncStorage.getItem('accessToken');
     return await request.erase(
         `reaction/deletePostReaction/${postID}`,
+        {
+            headers: {
+                Authorization: "Bearer " + accessToken
+            }
+        }
+    )
+}
+
+export const getPostComment = async (postID) => {
+    const accessToken = await AsyncStorage.getItem('accessToken');
+    return await request.get(
+        `postComment/post/${postID}`,
         {
             headers: {
                 Authorization: "Bearer " + accessToken

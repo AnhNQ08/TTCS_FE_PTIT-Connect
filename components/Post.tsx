@@ -203,6 +203,9 @@ export default function Post(props: any) {
 
                     <TouchableOpacity
                         style={style.like}
+                        disabled={
+                            showReactions === true
+                        }
                         onPress={async () => {
                             if (reaction !== null) {
                                 setReaction(null);

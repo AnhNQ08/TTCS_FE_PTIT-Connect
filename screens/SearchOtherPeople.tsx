@@ -19,6 +19,7 @@ export default function SearchOtherPeople() {
         try {
             const response = await searchUser(keyword);
             console.log("response: ", response);
+            setSearchResult(null);
             setSearchResult(response);
         } catch (e) {
             console.log("Lỗi tìm kiếm người dùng khác: ", e);
@@ -37,6 +38,7 @@ export default function SearchOtherPeople() {
                 }}
                 value={searchValue}
                 onChangeText={async (text) => {
+                    console.log(text);
                     if (text !== "") {
                         setSearchValue(text);
                         await fetchSearchResult(text);

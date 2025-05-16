@@ -4,7 +4,7 @@ import { View, TextInput, Text, StyleSheet, TouchableOpacity, Image } from "reac
 
 import { signUp } from "../services/authentication";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { getCurrentUser } from "../services/userAPI";
+import { getCurrentUser, syncPublicPost } from "../services/userAPI";
 
 export default function SignUp() {
 
@@ -21,12 +21,13 @@ export default function SignUp() {
                 alert("Tài khoản đã tồn tại!!!")
             }
             else {
+                await syncPublicPost();
                 await AsyncStorage.setItem("accessToken", response.accessToken);
                 await AsyncStorage.setItem("refreshToken", response.refreshToken);
                 const dataCurrentUser = await getCurrentUser();
                 const dataCurrentUserJSON = JSON.stringify(dataCurrentUser);
-                await AsyncStorage.setItem("dataCurrentUser", dataCurrentUserJSON)
-                alert("Đăng ký thành công!!!")
+                await AsyncStorage.setItem("dataCurrentUser", dataCurrentUserJSON);
+                alert("Đăng ký thành công!!!");
             }
         } catch (error) {
             console.error("Lỗi đăng ký:", error);
