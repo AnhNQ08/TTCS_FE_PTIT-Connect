@@ -115,7 +115,6 @@ const HomePage = () => {
             </Link>
           </div>
 
-          {/* Posts Feed */}
           {posts.map((post) => (
             <div key={post.id} className="post">
               <div className="post-header">

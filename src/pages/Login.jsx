@@ -1,28 +1,35 @@
 import { useState } from "react";
-import { login } from "../api/authentication";
+import { login } from "../services/authentication";
 import { useNavigate } from "react-router-dom";
 import "../styles/login.css";
 
 const Login = () => {
   const [error, setError] = useState("");
+  const [emailOrPhone, setEmailOrPhone] = useState("");
+  const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const username = document.getElementById("username-input").value;
-      const password = document.getElementById("password-input").value;
-      const res = await login(username, password);
-      alert("Đăng nhập thành công!\nToken: " + res.data.token);
-      setError("");
+      const res = await login(emailOrPhone, password);
 
-      navigate("/home");
+      if (res.error) {
+        setError(res.error);
+      } else {
+        alert(
+          "Đăng nhập thành công!\nToken: " + (res.data.token || "No token")
+        );
+        setError("");
+        navigate("/home");
+      }
     } catch (err) {
-      setError(err);
+      setError(err.message || "Đăng nhập thất bại");
     }
   };
 
-  const handleForgotPassword = () => {
+  const handleForgotPassword = (e) => {
+    e.preventDefault();
     navigate("/forgot-password");
   };
 
@@ -43,24 +50,28 @@ const Login = () => {
       <div className="login-right">
         <form className="login-box" onSubmit={handleSubmit}>
           <input
-            id="username-input"
             type="text"
             name="username"
             placeholder="Email hoặc số điện thoại"
             required
+            value={emailOrPhone}
+            onChange={(e) => setEmailOrPhone(e.target.value)}
           />
           <input
-            id="password-input"
             type="password"
             name="password"
             placeholder="Mật khẩu"
             required
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
           />
           <button type="submit" className="login-btn">
             Đăng nhập
           </button>
           {error && <p className="error">{error}</p>}
-          <a href="#" className="forgot" onClick={handleForgotPassword}></a>
+          <a href="#" className="forgot" onClick={handleForgotPassword}>
+            Quên mật khẩu?
+          </a>
           <hr />
           <button
             type="button"

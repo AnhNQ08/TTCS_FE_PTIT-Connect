@@ -9,14 +9,14 @@
   background-color: #1877f2;
   color: #fff;
   font-weight: 600;
-  padding: 0.75rem 1.5rem; /* Tăng padding để nút đẹp hơn */
+  padding: 0.75rem 1.5rem;
   border-radius: 0.5rem;
   transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 .post-button:hover {
   background-color: #166fe5;
-  transform: scale(1.05); /* Thêm hiệu ứng phóng to khi hover */
+  transform: scale(1.05);
 }
 
 .back-button {
@@ -46,7 +46,7 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  margin-right: 1rem; /* Tăng khoảng cách giữa avatar và tên */
+  margin-right: 1rem;
   object-fit: cover;
 }
 
@@ -83,7 +83,7 @@
 .color-button {
   display: flex;
   align-items: center;
-  padding: 0.75rem 1rem; /* Tăng padding để nút đẹp hơn */
+  padding: 0.75rem 1rem;
   border-radius: 0.5rem;
   background-color: white;
   cursor: pointer;
@@ -101,7 +101,7 @@
 .background-color-container {
   display: flex;
   align-items: center;
-  gap: 1rem; /* Tăng khoảng cách giữa các vòng màu */
+  gap: 1rem;
   margin-bottom: 1rem;
   flex-wrap: wrap;
 }
@@ -125,7 +125,7 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.75rem 1.25rem; /* Tăng padding để nút đẹp hơn */
+  padding: 0.75rem 1.25rem;
   border-radius: 0.5rem;
   background-color: white;
   color: #1c1e21;
@@ -143,7 +143,7 @@
 .selected-images-container {
   display: flex;
   flex-wrap: wrap;
-  gap: 1rem; /* Tăng khoảng cách giữa các hình ảnh */
+  gap: 1rem;
   margin-bottom: 1rem;
 }
 

@@ -8,6 +8,7 @@ import MessengerPage from "./pages/Messenger";
 import NotificationPage from "./pages/Notification";
 import MyProfilePage from "./pages/MyProfile";
 import AddPostPage from "./pages/AddPostPage";
+import OtherUserProfile from "./pages/OtherUserProfile";
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
         <Route path="/notification" element={<NotificationPage />} />
         <Route path="/profile" element={<MyProfilePage />} />
         <Route path="/add-post" element={<AddPostPage />} />
+        <Route path="/other-user-profile" element={<OtherUserProfile />} />
       </Routes>
     </Router>
   );
