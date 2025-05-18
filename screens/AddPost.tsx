@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, Image, Alert, ScrollView, ImageBackground } from "react-native";
+import {
+    View, Text, TouchableOpacity, StyleSheet, Image, Alert,
+    ScrollView, ImageBackground
+} from "react-native";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import getImageMime from "../services/getImageFromUnit8";
@@ -9,105 +12,103 @@ import { ImagePickerAsset } from "expo-image-picker";
 import { createNewPost } from "../services/userAPI";
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { FontAwesome5, MaterialIcons } from "@expo/vector-icons";
+import { Asset } from "expo-asset";
 
 export default function AddPost() {
     type User = {
         id: number;
         username: string;
         avatar: Uint8Array;
-    }
+    };
 
     const [currentUser, setCurrentUser] = useState<User | null>(null);
     const [selectedImages, setSelectedImages] = useState<ImagePickerAsset[]>([]);
-    const [isColor, setColor] = useState<true | false>(false);
-    const [backgroundColor, setBackgroundColor] = useState<any>(null);
-    const [isSelectedImagesEdit, setSelectedImagesEdit] = useState<true | false>(false);
+    const [isColor, setColor] = useState(false);
+    const [backgroundColor, setBackgroundColor] = useState<number | null>(null); // require(...) trả về number
+    const [isSelectedImagesEdit, setSelectedImagesEdit] = useState(false);
     const [content, setContent] = useState<string>("");
-    const [privacy, setPrivacy] = useState<true | false>(false);
-    const [isSetPrivacy, setIsPrivacy] = useState<true | false>(false);
+    const [privacy, setPrivacy] = useState(false);
+    const [isSetPrivacy, setIsPrivacy] = useState(false);
 
     const colorMap = [
-        { img: require('../assets/picture/backgroundColor/color1.jpg'), },
-        { img: require('../assets/picture/backgroundColor/color2.jpg'), },
-        { img: require('../assets/picture/backgroundColor/color3.jpg'), },
-        { img: require('../assets/picture/backgroundColor/color4.jpg'), },
-        { img: require('../assets/picture/backgroundColor/color5.jpg'), },
-        { img: require('../assets/picture/backgroundColor/color6.jpg'), },
+        require('../assets/picture/backgroundColor/color1.jpg'),
+        require('../assets/picture/backgroundColor/color2.jpg'),
+        require('../assets/picture/backgroundColor/color3.jpg'),
+        require('../assets/picture/backgroundColor/color4.jpg'),
+        require('../assets/picture/backgroundColor/color5.jpg'),
+        require('../assets/picture/backgroundColor/color6.jpg'),
     ];
 
     const handleColor = () => {
-        if (isColor === false) {
-            setColor(true)
+        if (isColor) {
+            setColor(false);
+            setBackgroundColor(null);
         } else {
-            setColor(false)
-            setBackgroundColor(null)
+            setColor(true);
         }
-    }
+    };
 
     const handlePadSelectedImagesEdit = () => {
         setSelectedImagesEdit(!isSelectedImagesEdit);
-    }
+    };
 
     const handleRemoveImage = (index: number) => {
-        selectedImages.splice(index, 1);
-
-        setSelectedImages([...selectedImages]);
-
-        if (selectedImages.length === 0) {
+        const updated = [...selectedImages];
+        updated.splice(index, 1);
+        setSelectedImages(updated);
+        if (updated.length === 0) {
             setSelectedImagesEdit(false);
         }
-    }
+    };
 
     const handlePost = async () => {
         if (content === "" && selectedImages.length === 0) {
             alert("Bạn cần thêm nội dung hoặc ảnh cho bài viết!");
-            return 0;
-        } else {
-            const formData = new FormData();
-            if (privacy === true) {
-                formData.append("data", JSON.stringify({
-                    content: content,
-                    privacy: "PRIVATE"
-                }));
-            } else {
-                formData.append("data", JSON.stringify({
-                    content: content,
-                    privacy: "PUBLIC"
-                }));
-            }
-            if (selectedImages.length != 0) {
-                selectedImages.forEach((image, index) => {
-                    const uriParts = image.uri.split(".");
-                    const fileType = uriParts[uriParts.length - 1];
-                    formData.append("files", {
-                        uri: image.uri,
-                        name: `photo_${index}.${fileType}`,
-                        type: `image/${fileType}`,
-                    } as any);
-                });
-                formData.append('postBackground', '');
-            } else {
-                formData.append('files', '');
-                formData.append('postBackground', backgroundColor as any);
-            }
-            try {
-                const response = await createNewPost(formData);
-                console.log(response);
-                if (response === "Post created successfully") {
-                    alert("Bạn đẫ đăng bài thành công!");
-                }
-            } catch (e) {
-                console.log("Lôi đăng bài viết: ", e);
-            }
+            return;
         }
-    }
 
+        const formData = new FormData();
 
-    const handlePadPost = () => {
-        console.log("padPOst");
-        handlePost();
-    }
+        formData.append("data", JSON.stringify({
+            content,
+            privacy: privacy ? "PRIVATE" : "PUBLIC"
+        }));
 
+        if (selectedImages.length > 0) {
+            selectedImages.forEach((image, index) => {
+                const uriParts = image.uri.split(".");
+                const fileType = uriParts[uriParts.length - 1];
+                formData.append("files", {
+                    uri: image.uri,
+                    name: `photo_${index}.${fileType}`,
+                    type: `image/${fileType}`,
+                } as any);
+            });
+            formData.append('postBackground', '');
+        } else if (backgroundColor !== null) {
+            const asset = Asset.fromModule(backgroundColor);
+            await asset.downloadAsync();
+            formData.append('files', '');
+            formData.append("postBackground", {
+                uri: asset.localUri || asset.uri,
+                name: 'background.jpg',
+                type: 'image/jpeg',
+            } as any);
+        } else {
+            formData.append("files", '');
+            formData.append("postBackground", '');
+        }
+
+        try {
+            const response = await createNewPost(formData);
+            console.log(response);
+            if (response === "Post created successfully") {
+                alert("Bạn đã đăng bài thành công!");
+            }
+        } catch (e) {
+            console.error("Lỗi đăng bài viết:", e);
+        }
+    };
 
     useEffect(() => {
         const fetchCurrentUser = async () => {
@@ -149,7 +150,7 @@ export default function AddPost() {
                     <Ionicons name="arrow-back" size={24} color="black" />
                 </TouchableOpacity>
                 <Text style={[styles.text1, { marginLeft: 15 }]}>Tạo bài viết</Text>
-                <TouchableOpacity onPress={() => { handlePadPost() }}>
+                <TouchableOpacity onPress={handlePost}>
                     <Text style={styles.postPress}>Đăng</Text>
                 </TouchableOpacity>
             </View>
@@ -162,56 +163,32 @@ export default function AddPost() {
                 <Text style={styles.userName}>{currentUser?.username}</Text>
             </View>
 
-            {privacy ?
-                <TouchableOpacity style={styles.buttomPrivacy} onPress={() => { setIsPrivacy(true) }}>
+            <TouchableOpacity style={styles.buttomPrivacy} onPress={() => setIsPrivacy(true)}>
+                {privacy ?
                     <FontAwesome5 name="user-friends" size={24} color="black" />
-                    <Text style={{ marginLeft: 10, fontSize: 15, fontWeight: 600 }}>
-                        Bạn bè
-                    </Text>
-                    <MaterialIcons name="expand-more" size={24} color="black" />
-                </TouchableOpacity>
-                :
-                <TouchableOpacity style={styles.buttomPrivacy} onPress={() => { setIsPrivacy(true) }}>
+                    :
                     <AntDesign name="earth" size={24} color="black" />
-                    <Text style={{ marginLeft: 10, fontSize: 15, fontWeight: 600 }}>
-                        Công khai
-                    </Text>
-                    <MaterialIcons name="expand-more" size={24} color="black" />
-                </TouchableOpacity>
-            }
+                }
+                <Text style={{ marginLeft: 10, fontSize: 15, fontWeight: '600' }}>
+                    {privacy ? "Bạn bè" : "Công khai"}
+                </Text>
+                <MaterialIcons name="expand-more" size={24} color="black" />
+            </TouchableOpacity>
 
-            {isSetPrivacy &&
+            {isSetPrivacy && (
                 <View style={styles.sellectedPrivacy}>
-                    <TouchableOpacity
-                        style={{ flexDirection: "row", justifyContent: "center" }}
-                        onPress={() => {
-                            setIsPrivacy(false);
-                            setPrivacy(false)
-                        }}>
+                    <TouchableOpacity onPress={() => { setIsPrivacy(false); setPrivacy(false); }}>
                         <AntDesign name="earth" size={24} color="black" />
-                        <Text>
-                            Công khai
-                        </Text>
+                        <Text style={{ marginLeft: 10 }}>Công khai</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity
-                        style={{ flexDirection: "row", justifyContent: "center" }}
-                        onPress={() => {
-                            setIsPrivacy(false);
-                            setPrivacy(true)
-                        }}
-                    >
+                    <TouchableOpacity onPress={() => { setIsPrivacy(false); setPrivacy(true); }}>
                         <FontAwesome5 name="user-friends" size={24} color="black" />
-                        <Text style={{ marginLeft: 10 }}>
-                            Bạn bè
-                        </Text>
+                        <Text style={{ marginLeft: 10 }}>Bạn bè</Text>
                     </TouchableOpacity>
                 </View>
-            }
+            )}
 
-            <ImageBackground
-                source={backgroundColor}
-                style={{ padding: 10 }}
-            >
+            <ImageBackground source={backgroundColor ?? undefined} style={{ padding: 10 }}>
                 <TextInput
                     placeholder="Bạn đang nghĩ gì?"
                     style={[styles.textInput, { backgroundColor: 'transparent' }]}
@@ -219,17 +196,12 @@ export default function AddPost() {
                     placeholderTextColor={backgroundColor ? 'white' : 'black'}
                     textColor={backgroundColor ? 'white' : 'black'}
                     value={content}
-                    onChangeText={(text) => {
-                        setContent(text);
-                    }}
+                    onChangeText={setContent}
                 />
             </ImageBackground>
 
             {!isColor && selectedImages.length === 0 && (
-                <TouchableOpacity
-                    onPress={handleColor}
-                    style={{ marginTop: 20 }}
-                >
+                <TouchableOpacity onPress={handleColor} style={{ marginTop: 20 }}>
                     <Ionicons name="color-fill-outline" size={30} color="red" />
                 </TouchableOpacity>
             )}
@@ -240,29 +212,23 @@ export default function AddPost() {
                         <Ionicons name="arrow-back" size={24} color="black" />
                     </TouchableOpacity>
                     {colorMap.map((item, index) => (
-                        <TouchableOpacity key={index} onPress={() => setBackgroundColor(item.img)}>
-                            <Image source={item.img} style={styles.backgroundColorButton} />
+                        <TouchableOpacity key={index} onPress={() => setBackgroundColor(item)}>
+                            <Image source={item} style={styles.backgroundColorButton} />
                         </TouchableOpacity>
                     ))}
                 </View>
             )}
 
-            <TouchableOpacity
-                onPress={handleImagePickerPress}
-                disabled={isColor}
-            >
-                <Text
-                    style={[
-                        styles.buttonAddMedia,
-                        backgroundColor === null && { backgroundColor: '#1877F2', color: "white" },
-                        backgroundColor !== null && { opacity: 0.5 }
-                    ]}
-                >
+            <TouchableOpacity onPress={handleImagePickerPress} disabled={isColor}>
+                <Text style={[
+                    styles.buttonAddMedia,
+                    backgroundColor === null ? { backgroundColor: '#1877F2', color: "white" } : { opacity: 0.5 }
+                ]}>
                     Thêm Ảnh/ Video
                 </Text>
             </TouchableOpacity>
 
-            {selectedImages.length !== 0 &&
+            {selectedImages.length > 0 && (
                 <View>
                     <TouchableOpacity onPress={handlePadSelectedImagesEdit}>
                         <Text style={styles.selectedImageEdit}>Chỉnh sửa</Text>
@@ -270,10 +236,7 @@ export default function AddPost() {
                     <View style={styles.imageContainer}>
                         {selectedImages.map((image, index) => (
                             <View key={index} style={styles.imageWrapper}>
-                                <Image
-                                    source={{ uri: image.uri }}
-                                    style={styles.selectedImage}
-                                />
+                                <Image source={{ uri: image.uri }} style={styles.selectedImage} />
                                 {isSelectedImagesEdit && (
                                     <TouchableOpacity
                                         onPress={() => handleRemoveImage(index)}
@@ -286,8 +249,7 @@ export default function AddPost() {
                         ))}
                     </View>
                 </View>
-            }
-
+            )}
         </ScrollView>
     );
 }
@@ -333,13 +295,13 @@ const styles = StyleSheet.create({
         marginLeft: 10
     },
     textInput: {
-        borderWidth: 0,
-        height: 200,
+        minHeight: 200,
         marginTop: 10,
         fontSize: 20,
-        backgroundColor: 'white',
         marginBottom: 10,
-        textAlign: "center"
+        textAlign: "center",
+        justifyContent: "center",
+        alignItems: "center"
     },
     backgroundColorContainer: {
         marginTop: 20,
@@ -392,18 +354,19 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         marginLeft: 20,
         marginTop: 20,
-        alignContent: "center",
-        justifyContent: "center",
+        alignItems: "center",
         backgroundColor: "#E0E0E0",
         paddingVertical: 5,
+        paddingHorizontal: 8,
+        borderRadius: 5
     },
     sellectedPrivacy: {
         width: 140,
         marginLeft: 20,
         marginTop: 5,
-        alignContent: "center",
-        justifyContent: "center",
         backgroundColor: "#E0E0E0",
         paddingVertical: 5,
+        paddingHorizontal: 8,
+        borderRadius: 5
     }
 });

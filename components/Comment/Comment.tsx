@@ -221,12 +221,12 @@ export default function Comment(props: any) {
                     <Text style={{ color: isReplyComment ? '#1877F2' : "black" }}>Trả lời</Text>
                 </TouchableOpacity>
 
-                {
+                {/* {
                     myId === userId &&
                     <TouchableOpacity style={{ marginLeft: 20 }}>
                         <Text>Chỉnh sửa</Text>
                     </TouchableOpacity>
-                }
+                } */}
                 {
                     props.reactionSummary.total !== 0 &&
                     <View>

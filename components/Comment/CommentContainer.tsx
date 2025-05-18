@@ -113,7 +113,6 @@ export default function CommentContainer({ isVisible, onClose, postId }: any) {
             style={styles.modal}
         >
             <View style={styles.container}>
-                <Text style={styles.text}>Đây là commentContainer</Text>
                 <ScrollView style={{ marginTop: 20 }}>
                     {listComment?.map((cmt: any, index: any) => (
                         <Comment

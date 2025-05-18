@@ -172,7 +172,7 @@ export const deleteFriend = async (idUser) => {
 export const deleteFriendRequest = async (sengerId, reciverId) => {
     const accessToken = await AsyncStorage.getItem('accessToken');
     return await request.post(
-        `friendRequest/delete?senderId=${sengerId}&receiverId=${reciverId}`,
+        `friendRequest/delete/${sengerId}/${reciverId}`,
         {}
         ,
         {
@@ -200,27 +200,25 @@ export const sendReaction = async (type, emotion, id) => {
     )
 }
 
-export const changeReaction = async (type, emotion, id) => {
+export const changeReaction = async (id, type) => {
     const accessToken = await AsyncStorage.getItem('accessToken');
     return await request.put(
-        `reaction/change`,
-        {
-            "type": type,
-            "emotion": emotion,
-            "id": id
-        },
+        `reaction/change/${id}`,
+        JSON.stringify(type)
+        ,
         {
             headers: {
-                Authorization: "Bearer " + accessToken
+                Authorization: "Bearer " + accessToken,
+                'Content-Type': 'application/json',
             }
         }
     )
 }
 
-export const deleteReaction = async (postID) => {
+export const deleteReaction = async (reactionId) => {
     const accessToken = await AsyncStorage.getItem('accessToken');
     return await request.erase(
-        `reaction/deletePostReaction/${postID}`,
+        `reaction/delete/${reactionId}`,
         {
             headers: {
                 Authorization: "Bearer " + accessToken
@@ -250,6 +248,18 @@ export const createCommentPost = async (formData, postID) => {
             headers: {
                 Authorization: "Bearer " + accessToken,
                 'Content-Type': 'multipart/form-data',
+            }
+        }
+    )
+}
+
+export const getPostUserId = async (userId) => {
+    const accessToken = await AsyncStorage.getItem('accessToken');
+    return await request.get(
+        `post/${userId}`,
+        {
+            headers: {
+                Authorization: "Bearer " + accessToken
             }
         }
     )

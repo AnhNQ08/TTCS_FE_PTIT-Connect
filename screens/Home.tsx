@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList } from 'react-native';
 import Header from '../components/Header';
 import Post from '../components/Post';
@@ -6,6 +6,7 @@ import HeaderBottom from '../components/HeaderBottom';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getNewestPost } from '../services/userAPI';
 import CommentContainer from '../components/Comment/CommentContainer';
+import { useFocusEffect } from '@react-navigation/native';
 
 export default function Home() {
 
@@ -78,6 +79,22 @@ export default function Home() {
         fetchCurrentUser();
         fetchNewestPost();
     }, [])
+
+    useFocusEffect(
+        useCallback(() => {
+            const fetchNewestPost = async () => {
+                try {
+                    const newestPostTmp = await getNewestPost();
+                    setNewestPost(newestPostTmp);
+                    console.log("newestPost: ", newestPostTmp);
+                } catch (e) {
+                    console.log("Lỗi lấy bài viết mới nhất: ", e);
+                }
+            };
+
+            fetchNewestPost();
+        }, [])
+    );
 
     const padComment = (postId: number) => {
         setShowCommentContainer(true);

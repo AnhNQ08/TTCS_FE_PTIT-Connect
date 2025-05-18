@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Image, View, StyleSheet, Text, TextInput, TouchableOpacity } from 'react-native';
+import { Image, View, StyleSheet, Text, TextInput, TouchableOpacity, ImageBackground } from 'react-native';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
@@ -14,7 +14,8 @@ export default function Post(props: any) {
     const navigation = useNavigation<any>();
 
     const [reaction, setReaction] = useState<"LIKE" | "LOVE" | "HAHA" | "WOW" | "CRY" | "ANGRY" | null>(null);
-    const [showReactions, setShowReactions] = useState(false);
+    const [showReactionPopup, setShowReactionPopup] = useState(false);
+    const [reactionId, setReactionId] = useState<number>();
 
     function getImageMime(base64String: string): string {
         if (base64String.startsWith('/9j')) return 'image/jpeg';      // JPEG
@@ -25,8 +26,10 @@ export default function Post(props: any) {
     }
 
     useEffect(() => {
+        console.log("-------Post------------------");
         if (props.post.currentUserReaction !== null) {
             setReaction(props.post.currentUserReaction.emotion);
+            setReactionId(props.post.currentUserReaction.id);
         }
     }, [])
 
@@ -107,25 +110,27 @@ export default function Post(props: any) {
                     key={type}
                     style={style.reactionOption}
                     onPress={async () => {
-                        setReaction(type as any);
-                        setShowReactions(false);
                         if (reaction === null) {
                             try {
                                 const response = await sendReaction("POST", type, props.post.id);
+                                console.log("reaction send: ", type);
                                 console.log("response sendReactionPost: ", response);
-                                console.log("reaction: ", reaction);
+                                setReactionId(response);
                             } catch (e) {
                                 console.log("Loi sendReactionPost: ", e);
                             }
                         } else {
                             try {
-                                const response = await changeReaction("POST", type, props.post.id);
+                                console.log("reaction change: ", type);
+                                console.log("reactionID: ", reactionId);
+                                const response = await changeReaction(reactionId, type);
                                 console.log("response changeReactionPost: ", response);
-                                console.log("reaction: ", type);
                             } catch (e) {
                                 console.log("Loi changeReactionPost: ", e);
                             }
                         }
+                        setReaction(type as any);
+                        setShowReactionPopup(false);
                     }}
                 >
                     {getReactionIcon(type as any)}
@@ -153,6 +158,43 @@ export default function Post(props: any) {
         }
     };
 
+    const renderPostWithoutBackground = () => {
+        return (
+            <>
+                {/*Content*/}
+                <Text style={style.content}>{props.post.content}</Text>
+                {/*ImgPost*/}
+                {props.post.postMediaList.map((item: any, index: any) => {
+                    return (
+                        <Image
+                            source={{ uri: item.url }}
+                            key={index}
+                            style={{ width: "100%", height: 400, marginTop: 10 }}
+                        />
+                    );
+                })}</>
+        )
+    }
+
+    const renderPostBackground = () => {
+        { console.log("backgroundUrl: ", props.post.backgroundUrl) };
+        return (
+            <ImageBackground
+                source={{ uri: encodeURI(props.post.backgroundUrl) }}
+                style={{
+                    width: '100%', height: "undefined", minHeight: "200",
+                    alignItems: "center",
+                    justifyContent: "center"
+                }}
+                resizeMode="cover"
+            >
+                <View style={{ width: "80%", alignItems: "center", justifyContent: "center" }}>
+                    <Text style={{ color: "white", fontSize: 20 }}>{props.post.content}</Text>
+                </View>
+            </ImageBackground>
+        );
+    };
+
     return (
         <View style={style.container}>
             {/*Post Header*/}
@@ -167,25 +209,18 @@ export default function Post(props: any) {
                 {/*Name poster and time*/}
                 <View style={style.namePosterAndTime}>
                     <Text style={style.namePoster}>{props.post.userSummary.username}</Text>
-                    <Text>16 phút</Text>
+                    <Text >{props.post.createdAt}</Text>
                 </View>
             </View>
-            {/*Content*/}
-            <Text style={style.content}>{props.post.content}</Text>
-            {/*ImgPost*/}
-            {props.post.postMediaList.map((item: any, index: any) => {
-                return (
-                    <Image
-                        source={{ uri: item.url }}
-                        key={index}
-                        style={{ width: "100%", height: 400, marginTop: 10 }}
-                    />
-                );
-            })
+            {
+                props.post.backgroundUrl === null && renderPostWithoutBackground()
+            }
+            {
+                props.post.backgroundUrl !== null && renderPostBackground()
             }
             {/*Number Post*/}
             <View style={style.numberPost}>
-                <Text style={style.numberLike}>11.900</Text>
+                <Text style={style.numberLike}>{props.post.reactionSummary.total}</Text>
                 <Text style={style.numberComment}>1,9k bình luận</Text>
                 <Text style={style.numberShare}>126 lượt chia sẻ</Text>
             </View>
@@ -193,8 +228,8 @@ export default function Post(props: any) {
             <View style={style.postButton}>
                 <View>
                     {
-                        showReactions &&
-                        <TouchableWithoutFeedback onPress={() => setShowReactions(false)}>
+                        showReactionPopup &&
+                        <TouchableWithoutFeedback onPress={() => setShowReactionPopup(false)}>
                             <View style={StyleSheet.absoluteFill}>
                                 <ReactionPopup />
                             </View>
@@ -204,29 +239,31 @@ export default function Post(props: any) {
                     <TouchableOpacity
                         style={style.like}
                         disabled={
-                            showReactions === true
+                            showReactionPopup === true
                         }
                         onPress={async () => {
                             if (reaction !== null) {
-                                setReaction(null);
                                 try {
-                                    const response = await deleteReaction(props.post.id);
+                                    console.log("reactionID: ", reactionId);
+                                    const response = await deleteReaction(reactionId);
                                     console.log("deletePostReaction: ", response);
                                 } catch (e) {
                                     console.log("Loi deleteReactionPost ", e);
                                 }
+                                setReaction(null);
                             } else {
-                                setReaction("LIKE");
                                 try {
                                     const response = await sendReaction("POST", "LIKE", props.post.id);
+                                    setReactionId(response);
                                     console.log("response sendReactionPost: ", response);
                                     console.log("reaction: ", reaction);
                                 } catch (e) {
                                     console.log("Loi sendReactionPost: ", e);
                                 }
+                                setReaction("LIKE");
                             }
                         }}
-                        onLongPress={() => setShowReactions(true)}
+                        onLongPress={() => setShowReactionPopup(true)}
                     >
                         {renderReaction()}
                     </TouchableOpacity>
