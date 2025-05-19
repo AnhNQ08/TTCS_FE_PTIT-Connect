@@ -1,15 +1,17 @@
 import React, { useState } from "react";
-import avatarImage from "../assets/user.jpg";
-import backgroundImage from "../assets/background.jpg";
 import Header from "../components/Header";
 import "../styles/profile.css";
-function Profile() {
+
+import userAvatar from "../assets/user.jpg";
+import background from "../assets/background.jpg";
+
+const ProfilePage = () => {
   const [userData, setUserData] = useState({
     name: "Quang Anh",
     username: "@anhnq.22cn030",
     bio: "This is a short bio about Quang Anh.",
-    avatarUrl: avatarImage,
-    backgroundImageUrl: backgroundImage,
+    avatarUrl: userAvatar,
+    backgroundImageUrl: background,
   });
 
   const handleAvatarChange = (e) => {
@@ -97,6 +99,6 @@ function Profile() {
       </div>
     </div>
   );
-}
+};
 
-export default Profile;
+export default ProfilePage;
