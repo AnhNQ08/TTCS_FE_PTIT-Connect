@@ -6,7 +6,7 @@ const Header = () => {
   return (
     <header className="header">
       <div className="header-left">
-        <Link to="/">PTIT CONNECT</Link>
+        <Link to="/home">PTIT CONNECT</Link>
       </div>
 
       <div className="header-center">
@@ -19,7 +19,7 @@ const Header = () => {
         <nav className="header-nav">
           <ul>
             <li>
-              <Link to="/">
+              <Link to="/home">
                 <i className="fa fa-home"></i>
               </Link>
             </li>
