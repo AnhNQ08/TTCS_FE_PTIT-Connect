@@ -1,0 +1,92 @@
+.left-content{
+    display: flex;
+    flex-direction: column;
+    width: 350px;
+    height: 100vh;
+    background-color: white;
+    gap: 10px;
+    padding: 20px;
+}
+
+.middle-content{
+    display: flex;
+    flex-direction: column;
+    width: 1000px;
+    background-color: white;
+    height: 97.9vh;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    border-radius: 10px;
+}
+
+.search-bounding{
+    width: auto;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    background-color: lightgray;
+    font-size: 20px;
+    padding: 15px;
+    border-radius: 20px;
+}
+
+.chat-room-container{
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow-y: auto;
+}
+
+.chat-room{
+    display: flex;
+    gap: 10px;
+    padding: 10px;
+    align-items: center;
+    border-radius: 15px;
+    transition: background-color 0.1s;
+}
+
+.chat-room:hover{
+    background-color: lightgray;
+    cursor: pointer;
+}
+
+.chat-room-avatar{
+    width: 65px;
+    height: 65px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid black;
+}
+
+.chat-room-name{
+    font-size: 20px;
+    font-weight: bold;
+    margin-top: -5px;
+}
+
+.chat-room-messages{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex-grow: 1;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.sender-message{
+    max-width: 500px;
+    align-self: flex-end;
+}
+
+.chat-room-header{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px;
+}
+
+.chat-room-info{
+    display: flex;
+    gap: 10px;
+}
