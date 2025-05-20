@@ -1,4 +1,4 @@
-import * as request from './request.js'
+import * as request from '../utils/request.js'
 
 export const getChatRoom = async () => {
     return request.get('/conversation', {
