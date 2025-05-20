@@ -13,16 +13,9 @@ const Login = () => {
     e.preventDefault();
     try {
       const res = await login(emailOrPhone, password);
-
-      if (res.error) {
-        setError(res.error);
-      } else {
-        alert(
-          "Đăng nhập thành công!\nToken: " + (res.data.token || "No token")
-        );
-        setError("");
-        navigate("/home");
-      }
+      localStorage.setItem("accessToken", res.accessToken);
+      localStorage.setItem("refreshToken", res.refreshToken);
+      navigate("/chat");
     } catch (err) {
       setError(err.message || "Đăng nhập thất bại");
     }
