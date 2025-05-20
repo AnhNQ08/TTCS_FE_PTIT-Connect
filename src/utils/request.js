@@ -1,5 +1,5 @@
 import axios from "axios";
-import * as authService from "../api/authentication.js";
+import * as authService from "../services/authentication.js";
 
 const request = axios.create({
   baseURL: "http://100.114.40.116:5173",
@@ -13,15 +13,10 @@ const refreshToken = async () => {
   try {
     const response = await authService.refreshToken();
     const newAccessToken = response.accessToken;
-    const newRefreshToken = response.refreshToken;
     localStorage.setItem("accessToken", newAccessToken);
-    localStorage.setItem("refreshToken", newRefreshToken);
     return newAccessToken;
   } catch (e) {
     console.error("Error refreshing token:", e);
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
-    window.location.href = "/login";
     return null;
   }
 };
@@ -35,7 +30,7 @@ request.interceptors.response.use(
         return new Promise((resolve) => {
           failedRequestsQueue.push((newToken) => {
             originalRequest.headers["Authorization"] = `Bearer ${newToken}`;
-            resolve(axios(originalRequest));
+            resolve(request(originalRequest));
           });
         });
       }
@@ -44,7 +39,7 @@ request.interceptors.response.use(
       isRefreshing = false;
       if (newAccessToken) {
         originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
-        const res = await axios(originalRequest);
+        const res = await request(originalRequest);
         failedRequestsQueue.forEach((callback) => callback(newAccessToken));
         failedRequestsQueue = [];
         return res;
@@ -54,8 +49,8 @@ request.interceptors.response.use(
   }
 );
 
-export const get = async (api, options = {}) => {
-  const response = await request.get(api, options);
+export const get = async (api, config = {}) => {
+  const response = await request.get(api, config);
   return response.data;
 };
 
@@ -64,7 +59,12 @@ export const post = async (api, options = {}, config = {}) => {
   return response.data;
 };
 
-export const erase = async (api, config = {}) => {
+export const put = async (api, options = {}, config = {}) => {
+  const response = await request.put(api, options, config);
+  return response.data;
+};
+
+export const remove = async (api, config = {}) => {
   const response = await request.delete(api, config);
   return response.data;
 };
