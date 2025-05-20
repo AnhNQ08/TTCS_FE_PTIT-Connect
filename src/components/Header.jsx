@@ -1,12 +1,12 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import "../styles/header.css"; // Tạo file CSS riêng cho Header
+import "../styles/header.css";
 
 const Header = () => {
   return (
     <header className="header">
       <div className="header-left">
-        <Link to="/home">PTIT CONNECT</Link>
+        <Link to="/">PTIT CONNECT</Link>
       </div>
 
       <div className="header-center">

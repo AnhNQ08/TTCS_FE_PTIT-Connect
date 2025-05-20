@@ -80,93 +80,96 @@ const AddPostPage = () => {
   }, []);
 
   return (
-    <div className="container">
+    <div className="add-post">
       <Header />
-      <div className="add-post-header">
-        <Button variant="ghost" className="back-button">
-          <ArrowLeft className="mr-2 h-4 w-4" />
-        </Button>
-        <h1 className="header-title">Tạo bài viết</h1>
-        <Button onClick={handlePost} className="post-button">
-          Đăng
-        </Button>
-      </div>
-      <div className="user-info">
-        <img src={currentUser.avatar} alt="Avatar" className="avatar" />
-        <span className="username">{currentUser.username}</span>
-      </div>
-      <div
-        className="post-content"
-        style={{ backgroundColor: backgroundColor || "transparent" }}
-      >
-        <Textarea
-          placeholder="Bạn đang nghĩ gì?"
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          className={cn("text-area", backgroundColor && "text-white")}
-        />
-      </div>
-      {!isColor && selectedImages.length === 0 && (
-        <Button
-          variant="ghost"
-          onClick={handleColorToggle}
-          className="color-button"
+      <div className="container">
+        <div className="add-post-header">
+          <Button variant="ghost" className="back-button" helf="/">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            <link rel="stylesheet" href="" />
+          </Button>
+          <h1 className="header-title">Tạo bài viết</h1>
+          <Button onClick={handlePost} className="post-button">
+            Đăng
+          </Button>
+        </div>
+        <div className="user-info">
+          <img src={currentUser.avatar} alt="Avatar" className="avatar" />
+          <span className="username">{currentUser.username}</span>
+        </div>
+        <div
+          className="post-content"
+          style={{ backgroundColor: backgroundColor || "transparent" }}
         >
-          <Palette className="mr-2 h-4 w-4" />
-          Màu nền
-        </Button>
-      )}
-      {isColor && (
-        <div className="background-color-container">
+          <Textarea
+            placeholder="Bạn đang nghĩ gì?"
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            className={cn("text-area", backgroundColor && "text-white")}
+          />
+        </div>
+        {!isColor && selectedImages.length === 0 && (
           <Button
             variant="ghost"
             onClick={handleColorToggle}
-            className="back-button"
+            className="color-button"
           >
-            <ArrowLeft className="mr-2 h-4 w-4" />
+            <Palette className="mr-2 h-4 w-4" />
+            Màu nền
           </Button>
-          {colorMap.map((color) => (
-            <button
-              key={color.name}
-              onClick={() => setBackgroundColor(color.value)}
-              className="color-circle"
-              style={{ backgroundImage: color.value }}
-            />
-          ))}
-        </div>
-      )}
-      <label htmlFor="image-input" className="add-media-button">
-        <ImageIcon className="mr-2 h-4 w-4" />
-        Thêm Ảnh/Video
-      </label>
-      <input
-        id="image-input"
-        type="file"
-        multiple
-        accept="image/*"
-        onChange={handleImageChange}
-        className="hidden"
-      />
-      {selectedImages.length > 0 && (
-        <div className="selected-images-container">
-          {selectedImages.map((image, index) => (
-            <div key={index} className="image-wrapper">
-              <img
-                src={image}
-                alt={`Selected ${index}`}
-                className="selected-image"
+        )}
+        {isColor && (
+          <div className="background-color-container">
+            <Button
+              variant="ghost"
+              onClick={handleColorToggle}
+              className="back-button"
+            >
+              <ArrowLeft className="mr-2 h-4 w-4" />
+            </Button>
+            {colorMap.map((color) => (
+              <button
+                key={color.name}
+                onClick={() => setBackgroundColor(color.value)}
+                className="color-circle"
+                style={{ backgroundImage: color.value }}
               />
-              <Button
-                variant="ghost"
-                onClick={() => handleRemoveImage(index)}
-                className="remove-image-button"
-              >
-                <XCircle className="h-4 w-4 text-red-500" />
-              </Button>
-            </div>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        )}
+        <label htmlFor="image-input" className="add-media-button">
+          <ImageIcon className="mr-2 h-4 w-4" />
+          Thêm Ảnh/Video
+        </label>
+        <input
+          id="image-input"
+          type="file"
+          multiple
+          accept="image/*"
+          onChange={handleImageChange}
+          className="hidden"
+        />
+        {selectedImages.length > 0 && (
+          <div className="selected-images-container">
+            {selectedImages.map((image, index) => (
+              <div key={index} className="image-wrapper">
+                <img
+                  src={image}
+                  alt={`Selected ${index}`}
+                  className="selected-image"
+                />
+                <Button
+                  variant="ghost"
+                  onClick={() => handleRemoveImage(index)}
+                  className="remove-image-button"
+                >
+                  <XCircle className="h-4 w-4 text-red-500" />
+                </Button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

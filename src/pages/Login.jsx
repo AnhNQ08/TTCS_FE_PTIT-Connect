@@ -1,30 +1,45 @@
 import { useState } from "react";
 import { login } from "../services/authentication";
 import { useNavigate } from "react-router-dom";
+import { getCurrentUser } from "../services/userAPI";
 import "../styles/login.css";
 
-const Login = () => {
-  const [error, setError] = useState("");
+function Login() {
   const [emailOrPhone, setEmailOrPhone] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await login(emailOrPhone, password);
+      const response = await login(emailOrPhone, password);
 
-      if (res.error) {
-        setError(res.error);
-      } else {
-        alert(
-          "Đăng nhập thành công!\nToken: " + (res.data.token || "No token")
+      if (response.message === "User not found!") {
+        setError("Tài khoản không tồn tại. Vui lòng kiểm tra lại!");
+      } else if (response.message === "Wrong password!") {
+        setError("Sai mật khẩu. Vui lòng kiểm tra lại!");
+      } else if (response.message === "User login successfully!") {
+        localStorage.setItem("accessToken", response.accessToken);
+        localStorage.setItem("refreshToken", response.refreshToken);
+
+        const dataCurrentUser = await getCurrentUser();
+        localStorage.setItem("myID", dataCurrentUser.id.toString());
+        localStorage.setItem(
+          "dataCurrentUser",
+          JSON.stringify(dataCurrentUser)
         );
+
         setError("");
+        alert("Đăng nhập thành công!");
         navigate("/home");
+      } else {
+        setError("Đăng nhập thất bại. Vui lòng thử lại.");
       }
     } catch (err) {
-      setError(err.message || "Đăng nhập thất bại");
+      console.error("Lỗi đăng nhập:", err);
+      setError("Đã xảy ra lỗi. Vui lòng thử lại.");
     }
   };
 
@@ -84,6 +99,6 @@ const Login = () => {
       </div>
     </div>
   );
-};
+}
 
 export default Login;
