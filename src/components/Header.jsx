@@ -19,12 +19,12 @@ const Header = () => {
         <nav className="header-nav">
           <ul>
             <li>
-              <Link to="/home">
+              <Link to="/">
                 <i className="fa fa-home"></i>
               </Link>
             </li>
             <li>
-              <Link to="/friends">
+              <Link to="/friend">
                 <i className="fa fa-users"></i>
               </Link>
             </li>
@@ -34,7 +34,7 @@ const Header = () => {
               </Link>
             </li>
             <li>
-              <Link to="/profile">
+              <Link to="/my-profile">
                 <i className="fa fa-user"></i>
               </Link>
             </li>
