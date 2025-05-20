@@ -2,7 +2,7 @@ import axios from "axios";
 import * as authService from "../services/authentication.js";
 
 const request = axios.create({
-  baseURL: "http://100.114.40.116:5173",
+  baseURL: "http://100.114.40.116:8081",
   timeout: 5000,
 });
 
