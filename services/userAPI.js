@@ -253,6 +253,32 @@ export const createCommentPost = async (formData, postID) => {
     )
 }
 
+export const createResponseComment = async (commentId, formData) => {
+    const accessToken = await AsyncStorage.getItem('accessToken');
+    return await request.post(
+        `postComment/createResponse/${commentId}`,
+        formData,
+        {
+            headers: {
+                Authorization: "Bearer " + accessToken,
+                'Content-Type': 'multipart/form-data',
+            }
+        }
+    )
+}
+
+export const getResponsesComment = async (commentId) => {
+    const accessToken = await AsyncStorage.getItem('accessToken');
+    return await request.get(
+        `postComment/getResponse/${commentId}`,
+        {
+            headers: {
+                Authorization: "Bearer " + accessToken
+            }
+        }
+    )
+}
+
 export const getPostUserId = async (userId) => {
     const accessToken = await AsyncStorage.getItem('accessToken');
     return await request.get(

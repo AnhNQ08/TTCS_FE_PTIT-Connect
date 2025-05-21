@@ -117,6 +117,7 @@ export default function CommentContainer({ isVisible, onClose, postId }: any) {
                     {listComment?.map((cmt: any, index: any) => (
                         <Comment
                             key={index}
+                            id={cmt.id}
                             content={cmt.content}
                             backgroundUrl={cmt.backgroundUrl}
                             mediaUrl={cmt.mediaUrl}
@@ -125,6 +126,7 @@ export default function CommentContainer({ isVisible, onClose, postId }: any) {
                             reactionSummary={cmt.reactionSummary}
                             currentUserReaction={cmt.currentUserReaction}
                             reactionDTO={cmt.reactionDTO}
+                            haveResponses={cmt.haveResponses}
                         />
                     ))}
                 </ScrollView>

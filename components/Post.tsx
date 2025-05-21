@@ -182,7 +182,8 @@ export default function Post(props: any) {
             <ImageBackground
                 source={{ uri: encodeURI(props.post.backgroundUrl) }}
                 style={{
-                    width: '100%', height: "undefined", minHeight: "200",
+                    width: '100%',
+                    minHeight: 200, // số, không có dấu ngoặc kép
                     alignItems: "center",
                     justifyContent: "center"
                 }}

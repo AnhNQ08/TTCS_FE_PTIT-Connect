@@ -9,8 +9,14 @@ import * as ImagePicker from "expo-image-picker";
 import { ImagePickerAsset } from "expo-image-picker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { FontAwesome5 } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
+import { createResponseComment, getResponsesComment } from "../../services/userAPI";
 
 export default function Comment(props: any) {
+
+    const navigation = useNavigation<any>();
+
+    const [commentId, setCommentId] = useState();
 
     const [userId, setUserId] = useState();
     const [myId, setMyId] = useState<string>()
@@ -19,6 +25,11 @@ export default function Comment(props: any) {
     const [isReplyComment, setReplyComment] = useState<true | false>(false);
     const [reactionDTO, setReactionDTO] = useState<string | null>();
     const [isShowReactionList, setShowReactionList] = useState<true | false>(false)
+    const [haveResponses, setHaveResponses] = useState();
+
+    const [responseComments, setResponseComments] = useState<any[]>([]);
+    const [isShowResponses, setIsShowResponses] = useState(false);
+
 
     useEffect(() => {
         setUserId(props.userSummary.id.toString());
@@ -33,6 +44,8 @@ export default function Comment(props: any) {
             }
         };
         setReactionDTO(props.reactionDTO);
+        setCommentId(props.id);
+        setHaveResponses(props.haveResponses);
         fetchMyId();
     }, [])
 
@@ -87,6 +100,21 @@ export default function Comment(props: any) {
         }
     };
 
+    const handlePadAvatarPoster = async () => {
+        const userID = props.userSummary.id;
+        const dataCurrentUserJSON = await AsyncStorage.getItem('dataCurrentUser');
+        let dataCurrentUserId
+        if (dataCurrentUserJSON !== null) {
+            const dataCurrentUser = JSON.parse(dataCurrentUserJSON);
+            dataCurrentUserId = dataCurrentUser.id
+        }
+        if (dataCurrentUserId === userID) {
+            navigation.navigate("MyProfile");
+        } else {
+            navigation.navigate("OtherUserProfile", { userID });
+        }
+    }
+
     const renderReactionPopup = () => {
         return (
             <View style={styles.reactionPopup}>
@@ -104,6 +132,49 @@ export default function Comment(props: any) {
             </View>
         )
     }
+
+    const handleCreateResponse = async () => {
+        try {
+            const formData = new FormData();
+            formData.append(
+                "content", contentInput as string,
+            )
+            if (selectedImages.length != 0) {
+                selectedImages.forEach((image, index) => {
+                    const uriParts = image.uri.split(".");
+                    const fileType = uriParts[uriParts.length - 1];
+                    formData.append("file", {
+                        uri: image.uri,
+                        name: `photo_${index}.${fileType}`,
+                        type: `image/${fileType}`,
+                    } as any);
+                });
+            } else {
+                formData.append(
+                    "file", null as any
+                )
+            }
+            const response = await createResponseComment(commentId, formData);
+            console.log(response);
+        } catch (e) {
+            console.log("Loi createResponseCommnet", e);
+        }
+    }
+
+    const handleLoadResponses = async () => {
+        if (!isShowResponses) {
+            try {
+                const res = await getResponsesComment(commentId);
+                setResponseComments(res);
+                setIsShowResponses(true);
+            } catch (error) {
+                console.error("Lỗi LoadResponse", error);
+            }
+        } else {
+            setIsShowResponses(false);
+        }
+    };
+
 
 
     const renderReaction = () => {
@@ -160,10 +231,12 @@ export default function Comment(props: any) {
                 <Text style={{ marginBottom: 3, marginLeft: 70 }}>{props.commentedAt}</Text>
             </View>
             <View style={{ flexDirection: "row", alignItems: 'flex-start', }}>
-                <Image
-                    style={styles.imgAvatar}
-                    source={{ uri: `data:${getImageMime(props.userSummary.avatar)};base64,${props.userSummary.avatar}` }}
-                />
+                <TouchableOpacity onPress={handlePadAvatarPoster}>
+                    <Image
+                        style={styles.imgAvatar}
+                        source={{ uri: `data:${getImageMime(props.userSummary.avatar)};base64,${props.userSummary.avatar}` }}
+                    />
+                </TouchableOpacity>
                 <View style={styles.comment}>
                     <Text style={{ fontSize: 15, fontWeight: 700 }}>{props.userSummary.username}</Text>
                     <Text style={{ fontSize: 15 }}>{props.content}</Text>
@@ -217,6 +290,9 @@ export default function Comment(props: any) {
                         setSelectedImages([]);
                     }
                     setReplyComment(!isReplyComment)
+                    setContentInput(`@${props.userSummary.username}`);
+                    console.log("Id comment: ", commentId);
+                    console.log("haveResponse", haveResponses);
                 }}>
                     <Text style={{ color: isReplyComment ? '#1877F2' : "black" }}>Trả lời</Text>
                 </TouchableOpacity>
@@ -259,7 +335,7 @@ export default function Comment(props: any) {
                                 disabled={
                                     (contentInput === null || contentInput.trim() === "") && selectedImages.length === 0
                                 }
-                            // onPress={handlePadSendComment}
+                                onPress={handleCreateResponse}
                             >
                                 <Ionicons
                                     name="send"
@@ -290,6 +366,34 @@ export default function Comment(props: any) {
                         </View>
                     }
                 </View>
+            }
+
+            {isShowResponses && responseComments.map((reply, index) => (
+                <View key={index} style={{ marginLeft: 40 }}>
+                    <Comment
+                        key={index}
+                        id={reply.id}
+                        content={reply.content}
+                        backgroundUrl={reply.backgroundUrl}
+                        mediaUrl={reply.mediaUrl}
+                        commentedAt={reply.commentedAt}
+                        userSummary={reply.userSummary}
+                        reactionSummary={reply.reactionSummary}
+                        currentUserReaction={reply.currentUserReaction}
+                        reactionDTO={reply.reactionDTO}
+                        haveResponses={reply.haveResponses}
+                    />
+                </View>
+            ))}
+            {
+                haveResponses === true &&
+                <TouchableOpacity
+                    style={{ marginTop: 10, marginLeft: 70, flexDirection: "row", alignItems: "center" }}
+                    onPress={handleLoadResponses}
+                >
+                    <Ionicons name="return-down-forward" size={24} color="black" />
+                    <Text>{isShowResponses ? "Ẩn phản hồi" : "Xem phản hồi"}</Text>
+                </TouchableOpacity>
             }
         </View>
     )
