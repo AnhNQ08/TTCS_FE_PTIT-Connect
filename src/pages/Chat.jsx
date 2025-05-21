@@ -12,18 +12,20 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import '../styles/Chat.css';
 import SockJSContext from "@/context/SockJSContext.jsx";
 import * as conversationService from '../services/conversation.js';
-import * as chatService from '../services/chat.js';
+import * as chatService from '../services/message.js';
+import * as messageService from '../services/message.js';
 import getImageMime from "@/services/getImageFromUnit8.js";
+import AuthContext from "@/context/AuthContext.jsx";
 
 const Chat = () => {
     const {stompClientRef, setUpStompClient, disconnectStomp} = useContext(SockJSContext);
-    const []
+    const {user} = useContext(AuthContext);
     const [chatRooms, setChatRooms] = useState([]);
     const [messageInput, setMessageInput] = useState('');
     const [mediaList, setMediaList] = useState([]);
-    const [showInfo, setShowInfo] = useState(true);
+    const [showInfo, setShowInfo] = useState(false);
     const [messages, setMessages] = useState([]);
-    const [chatRoom, setChatRoom] = useState({});
+    const [chatRoom, setChatRoom] = useState(null);
     const messageEndRef = useRef(null);
     const [option1, setOption1] = useState(false);
     const [option2, setOption2] = useState(false);
@@ -31,11 +33,23 @@ const Chat = () => {
 
     useEffect(() => {
         const fetchData = async () => {
-            const response = await fetchChatRooms();
-            const chatRoomIds = response.map(chatRoom => chatRoom.id);
-            await setUpStompClient(chatRoomIds, user);
+            if(user){
+                const response = await fetchChatRooms();
+                setChatRooms(response);
+                const chatRoomIds = response.map(chatRoom => chatRoom.id);
+                await setUpStompClient(chatRoomIds, user.id, onMessageReceived, null);
+                const tmp = JSON.parse(localStorage.getItem("chatRoom"));
+                if(tmp) {
+                    console.log(tmp);
+                    console.log(tmp.id);
+                    const tmpMessage = await messageService.getMessages(tmp.id);
+                    setMessages(tmpMessage);
+                    setChatRoom(tmp);
+                }
+            }
         }
-    }, [])
+        fetchData();
+    }, [user])
 
     useEffect(() => {
         if (messageEndRef.current) {
@@ -45,8 +59,7 @@ const Chat = () => {
 
     const fetchChatRooms = async () => {
         try {
-            const response = await conversationService.getChatRoom();
-            setChatRooms(response);
+            return await conversationService.getChatRoom();
         }catch(err) {
             console.log(err);
         }
@@ -67,13 +80,40 @@ const Chat = () => {
             response = await chatService.uploadMessageFile(formData);
         }
         const payload = {
+            senderId: user.id,
             content: messageInput,
             conversationId: chatRoom.id,
             mediaList: response
         }
         if(chatRoom.type === 'GROUP'){
-
+            stompClientRef.current.publish({
+                destination: `/app/groupChat`,
+                body: JSON.stringify(payload),
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+        }else{
+            payload.recipientId = chatRoom.participants.find(participant => participant.id !== user.id).id;
+            stompClientRef.current.publish({
+                destination: `/app/privateChat`,
+                body: JSON.stringify(payload),
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`
+                }
+            });
         }
+        const messageId = await chatService.getLastMessageIdByConversationId(chatRoom.id, user.id);
+        const messageDTO = {
+            id: messageId,
+            sender: user,
+            content: messageInput,
+            mediaList: response,
+            conversationId: chatRoom.id,
+        }
+        setMessageInput("");
+        setMediaList([]);
+        setMessages(prev => [...prev, messageDTO]);
     }
 
     const onMessageReceived = useCallback(async (payload) => {
@@ -92,9 +132,9 @@ const Chat = () => {
         }, 150);
     }, [])
 
-    const onMessageRevoke = async (payload) => {
-        setMessages(await chatService.getMessages(payload.body));
-    }
+    // const onMessageRevoke = async (payload) => {
+    //     setMessages(await chatService.getMessages(payload.body));
+    // }
 
     const showFiles = (files, type) => {
         const imageVideoList = [];
@@ -141,13 +181,16 @@ const Chat = () => {
     }
 
     return (
-        <div>
+        <div style={{
+            backgroundColor: 'lightgray',
+        }}>
             <div style={{
                 display: 'flex',
                 gap: '15px',
                 margin: '0 auto',
-                maxWidth: '2000px',
+                height: '100vh',
                 paddingRight: '15px',
+                maxWidth: '2000px',
             }}>
                 <div className="left-content">
                     <h1>Đoạn chat</h1>
@@ -176,7 +219,10 @@ const Chat = () => {
                     </div>
                     <div className="chat-room-container">
                         {chatRooms && chatRooms.map((chatRoom, index) => (
-                            <div className="chat-room" key={index} onClick={() => setChatRoom(chatRoom)}>
+                            <div className="chat-room" key={index} onClick={() => {
+                                setChatRoom(chatRoom);
+                                localStorage.setItem("chatRoom", JSON.stringify(chatRoom));
+                            }}>
                                 <div style={{
                                     position: 'relative',
                                 }}>
@@ -195,7 +241,7 @@ const Chat = () => {
                                     flexDirection: 'column',
                                     alignItems: 'flex-start',
                                     justifyContent: 'center',
-                                    gap: '5px'
+                                    gap: '10px'
                                 }}>
                                     <p className="chat-room-name">{chatRoom.name !== "" ? chatRoom.name : chatRoom.displayName}</p>
                                     <div style={{
@@ -211,162 +257,174 @@ const Chat = () => {
                         ))}
                     </div>
                 </div>
-                <div className="middle-content">
-                    <div className="chat-room-header">
-                        <div className="chat-room-info">
-                            <div style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '10px'
-                            }}>
-                                <img src="/vite.svg" alt="" style={{
-                                    width: '50px',
-                                    height: '50px',
-                                    border: '1px solid black',
-                                    borderRadius: '50%',
-                                }}/>
+                {chatRoom && (
+                    <div className="middle-content">
+                        <div className="chat-room-header">
+                            <div className="chat-room-info">
                                 <div style={{
                                     display: 'flex',
-                                    flexDirection: 'column',
-                                    justifyContent: 'center'
+                                    alignItems: 'center',
+                                    gap: '10px'
                                 }}>
-                                    <p style={{fontWeight : 'bold', fontSize : "19px"}}>Tại vì sao</p>
-                                    <p style={{color: "rgb(117,117,117)", fontSize: "15px", marginTop: "-5px"}}>Online 2 phút trước</p>
+                                    <img src={`data:${getImageMime(chatRoom.avatar)};base64,${chatRoom.avatar}`} alt="" style={{
+                                        width: '50px',
+                                        height: '50px',
+                                        border: '1px solid black',
+                                        borderRadius: '50%',
+                                    }}/>
+                                    <div style={{
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        justifyContent: 'center',
+                                        gap: '8px'
+                                    }}>
+                                        <p style={{fontWeight : 'bold', fontSize : "19px"}}>{chatRoom.name !== "" ? chatRoom.name : chatRoom.displayName}</p>
+                                        <p style={{color: "rgb(117,117,117)", fontSize: "15px", marginTop: "-5px"}}>Online 2 phút trước</p>
+                                    </div>
                                 </div>
-                            </div>
-                            <div className="function" >
-                                <FontAwesomeIcon icon={faPhone} style={{color: '#E53935'}} onClick={() => alert("Chức năng này chưa khả dụng!")}/>
-                                <FontAwesomeIcon icon={faVideo} style={{color: '#E53935'}} onClick={() => alert("Chức năng này chưa khả dụng!")}/>
-                                <FontAwesomeIcon icon={faCircleInfo} style={{color: '#E53935'}} onClick={() => setShowInfo(!showInfo)}/>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="chat-room-messages">
-                        <div className="sender-message">
-                            <p style={{
-                                backgroundColor: '#E53935',
-                                padding: '10px',
-                                borderRadius: '25px',
-                                color: 'white',
-                                lineHeight: '1.3'
-                            }}>Đây là tin nhắn của người gửi sdf dsf sdfdsfsdfsdfsdfsdfsdfd sf dsf dsds fdsf dsf dsf dsdsf fsdf dsf sd fs </p>
-                            {showFiles(mediaList, "sender")}
-                        </div>
-                        <div className="recipient-message">
-                            <div style={{
-                                display: 'flex',
-                                alignItems: 'flex-end',
-                                gap: '10px'
-                            }}>
-                                <img src="/vite.svg" alt=""/>
-                                <div className="message-content">
-                                    <p style={{
-                                        backgroundColor: 'lightgray',
-                                        padding: '10px',
-                                        borderRadius: '25px',
-                                        color: 'black',
-                                        lineHeight: '1.3',
-                                        alignSelf: 'flex-start'
-                                    }}>Đây là tin nhắn của người nhận</p>
+                                <div className="function" >
+                                    <FontAwesomeIcon icon={faPhone} style={{color: '#E53935'}} onClick={() => alert("Chức năng này chưa khả dụng!")}/>
+                                    <FontAwesomeIcon icon={faVideo} style={{color: '#E53935'}} onClick={() => alert("Chức năng này chưa khả dụng!")}/>
+                                    <FontAwesomeIcon icon={faCircleInfo} style={{color: '#E53935'}} onClick={() => setShowInfo(!showInfo)}/>
                                 </div>
                             </div>
                         </div>
-                        <div ref={messageEndRef}></div>
-                    </div>
-                    <div className="chat-room-bottom">
-                        <label htmlFor="file-upload">
-                            <FontAwesomeIcon icon={faCamera} style={{
-                                fontSize: '30px',
-                                cursor: 'pointer',
-                                marginBottom: '4px',
-                                color: '#E53935'
-                            }}/>
-                            <input
-                                type="file"
-                                id="file-upload"
-                                hidden
-                                multiple
-                                accept="image/*, video/*,
-                                    .doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,
-                                    .xls,.xlsx,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,
-                                    .pdf,application/pdf"
-                                onChange={(e) => setMediaList([...e.target.files])}
-                            />
-                        </label>
-                        <div style={{
-                            width: '90%',
-                            padding: '10px',
-                            backgroundColor: 'lightgray',
-                            borderRadius: '20px',
-                        }}>
-                            {mediaList.length > 0 &&
-                                <div className="tmp-media-list">
-                                    <label htmlFor="file-upload-tmp">
-                                        <FontAwesomeIcon icon={faPlus} style={{
-                                            fontSize: '30px',
-                                            padding: '15px',
-                                            cursor: 'pointer',
-                                            backgroundColor: '#efefef',
-                                            borderRadius: '15px',
-                                            border: '1px solid #E53935',
-                                            borderStyle: 'dashed'
-                                        }}/>
-                                        <input
-                                            type="file"
-                                            id="file-upload-tmp"
-                                            hidden
-                                            multiple
-                                            accept="image/*, video/*,
-                                    .doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,
-                                    .xls,.xlsx,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,
-                                    .pdf,application/pdf"
-                                            onChange={(e) => setMediaList(prev => [...prev, ...e.target.files])}
-                                        />
-                                    </label>
-                                    {mediaList.map((file, index) => (
+                        <div className="chat-room-messages">
+                            {messages.map((message, index) => (
+                                message.sender.id === user.id ? (
+                                    <div className="sender-message" key={index}>
+                                        <p style={{
+                                            backgroundColor: '#E53935',
+                                            padding: '10px',
+                                            borderRadius: '25px',
+                                            color: 'white',
+                                            lineHeight: '1.3'
+                                        }}>{message.content}</p>
+                                        {showFiles(message.mediaList, "sender")}
+                                    </div>
+                                ) : (
+                                    <div className="recipient-message">
                                         <div style={{
-                                            position: 'relative'
+                                            display: 'flex',
+                                            alignItems: 'flex-end',
+                                            gap: '10px'
                                         }}>
-                                            {file.type.includes('image') || file.type.includes('video') ? (
-                                                <img src={URL.createObjectURL(file)} alt="" key={index} style={{
-                                                    width: '60px',
-                                                    height: '60px',
-                                                    borderRadius: '10px',
-                                                    objectFit: 'cover'
-                                                }}/>
-                                            ) : (
-                                                <div className = "file-info">
-                                                    <FontAwesomeIcon icon={faFile} style={{
-                                                        fontSize: '25px'
-                                                    }}/>
-                                                    <p className="file-name">{file.name}</p>
-                                                </div>
-                                            )}
-                                            <FontAwesomeIcon icon={faXmark} style={{
-                                                fontSize: '20px',
-                                                position: 'absolute',
-                                                top: '-5px',
-                                                right: '-5px',
-                                                cursor: 'pointer',
-                                                width: '20px',
-                                                height: '20px',
-                                                backgroundColor: 'white',
-                                                borderRadius: '50%',
-                                            }} onClick={() => setMediaList(mediaList.filter((_, i) => i !== index))} />
+                                            <img src={`data:${getImageMime(message.sender.avatar)};base64,${message.sender.avatar}`} alt=""/>
+                                            <div className="message-content">
+                                                <p style={{
+                                                    backgroundColor: 'lightgray',
+                                                    padding: '10px',
+                                                    borderRadius: '25px',
+                                                    color: 'black',
+                                                    lineHeight: '1.3',
+                                                    alignSelf: 'flex-start'
+                                                }}>{message.content}</p>
+                                            </div>
+                                            {showFiles(message.mediaList, "recipient")}
                                         </div>
-                                    ))}
-                                </div>
-                            }
-                            <input
-                                className="chat-room-message-input"
-                                placeholder="Nhập tin nhắn"
-                                value={messageInput}
-                                onChange={(e) => setMessageInput(e.target.value)}
-                            />
+                                    </div>
+                                )
+                            ))}
+                            <div ref={messageEndRef}></div>
                         </div>
-                        <div className="send-icon"></div>
+                        <div className="chat-room-bottom">
+                            <label htmlFor="file-upload">
+                                <FontAwesomeIcon icon={faCamera} style={{
+                                    fontSize: '30px',
+                                    cursor: 'pointer',
+                                    marginBottom: '4px',
+                                    color: '#E53935'
+                                }}/>
+                                <input
+                                    type="file"
+                                    id="file-upload"
+                                    hidden
+                                    multiple
+                                    accept="image/*, video/*,
+                                    .doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,
+                                    .xls,.xlsx,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,
+                                    .pdf,application/pdf"
+                                    onChange={(e) => setMediaList([...e.target.files])}
+                                />
+                            </label>
+                            <div style={{
+                                width: '90%',
+                                padding: '10px',
+                                backgroundColor: 'lightgray',
+                                borderRadius: '20px',
+                            }}>
+                                {mediaList.length > 0 &&
+                                    <div className="tmp-media-list">
+                                        <label htmlFor="file-upload-tmp">
+                                            <FontAwesomeIcon icon={faPlus} style={{
+                                                fontSize: '30px',
+                                                padding: '15px',
+                                                cursor: 'pointer',
+                                                backgroundColor: '#efefef',
+                                                borderRadius: '15px',
+                                                border: '1px solid #E53935',
+                                                borderStyle: 'dashed'
+                                            }}/>
+                                            <input
+                                                type="file"
+                                                id="file-upload-tmp"
+                                                hidden
+                                                multiple
+                                                accept="image/*, video/*,
+                                    .doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,
+                                    .xls,.xlsx,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,
+                                    .pdf,application/pdf"
+                                                onChange={(e) => setMediaList(prev => [...prev, ...e.target.files])}
+                                            />
+                                        </label>
+                                        {mediaList.map((file, index) => (
+                                            <div style={{
+                                                position: 'relative'
+                                            }}>
+                                                {file.type.includes('image') || file.type.includes('video') ? (
+                                                    <img src={file.url} alt="" key={index} style={{
+                                                        width: '60px',
+                                                        height: '60px',
+                                                        borderRadius: '10px',
+                                                        objectFit: 'cover'
+                                                    }}/>
+                                                ) : (
+                                                    <div className = "file-info">
+                                                        <FontAwesomeIcon icon={faFile} style={{
+                                                            fontSize: '25px'
+                                                        }}/>
+                                                        <p className="file-name">{file.name}</p>
+                                                    </div>
+                                                )}
+                                                <FontAwesomeIcon icon={faXmark} style={{
+                                                    fontSize: '20px',
+                                                    position: 'absolute',
+                                                    top: '-5px',
+                                                    right: '-5px',
+                                                    cursor: 'pointer',
+                                                    width: '20px',
+                                                    height: '20px',
+                                                    backgroundColor: 'white',
+                                                    borderRadius: '50%',
+                                                }} onClick={() => setMediaList(mediaList.filter((_, i) => i !== index))} />
+                                            </div>
+                                        ))}
+                                    </div>
+                                }
+                                <input
+                                    className="chat-room-message-input"
+                                    placeholder="Nhập tin nhắn"
+                                    value={messageInput}
+                                    onChange={(e) => setMessageInput(e.target.value)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === "Enter") sendMessage(e);
+                                    }}
+                                />
+                            </div>
+                            <div className="send-icon" onClick={(e) => sendMessage(e)}></div>
+                        </div>
                     </div>
-                </div>
+                )}
                 {showInfo &&
                     <div className="right-content">
                         <img src="/vite.svg" alt="" style={{
