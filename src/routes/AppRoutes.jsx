@@ -15,7 +15,7 @@ import Chat from "@/pages/Chat.jsx";
 const AppRoutes = () => {
   return (
     <Routes>
-      <Route path="/" element={<Home />} />
+      <Route path="/home" element={<Home />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/my-profile" element={<MyProfile />} />

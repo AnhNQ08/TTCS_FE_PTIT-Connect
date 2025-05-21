@@ -5,16 +5,25 @@ import { getCurrentUser } from "../services/userAPI";
 import "../styles/login.css";
 
 function Login() {
-  const [emailOrPhone, setEmailOrPhone] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
   const navigate = useNavigate();
 
+  const isEmail = (value) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!isEmail(email)) {
+      setError("Vui lòng nhập đúng định dạng email!");
+      return;
+    }
+
     try {
-      const response = await login(emailOrPhone, password);
+      const response = await login(email, password);
 
       if (response.message === "User not found!") {
         setError("Tài khoản không tồn tại. Vui lòng kiểm tra lại!");
@@ -66,11 +75,11 @@ function Login() {
         <form className="login-box" onSubmit={handleSubmit}>
           <input
             type="text"
-            name="username"
-            placeholder="Email hoặc số điện thoại"
+            name="email"
+            placeholder="Email"
             required
-            value={emailOrPhone}
-            onChange={(e) => setEmailOrPhone(e.target.value)}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
           />
           <input
             type="password"
