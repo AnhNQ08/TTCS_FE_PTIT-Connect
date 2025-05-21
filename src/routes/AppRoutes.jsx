@@ -6,11 +6,10 @@ import {
   MyProfile,
   Friend,
   AddPost,
-  Messenger,
   Notification,
   UserPersonalInformation,
+    Chat
 } from "../pages";
-import Chat from "@/pages/Chat.jsx";
 
 const AppRoutes = () => {
   return (
@@ -21,7 +20,6 @@ const AppRoutes = () => {
       <Route path="/my-profile" element={<MyProfile />} />
       <Route path="/friend" element={<Friend />} />
       <Route path="/add-post" element={<AddPost />} />
-      <Route path="/messenger" element={<Messenger />} />
       <Route path="/other-user" element={<UserPersonalInformation />} />
       <Route path="/notification" element={<Notification />} />
       <Route path="/chat" element={<Chat />} />

@@ -7,7 +7,7 @@ export const SockJSContext = createContext();
 export const SockJSProvider = ({children}) => {
     const stompClientRef = useRef(null);
 
-    const setUpStompClient = (userId, onMessageReceived, onPublicChannel) => {
+    const setUpStompClient = (groupIds, userId, onMessageReceived, onPublicChannel, onGroupChannel) => {
         return new Promise((resolve) => {
             const socket = new SockJS("http://100.114.40.116:8081/ws");
             const stompClient = new Client({
@@ -16,6 +16,11 @@ export const SockJSProvider = ({children}) => {
                 onConnect: () => {
                     if(userId && onMessageReceived) {
                         stompClient.subscribe(`/user/${userId}/queue/messages`, onMessageReceived);
+                    }
+                    if(groupIds && onGroupChannel) {
+                        groupIds.forEach(groupId => {
+                            stompClient.subscribe(`/topic/group/${groupId}`, onGroupChannel);
+                        })
                     }
                     stompClient.subscribe('/topic/public', onPublicChannel);
                     stompClientRef.current = stompClient;

@@ -8,7 +8,7 @@ import {
   deleteFriendRequest,
   getUserProfile,
   sendRequestMakeFriend,
-} from "../services/userAPI";
+} from "../services/user.js";
 
 import AvatarAndBackground from "../components/AvatarAndBackground";
 
