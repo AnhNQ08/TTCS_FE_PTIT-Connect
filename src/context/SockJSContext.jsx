@@ -7,31 +7,64 @@ export const SockJSContext = createContext();
 export const SockJSProvider = ({children}) => {
     const stompClientRef = useRef(null);
 
-    const setUpStompClient = (userId, onMessageReceived, onPublicChannel) => {
-        return new Promise((resolve) => {
+    const setUpStompClient = (groupIds, userId, onMessageReceived, onPublicChannel) => {
+        return new Promise((resolve, reject) => {
             const socket = new SockJS("http://100.114.40.116:8081/ws");
             const stompClient = new Client({
                 webSocketFactory: () => socket,
                 reconnectDelay: 5000,
+                heartbeatIncoming: 4000,
+                heartbeatOutgoing: 4000,
+                connectHeaders: {
+                    Authorization: `Bearer ${localStorage.getItem("accessToken")}`
+                },
                 onConnect: () => {
-                    if(userId && onMessageReceived) {
-                        stompClient.subscribe(`/user/${userId}/queue/messages`, onMessageReceived);
+                    console.log('STOMP Connected');
+                    try {
+                        const subscriptions = [];
+                        if (userId && onMessageReceived) {
+                            stompClient.subscribe(
+                                `/user/${userId}/queue/messages`,
+                                onMessageReceived
+                            )
+                            console.log(`/user/${userId}/queue/messages`);
+                        }
+                        if (groupIds && onMessageReceived) {
+                            groupIds.forEach(groupId => {
+                                stompClient.subscribe(
+                                    `/topic/group/${groupId}`,
+                                    onMessageReceived
+                                )
+                            });
+                        }
+                        if (onPublicChannel) {
+                            stompClient.subscribe(
+                                '/topic/public',
+                                onPublicChannel
+                            )
+                        }
+                        stompClientRef.current = stompClient;
+                        resolve(true);
+                    } catch (err) {
+                        reject(err);
                     }
-                    stompClient.subscribe('/topic/public', onPublicChannel);
-                    stompClientRef.current = stompClient;
-                    resolve(true);
                 },
                 onStompError: (frame) => {
-                    console.error('Broker reported error: ' + frame.headers['message']);
-                    console.error('Additional details: ' + frame.body);
+                    const error = new Error(`STOMP error: ${frame.headers.message}\n${frame.body}`);
+                    console.error(error);
+                    reject(error);
                 },
-                onWebSocketClose: (event) => {
-                    console.log("Websocket closed", event);
+                onWebSocketError: (error) => {
+                    console.error('WebSocket error:', error);
+                    reject(error);
+                },
+                onDisconnect: () => {
+                    console.log('STOMP Disconnected');
                 }
             });
             stompClient.activate();
-        })
-    }
+        });
+    };
 
     const disconnectStomp = () => {
         if (stompClientRef.current) {

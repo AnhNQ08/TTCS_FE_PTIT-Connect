@@ -1,54 +1,35 @@
-import { useState } from "react";
+import {useContext, useState} from "react";
 import { login } from "../services/authentication";
+<<<<<<< HEAD
 import { useNavigate } from "react-router-dom";
 import { getCurrentUser } from "@/services/userAPI";
+=======
+import * as userService from "../services/user.js";
+import {useNavigate, useParams} from "react-router-dom";
+>>>>>>> 8c14b1e58cd611985bd0941b79a6019690763bb5
 import "../styles/login.css";
+import AuthContext from "@/context/AuthContext.jsx";
 
-function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+const Login = () => {
+  const {setUser} = useContext(AuthContext);
   const [error, setError] = useState("");
-
+  const [emailOrPhone, setEmailOrPhone] = useState("");
+  const [password, setPassword] = useState("");
   const navigate = useNavigate();
-
-  const isEmail = (value) => {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!isEmail(email)) {
-      setError("Vui lòng nhập đúng định dạng email!");
-      return;
-    }
-
     try {
-      const response = await login(email, password);
-
-      if (response.message === "User not found!") {
-        setError("Tài khoản không tồn tại. Vui lòng kiểm tra lại!");
-      } else if (response.message === "Wrong password!") {
-        setError("Sai mật khẩu. Vui lòng kiểm tra lại!");
-      } else if (response.message === "User login successfully!") {
-        localStorage.setItem("accessToken", response.accessToken);
-        localStorage.setItem("refreshToken", response.refreshToken);
-
-        const dataCurrentUser = await getCurrentUser();
-        localStorage.setItem("myID", dataCurrentUser.id.toString());
-        localStorage.setItem(
-          "dataCurrentUser",
-          JSON.stringify(dataCurrentUser)
-        );
-
-        setError("");
-        alert("Đăng nhập thành công!");
-        navigate("/home");
-      } else {
-        setError("Đăng nhập thất bại. Vui lòng thử lại.");
-      }
+      const res = await login(emailOrPhone, password);
+      localStorage.clear();
+      localStorage.setItem("accessToken", res.accessToken);
+      localStorage.setItem("refreshToken", res.refreshToken);
+      const user = await userService.getCurrentUser();
+      setUser(user);
+      localStorage.setItem("user", JSON.stringify(user));
+      navigate("/chat");
     } catch (err) {
-      console.error("Lỗi đăng nhập:", err);
-      setError("Đã xảy ra lỗi. Vui lòng thử lại.");
+      setError(err.message || "Đăng nhập thất bại");
     }
   };
 
@@ -75,11 +56,11 @@ function Login() {
         <form className="login-box" onSubmit={handleSubmit}>
           <input
             type="text"
-            name="email"
-            placeholder="Email"
+            name="username"
+            placeholder="Email hoặc số điện thoại"
             required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={emailOrPhone}
+            onChange={(e) => setEmailOrPhone(e.target.value)}
           />
           <input
             type="password"
@@ -108,6 +89,6 @@ function Login() {
       </div>
     </div>
   );
-}
+};
 
 export default Login;

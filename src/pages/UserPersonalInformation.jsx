@@ -7,8 +7,13 @@ import {
   deleteFriend,
   deleteFriendRequest,
   sendRequestMakeFriend,
+<<<<<<< HEAD
 } from "@/services/friendAPI";
 import { getUserProfile } from "@/services/userAPI";
+=======
+} from "../services/user.js";
+
+>>>>>>> 8c14b1e58cd611985bd0941b79a6019690763bb5
 import AvatarAndBackground from "../components/AvatarAndBackground";
 
 import "../styles/OtherUserProfile.css";
