@@ -6,10 +6,9 @@ import {
   checkFriendShip,
   deleteFriend,
   deleteFriendRequest,
-  getUserProfile,
   sendRequestMakeFriend,
-} from "../services/userAPI";
-
+} from "@/services/friendAPI";
+import { getUserProfile } from "@/services/userAPI";
 import AvatarAndBackground from "../components/AvatarAndBackground";
 
 import "../styles/OtherUserProfile.css";

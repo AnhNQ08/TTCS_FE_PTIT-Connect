@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { login } from "../services/authentication";
 import { useNavigate } from "react-router-dom";
-import { getCurrentUser } from "../services/userAPI";
+import { getCurrentUser } from "@/services/userAPI";
 import "../styles/login.css";
 
 function Login() {
