@@ -1,16 +1,38 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, Image, StyleSheet } from "react-native";
 
-export default function NotificationBox() {
+export default function NotificationBox(props: any) {
+
+    const [id, setId] = useState();
+    const [type, setType] = useState();
+    const [read, setRead] = useState();
+
+    useEffect(() => {
+        setId(props.id);
+        setType(props.type);
+        setRead(props.read);
+    })
+
+
+    function getImageMime(base64String: string): string {
+        if (base64String.startsWith('/9j')) return 'image/jpeg';      // JPEG
+        if (base64String.startsWith('iVBOR')) return 'image/png';     // PNG
+        if (base64String.startsWith('R0lGOD')) return 'image/gif';    // GIF
+        return 'image/jpeg'; // fallback nếu không khớp
+    }
+
     return (
-        <View style={styles.container}>
+        <View style={[
+            styles.container,
+            read === false && styles.unreadContainer
+        ]}>
             <Image
                 style={styles.avatar}
-                source={require(`../assets/picture/avatar/avatardefault.jpg`)}
+                source={{ uri: `data:${getImageMime(props.author.avatar)};base64,${props.author.avatar}` }}
             />
             <Text style={styles.content}>
-                <Text style={styles.userName}>Hua Duy Anh </Text>
-                <Text style={styles.notification}>da nhac den ban trong mot binh luan</Text>
+                <Text style={styles.userName}>{props.author.username} </Text>
+                <Text style={styles.notification}>{props.content}</Text>
             </Text>
         </View>
     )
@@ -23,6 +45,9 @@ const styles = StyleSheet.create({
         padding: 10,
         borderBottomWidth: 1,
         borderColor: "#ddd",
+    },
+    unreadContainer: {
+        backgroundColor: '#e0e0e0',
     },
     avatar: {
         height: 50,

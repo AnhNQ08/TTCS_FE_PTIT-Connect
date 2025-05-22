@@ -99,8 +99,12 @@ export default function OtherUserProfile() {
                     } else setFriendRequest(false);
                 }
 
-                const posts = await getPostUserId(userID);
-                setPostList(posts);
+                try {
+                    const posts = await getPostUserId(userID);
+                    setPostList(posts);
+                } catch (e) {
+                    console.log("Loi getPostUserId");
+                }
             } catch (error) {
                 const err = error as AxiosError;
                 console.error("Lỗi FetchAll: ", err.response?.data || err.message);
@@ -291,7 +295,8 @@ const styles = StyleSheet.create({
     },
     action: {
         marginTop: 30,
-        flexDirection: "row"
+        flexDirection: "row",
+        marginBottom: 50
     },
     friend: {
         flexDirection: "row",

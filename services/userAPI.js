@@ -282,7 +282,19 @@ export const getResponsesComment = async (commentId) => {
 export const getPostUserId = async (userId) => {
     const accessToken = await AsyncStorage.getItem('accessToken');
     return await request.get(
-        `post/${userId}`,
+        `post/user/${userId}`,
+        {
+            headers: {
+                Authorization: "Bearer " + accessToken
+            }
+        }
+    )
+}
+
+export const getAllNotification = async () => {
+    const accessToken = await AsyncStorage.getItem('accessToken');
+    return await request.get(
+        `notification/get`,
         {
             headers: {
                 Authorization: "Bearer " + accessToken
