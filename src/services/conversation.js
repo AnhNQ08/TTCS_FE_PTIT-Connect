@@ -15,3 +15,19 @@ export const updateLastMessageStatus = async (conversationId, userId) => {
         }
     })
 }
+
+export const updateName = async (conversationId, name) => {
+    return request.put(`/conversation/updateName/${conversationId}`, {name}, {
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+        }
+    })
+}
+
+export const changeAvatar = async (conversationId, avatar) => {
+    return request.put(`/conversation/changeAvatar/${conversationId}`, avatar, {
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+        }
+    })
+}

@@ -21,13 +21,11 @@ export const SockJSProvider = ({children}) => {
                 onConnect: () => {
                     console.log('STOMP Connected');
                     try {
-                        const subscriptions = [];
                         if (userId && onMessageReceived) {
                             stompClient.subscribe(
                                 `/user/${userId}/queue/messages`,
                                 onMessageReceived
                             )
-                            console.log(`/user/${userId}/queue/messages`);
                         }
                         if (groupIds && onMessageReceived) {
                             groupIds.forEach(groupId => {

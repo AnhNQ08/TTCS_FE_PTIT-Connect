@@ -10,10 +10,11 @@ import {
     faFileLines,
     faImage,
     faMagnifyingGlass,
-    faPen,
+    faPen, faPenToSquare,
     faPhone,
     faPlus,
-    faVideo,
+    faUserPlus,
+    faVideo, faX,
     faXmark
 } from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
@@ -25,6 +26,7 @@ import * as messageService from '../services/message.js';
 import getImageMime from "@/services/getImageFromUnit8.js";
 import AuthContext from "@/context/AuthContext.jsx";
 import {useNavigate, useParams} from "react-router-dom";
+import ParticipantListNickname from "@/components/ParticipantListNickname.jsx";
 
 const Chat = () => {
     const {chatId} = useParams();
@@ -38,13 +40,21 @@ const Chat = () => {
     const [messages, setMessages] = useState([]);
     const chatRoomRef = useRef(null);
     const messageEndRef = useRef(null);
+    const userRef = useRef(null);
     const [option1, setOption1] = useState(false);
     const [option2, setOption2] = useState(false);
     const [option3, setOption3] = useState(false);
+    const [option11, setOption11] = useState(false);
+    const [option13, setOption13] = useState(false);
+    const [option21, setOption21] = useState(false);
+    const [option31, setOption31] = useState(false);
+    const [option32, setOption32] = useState(false);
+    const [optionInput, setOptionInput] = useState("");
 
     useEffect(() => {
         const fetchData = async () => {
             if(user){
+                userRef.current = user;
                 const response = await fetchChatRooms();
                 setChatRooms(response);
                 const chatRoomIds = response.map(chatRoom => chatRoom.id);
@@ -58,6 +68,10 @@ const Chat = () => {
             }
         }
         fetchData();
+
+        return () => {
+            disconnectStomp();
+        }
     }, [user])
 
     useEffect(() => {
@@ -136,12 +150,12 @@ const Chat = () => {
             conversationId: chatRoomRef.current.id,
             sentAt: new Date()
         }
-        console.log(chatRoomRef.current.participants);
+        console.log(messageDTO.sender);
         const lastMessage = {
             senderName: chatRoomRef.current.participants.find(participant => participant.participantId === user.id).participantName,
             senderId: user.id,
             content: messageInput,
-            notRead: chatRoomRef.current.participants.find(participant => participant.participantId !== user.id).participantId,
+            notRead: chatRoomRef.current.participants.filter(id => id !== user.id),
             sentAt: new Date()
         }
         setChatRooms(prev => prev.map(chatRoom => {
@@ -162,12 +176,17 @@ const Chat = () => {
         setTimeout(async () => {
             const message = JSON.parse(payload.body);
             if(chatRoomRef.current && message.conversationId === chatRoomRef.current.id){
-                const response = await conversationService.updateLastMessageStatus(chatRoomRef.current.id, user.id);
-                if(response !== "Status updated"){
-                    alert("Có lỗi xảy ra");
-                    return;
+                if(chatRoomRef.current.lastMessage) {
+                    console.log(chatRoomRef.current.lastMessage);
+                    const response = await conversationService.updateLastMessageStatus(chatRoomRef.current.id, userRef.current.id);
+                    if(response !== "Status updated"){
+                        alert("Có lỗi xảy ra");
+                        return;
+                    }
                 }
-                setMessages((prev) => [...prev, message]);
+                if(message.sender.id !== userRef.current.id){
+                    setMessages((prev) => [...prev, message]);
+                }
             }
             const tmpChatRooms = await fetchChatRooms();
             setChatRooms(tmpChatRooms);
@@ -221,14 +240,134 @@ const Chat = () => {
 
     const handleClickChatRoom = async (chatRoom) => {
         localStorage.setItem("chatRoom", JSON.stringify(chatRoom));
+        if(chatRoom.lastMessage){
+            await conversationService.updateLastMessageStatus(chatRoom.id, user.id);
+            setChatRooms(prev => prev.map(prevChatRoom => {
+                if (prevChatRoom.id === chatRoom.id && chatRoom.lastMessage) {
+                    return {
+                        ...chatRoom,
+                        lastMessage: {
+                            ...prevChatRoom.lastMessage,
+                            notRead: chatRoom.participants.filter(id => id !== user.id)
+                        }
+                    };
+                }
+                return prevChatRoom;
+            }));
+        }
         chatRoomRef.current = chatRoom;
         navigate(`/chat/${chatRoom.id}`);
+    }
+
+    const getCurtainContent = () => {
+        return(
+            <div className="popup">
+                {option11 && (
+                    <>
+                        <p className="popup-title">Đổi tên đoạn chat</p>
+                        <div style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            padding: '15px',
+                            gap: '10px'
+                        }}>
+                            <input
+                                type="text"
+                                maxLength="30"
+                                value={optionInput}
+                                placeholder="Nhập tên đoạn chat"
+                                style={{
+                                    width: '400px',
+                                    height: '20px',
+                                    border: '2px solid lightgray',
+                                    borderRadius: '7px',
+                                    fontSize: '20px',
+                                    padding: '10px',
+                                    outline: 'none'
+                                }}
+                                onChange={(e) => setOptionInput(e.target.value)}
+                            />
+                            <div style={{
+                                display: 'flex',
+                                gap: '10px',
+                                alignSelf: 'flex-end'
+                            }}>
+                                <button className="cancel-button" onClick={() => setOption11(false)}>
+                                    Hủy
+                                </button>
+                                <button className={`confirm-button ${optionInput === chatRoomRef.current.name && "unavailable"}`} onClick={async () => {
+                                    if(optionInput !== chatRoomRef.current.name) {
+                                        try {
+                                            const response = await conversationService.updateName(chatRoomRef.current.id, optionInput);
+                                            if(response !== "Name updated") alert("Có lỗi xảy ra");
+                                            else {
+                                                setOption11(false);
+                                                setChatRooms(prev => prev.map(chatRoom => {
+                                                    if(chatRoom.id === chatRoomRef.current.id){
+                                                        return {
+                                                            ...chatRoom,
+                                                            name: optionInput
+                                                        }
+                                                    }
+                                                    return chatRoom;
+                                                }));
+                                                chatRoomRef.current.name = optionInput;
+                                                localStorage.setItem("chatRoom", JSON.stringify(chatRoomRef.current));
+                                                setOptionInput("");
+                                            }
+                                        }catch(e) {
+                                            console.log(e);
+                                        }
+                                    }
+                                }}>
+                                    Lưu
+                                </button>
+                            </div>
+                        </div>
+                    </>
+                )}
+                {option13 && (
+                    <>
+                        <p className="popup-title">Đổi biệt danh</p>
+                        <div style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            padding: '15px',
+                            gap: '10px'
+                        }}>
+                            {chatRoomRef.current.participants.map((participant, index) => (
+                                <ParticipantListNickname setMessages={setMessages} optionInput={optionInput} setOptionInput={setOptionInput} participant={participant} index={index} chatRoomRef={chatRoomRef} setChatRooms={setChatRooms}/>
+                            ))}
+                            <FontAwesomeIcon icon={faX} style={{
+                                fontSize: '15px',
+                                padding: '10px',
+                                borderRadius: '50%',
+                                position: 'absolute',
+                                top: '10px',
+                                right: '10px',
+                                cursor: 'pointer',
+                                backgroundColor: 'lightgray'
+                            }} onClick={() => setOption13(false)}/>
+                        </div>
+                    </>
+                )}
+            </div>
+        )
     }
 
     return user && (
         <div style={{
             backgroundColor: 'lightgray',
         }}>
+            {(option11 || option13 || option21 || option31 || option32) && (
+                <div className="curtain">
+                    <div style={{
+                        position: 'relative'
+                    }}>
+                        {getCurtainContent()}
+                    </div>
+                </div>
+            )}
             <div style={{
                 display: 'flex',
                 gap: '15px',
@@ -283,14 +422,13 @@ const Chat = () => {
                                     flexDirection: 'column',
                                     alignItems: 'flex-start',
                                     justifyContent: 'center',
-                                    gap: '10px'
+                                    gap: '5px'
                                 }}>
                                     <p className="chat-room-name">{data.name !== "" ? data.name : data.displayName}</p>
                                     <div style={{
                                         display: 'flex',
                                         alignItems: 'center',
-                                        justifyContent: 'space-between',
-                                        gap: '10px'
+                                        justifyContent: 'space-between'
                                     }}>
                                         {data.lastMessage && (
                                             <p className={`last-message ${data.lastMessage.notRead.find(id => id === user.id) && "not-read"}`}>
@@ -367,7 +505,7 @@ const Chat = () => {
                                             <div className="message-content">
                                                 <p style={{
                                                     fontSize: '15px',
-                                                    color: 'lightgray'
+                                                    color: 'rgb(128,128,128)'
                                                 }}>{message.sender.username}</p>
                                                 {message.content !== "" &&
                                                     <p style={{
@@ -486,13 +624,13 @@ const Chat = () => {
                 )}
                 {showInfo &&
                     <div className="right-content">
-                        <img src="/vite.svg" alt="" style={{
+                        <img src={`data:${getImageMime(chatRoomRef.current.avatar)};base64,${chatRoomRef.current.avatar}`} alt="" style={{
                             width: '80px',
                             height: '80px',
                             borderRadius: '50%',
                             objectFit: 'cover'
                         }}/>
-                        <p style={{fontSize: '20px', fontWeight: 'bold', marginTop: '10px'}}>Tinh hoa cột sống</p>
+                        <p style={{fontSize: '20px', fontWeight: 'bold', marginTop: '10px', marginBottom: '40px'}}>{chatRoomRef.current.name ? chatRoomRef.current.name : chatRoomRef.current.displayName}</p>
                         <div className="option">
                             <div className = "option-label" onClick={() => setOption1(prev => !prev)}>
                                 <p>Tùy chỉnh đoạn chat</p>
@@ -500,19 +638,48 @@ const Chat = () => {
                             </div>
                             {option1 &&
                                 <div>
-                                    <div className="option-content">
+                                    <div className="option-content" onClick={() => {
+                                        setOption11(true);
+                                        setOptionInput(chatRoomRef.current.name);
+                                    }}>
                                         <div className="option-item">
                                             <FontAwesomeIcon icon={faPen} style={{color: '#E53935', fontSize: '25px'}}/>
                                             <p>Đổi tên đoạn chat</p>
                                         </div>
                                     </div>
-                                    <div className="option-content">
+                                    <label htmlFor="file-upload-avatar" className="option-content">
                                         <div className="option-item">
                                             <FontAwesomeIcon icon={faImage} style={{color: '#E53935', fontSize: '25px'}}/>
                                             <p>Thay đổi ảnh</p>
                                         </div>
-                                    </div>
-                                    <div className="option-content">
+                                        <input
+                                            type="file"
+                                            id="file-upload-avatar"
+                                            hidden
+                                            accept="image/*"
+                                            onChange={async (e) => {
+                                                const formData = new FormData();
+                                                formData.append('image', e.target.files[0]);
+                                                try {
+                                                    const response = await conversationService.changeAvatar(chatRoomRef.current.id, formData);
+                                                    chatRoomRef.current.avatar = response;
+                                                    localStorage.setItem("chatRoom", JSON.stringify(chatRoomRef.current));
+                                                    setChatRooms(prev => prev.map(chatRoom => {
+                                                        if(chatRoom.id === chatRoomRef.current.id){
+                                                            return {
+                                                                ...chatRoom,
+                                                                avatar: response
+                                                            }
+                                                        }
+                                                        return chatRoom;
+                                                    }));
+                                                }catch (e) {
+                                                    console.log(e);
+                                                }
+                                            }}
+                                        />
+                                    </label>
+                                    <div className="option-content" onClick={() => setOption13(true)}>
                                         <div className="option-item">
                                             <div className="change-nickname-icon"></div>
                                             <p>Chỉnh sửa biệt danh</p>
@@ -530,43 +697,35 @@ const Chat = () => {
                                 <div style={{
                                     display: 'flex',
                                     flexDirection: 'column',
-                                    gap: '10px'
+                                    gap: '10px',
+                                    padding: '5px 10px 5px 10px',
+                                    maxHeight: '320px',
+                                    overflowY: 'auto'
                                 }}>
-                                    <div className="participant">
-                                        <div style={{
-                                            display: 'flex',
-                                            gap: '15px',
-                                            alignItems: 'center'
-                                        }}>
-                                            <img src="/vite.svg" alt="" className="participant-avatar"/>
+                                    {chatRoomRef.current.participants.map((participant, index) => (
+                                        <div className="participant" key={index}>
                                             <div style={{
                                                 display: 'flex',
-                                                flexDirection: 'column',
-                                                justifyContent: 'center'
+                                                gap: '15px',
+                                                alignItems: 'center'
                                             }}>
-                                                <p className="participant-name">Hứa Duy Anh</p>
-                                                <p className="participant-role">Người tạo nhóm</p>
+                                                <img src={`data:${getImageMime(participant.avatar)};base64,${participant.avatar}`} alt="" className="participant-avatar"/>
+                                                <div style={{
+                                                    display: 'flex',
+                                                    flexDirection: 'column',
+                                                    justifyContent: 'center',
+                                                    gap: '7px'
+                                                }}>
+                                                    <p className="participant-name">{participant.username}</p>
+                                                    <p className="participant-role">{participant.role !== "Thành viên" && participant.role}</p>
+                                                </div>
                                             </div>
+                                            <FontAwesomeIcon icon={faEllipsis} className="participant-more-icon"/>
                                         </div>
-                                        <FontAwesomeIcon icon={faEllipsis} className="participant-more-icon"/>
-                                    </div>
-                                    <div className="participant">
-                                        <div style={{
-                                            display: 'flex',
-                                            gap: '15px',
-                                            alignItems: 'center'
-                                        }}>
-                                            <img src="/vite.svg" alt="" className="participant-avatar"/>
-                                            <div style={{
-                                                display: 'flex',
-                                                flexDirection: 'column',
-                                                justifyContent: 'center'
-                                            }}>
-                                                <p className="participant-name">Phan Văn Biên</p>
-                                                <p className="participant-role"></p>
-                                            </div>
-                                        </div>
-                                        <FontAwesomeIcon icon={faEllipsis} className="participant-more-icon"/>
+                                    ))}
+                                    <div className="option-item" onClick={() => setOption21(true)}>
+                                        <FontAwesomeIcon icon={faUserPlus} style={{fontSize: '25px', color: '#E53935'}}/>
+                                        <p>Thêm người</p>
                                     </div>
                                 </div>
                             }
@@ -578,13 +737,13 @@ const Chat = () => {
                             </div>
                             {option3 &&
                                 <div>
-                                    <div className="option-content">
+                                    <div className="option-content" onClick={() => setOption31(true)}>
                                         <div className="option-item">
                                             <FontAwesomeIcon icon={faFileImage} style={{color: '#E53935', fontSize: '25px'}}/>
                                             <p>File phương tiện</p>
                                         </div>
                                     </div>
-                                    <div className="option-content">
+                                    <div className="option-content" onClick={() => setOption32(true)}>
                                         <div className="option-item">
                                             <FontAwesomeIcon icon={faFileLines} style={{color: '#E53935', fontSize: '25px'}}/>
                                             <p>File</p>

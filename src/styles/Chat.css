@@ -59,17 +59,20 @@
 }
 
 .chat-room-avatar{
-    width: 65px;
-    height: 65px;
+    width: 55px;
+    height: 55px;
     border-radius: 50%;
     object-fit: cover;
     border: 2px solid black;
 }
 
 .chat-room-name{
-    font-size: 20px;
+    font-size: 19px;
     font-weight: bold;
     margin-top: -5px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .chat-room-messages{
@@ -204,25 +207,24 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding-left: 10px;
-    padding-right: 10px;
 }
 
 .participant-name{
     font-weight: bold;
     cursor: pointer;
+    font-size: 18px;
 }
 
 .participant-role{
-    font-size: 16px;
+    font-size: 15px;
     color: gray;
     margin-top: -5px;
     font-weight: 500;
 }
 
 .participant-avatar{
-    width: 40px;
-    height: 40px;
+    width: 45px;
+    height: 45px;
     border-radius: 50%;
     object-fit: cover;
     cursor: pointer;
@@ -352,4 +354,72 @@
 .last-message.not-read{
     color: #65676b;
     font-weight: bold;
+}
+
+.popup{
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    border-radius: 10px;
+    z-index: 101;
+}
+
+.confirm-button, .cancel-button{
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.1s ease-in-out;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.confirm-button{
+    background-color: #E53935;
+    color: white;
+}
+
+.confirm-button.unavailable{
+    background-color: #979797;
+    color: #757575;
+    cursor: not-allowed;
+}
+
+.popup-title{
+    font-size: 22px;
+    font-weight: bold;
+    display: block;
+    text-align: center;
+    border-bottom: 1px solid lightgray;
+    padding: 15px 5px 15px 5px;
+}
+
+.participant-nickname-div{
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    width: 450px;
+    transition: 0.1s ease-in-out;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.participant-nickname-div.hover:hover{
+    background-color: lightgray;
+}
+
+.nickname-icon{
+    font-size: 20px;
+    margin-left: auto;
+    padding: 10px;
+    border-radius: 50%;
+    transition: 0.1s ease-in-out;
+}
+
+.nickname-icon:hover{
+    background-color: lightgray;
 }
