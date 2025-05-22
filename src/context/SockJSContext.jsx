@@ -23,33 +23,27 @@ export const SockJSProvider = ({children}) => {
                     try {
                         const subscriptions = [];
                         if (userId && onMessageReceived) {
-                            subscriptions.push(
-                                stompClient.subscribe(
-                                    `/user/${userId}/queue/messages`,
-                                    onMessageReceived
-                                )
-                            );
+                            stompClient.subscribe(
+                                `/user/${userId}/queue/messages`,
+                                onMessageReceived
+                            )
+                            console.log(`/user/${userId}/queue/messages`);
                         }
                         if (groupIds && onMessageReceived) {
                             groupIds.forEach(groupId => {
-                                subscriptions.push(
-                                    stompClient.subscribe(
-                                        `/topic/group/${groupId}`,
-                                        onMessageReceived
-                                    )
-                                );
+                                stompClient.subscribe(
+                                    `/topic/group/${groupId}`,
+                                    onMessageReceived
+                                )
                             });
                         }
                         if (onPublicChannel) {
-                            subscriptions.push(
-                                stompClient.subscribe(
-                                    '/topic/public',
-                                    onPublicChannel
-                                )
-                            );
+                            stompClient.subscribe(
+                                '/topic/public',
+                                onPublicChannel
+                            )
                         }
                         stompClientRef.current = stompClient;
-                        console.log(`Established ${subscriptions.length} subscriptions`);
                         resolve(true);
                     } catch (err) {
                         reject(err);

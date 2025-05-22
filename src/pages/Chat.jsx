@@ -1,10 +1,18 @@
 import React, {useCallback, useContext, useEffect, useRef, useState} from 'react';
 import {
     faCamera,
-    faChevronDown, faChevronUp,
-    faCircleInfo, faEllipsis, faFile, faFileImage, faFileLines, faImage,
-    faMagnifyingGlass, faPen,
-    faPhone, faPlus,
+    faChevronDown,
+    faChevronUp,
+    faCircleInfo,
+    faEllipsis,
+    faFile,
+    faFileImage,
+    faFileLines,
+    faImage,
+    faMagnifyingGlass,
+    faPen,
+    faPhone,
+    faPlus,
     faVideo,
     faXmark
 } from "@fortawesome/free-solid-svg-icons";
@@ -16,8 +24,11 @@ import * as chatService from '../services/message.js';
 import * as messageService from '../services/message.js';
 import getImageMime from "@/services/getImageFromUnit8.js";
 import AuthContext from "@/context/AuthContext.jsx";
+import {useNavigate, useParams} from "react-router-dom";
 
 const Chat = () => {
+    const {chatId} = useParams();
+    const navigate = useNavigate();
     const {stompClientRef, setUpStompClient, disconnectStomp} = useContext(SockJSContext);
     const {user} = useContext(AuthContext);
     const [chatRooms, setChatRooms] = useState([]);
@@ -25,7 +36,7 @@ const Chat = () => {
     const [mediaList, setMediaList] = useState([]);
     const [showInfo, setShowInfo] = useState(false);
     const [messages, setMessages] = useState([]);
-    const [chatRoom, setChatRoom] = useState(null);
+    const chatRoomRef = useRef(null);
     const messageEndRef = useRef(null);
     const [option1, setOption1] = useState(false);
     const [option2, setOption2] = useState(false);
@@ -38,18 +49,31 @@ const Chat = () => {
                 setChatRooms(response);
                 const chatRoomIds = response.map(chatRoom => chatRoom.id);
                 await setUpStompClient(chatRoomIds, user.id, onMessageReceived, null);
-                const tmp = JSON.parse(localStorage.getItem("chatRoom"));
+                const tmp = JSON.parse(localStorage.getItem("chatRoomRef"));
                 if(tmp) {
-                    console.log(tmp);
-                    console.log(tmp.id);
                     const tmpMessage = await messageService.getMessages(tmp.id);
                     setMessages(tmpMessage);
-                    setChatRoom(tmp);
+                    chatRoomRef.current = tmp;
                 }
             }
         }
         fetchData();
     }, [user])
+
+    useEffect(() => {
+        const fetchMessages = async () => {
+            try {
+                if(!chatRoomRef.current){
+                    chatRoomRef.current = JSON.parse(localStorage.getItem("chatRoom"));
+                }
+                const response = await messageService.getMessages(chatId);
+                setMessages(response);
+            }catch(e) {
+                console.log(e);
+            }
+        }
+        fetchMessages();
+    }, [chatId]);
 
     useEffect(() => {
         if (messageEndRef.current) {
@@ -65,9 +89,8 @@ const Chat = () => {
         }
     }
 
-    const sendMessage = async (e) => {
+    const sendMessage = async () => {
         if(messageInput.length === 0 && mediaList.length === 0){
-            e.preventDefault();
             alert("Hãy nhập tin nhắn hoặc gửi file!");
             return;
         }
@@ -77,15 +100,16 @@ const Chat = () => {
             for(const file of mediaList){
                 formData.append('file', file);
             }
+            console.log(formData);
             response = await chatService.uploadMessageFile(formData);
         }
         const payload = {
             senderId: user.id,
             content: messageInput,
-            conversationId: chatRoom.id,
+            conversationId: chatRoomRef.current.id,
             mediaList: response
         }
-        if(chatRoom.type === 'GROUP'){
+        if(chatRoomRef.current.type === 'GROUP'){
             stompClientRef.current.publish({
                 destination: `/app/groupChat`,
                 body: JSON.stringify(payload),
@@ -94,7 +118,7 @@ const Chat = () => {
                 }
             });
         }else{
-            payload.recipientId = chatRoom.participants.find(participant => participant.id !== user.id).id;
+            payload.recipientId = chatRoomRef.current.participants.find(participant => participant.participantId !== user.id).participantId;
             stompClientRef.current.publish({
                 destination: `/app/privateChat`,
                 body: JSON.stringify(payload),
@@ -103,14 +127,32 @@ const Chat = () => {
                 }
             });
         }
-        const messageId = await chatService.getLastMessageIdByConversationId(chatRoom.id, user.id);
+        const messageId = await chatService.getLastMessageIdByConversationId(chatRoomRef.current.id, user.id);
         const messageDTO = {
             id: messageId,
             sender: user,
             content: messageInput,
             mediaList: response,
-            conversationId: chatRoom.id,
+            conversationId: chatRoomRef.current.id,
+            sentAt: new Date()
         }
+        console.log(chatRoomRef.current.participants);
+        const lastMessage = {
+            senderName: chatRoomRef.current.participants.find(participant => participant.participantId === user.id).participantName,
+            senderId: user.id,
+            content: messageInput,
+            notRead: chatRoomRef.current.participants.find(participant => participant.participantId !== user.id).participantId,
+            sentAt: new Date()
+        }
+        setChatRooms(prev => prev.map(chatRoom => {
+            if(chatRoom.id === chatRoomRef.current.id){
+                return {
+                    ...chatRoom,
+                    lastMessage: lastMessage
+                }
+            }
+            return chatRoom;
+        }))
         setMessageInput("");
         setMediaList([]);
         setMessages(prev => [...prev, messageDTO]);
@@ -119,8 +161,8 @@ const Chat = () => {
     const onMessageReceived = useCallback(async (payload) => {
         setTimeout(async () => {
             const message = JSON.parse(payload.body);
-            if(message.conversationId === chatRoom.id) {
-                const response = await conversationService.updateLastMessageStatus(localStorage.getItem("chatRoomId"));
+            if(chatRoomRef.current && message.conversationId === chatRoomRef.current.id){
+                const response = await conversationService.updateLastMessageStatus(chatRoomRef.current.id, user.id);
                 if(response !== "Status updated"){
                     alert("Có lỗi xảy ra");
                     return;
@@ -136,51 +178,54 @@ const Chat = () => {
     //     setMessages(await chatService.getMessages(payload.body));
     // }
 
-    const showFiles = (files, type) => {
+    const showFileSize = useCallback((size) => {
+        const tmp = size / 1000;
+        if(tmp < 1024){
+            return `${tmp.toFixed(0)} KB`;
+        }
+        return `${(tmp / 1024).toFixed(0)} MB`;
+    }, [])
+
+    const showFiles = useCallback((files, type) => {
         const imageVideoList = [];
         const fileList = [];
-        files.map((file) => {
-            if(file.type.includes('image') || file.type.includes('video')){
+        files.forEach((file) => {
+            if (file.type === "IMAGE" || file.type === "VIDEO") {
                 imageVideoList.push(file);
-            }else{
+            } else {
                 fileList.push(file);
             }
-        })
-        if(files.length > 0){
-            return (
-                <>
-                    {imageVideoList.length > 0 &&
-                        <div className={`media-grid media-count-${imageVideoList.length}`}>
-                            {imageVideoList.map((file, index) => (
-                                <img src={file.url} alt="" key={index} style={{}}/>
-                            ))}
+        });
+
+        return (
+            <>
+                {imageVideoList.length > 0 && (
+                    <div className={`media-grid media-count-${imageVideoList.length}`}>
+                        {imageVideoList.map((file, index) => (
+                            <img src={file.url} alt="" key={index} />
+                        ))}
+                    </div>
+                )}
+                {fileList.map((file, index) => (
+                    <a className={`file-info-message ${type}`} key={index} href={file.url} download>
+                        <FontAwesomeIcon icon={faFile} style={{ fontSize: '35px' }} />
+                        <div style={{ maxWidth: '230px', overflow: 'hidden' }}>
+                            <p className="file-name">{file.name}</p>
+                            <p className="file-size">{showFileSize(file.size)}</p>
                         </div>
-                    }
-                    {fileList.length > 0 &&
-                        fileList.map((file, index) => (
-                            <a className = {`file-info-message ${type}`} key={index}
-                                href={file.url}
-                               download={file.name}
-                            >
-                                <FontAwesomeIcon icon={faFile} style={{
-                                    fontSize: '35px'
-                                }}/>
-                                <div style={{
-                                    maxWidth: '230px',
-                                    overflow: 'hidden'
-                                }}>
-                                    <p className="file-name" >{file.name}</p>
-                                    <p className="file-size">{file.size}</p>
-                                </div>
-                            </a>
-                        ))
-                    }
-                </>
-            )
-        }
+                    </a>
+                ))}
+            </>
+        );
+    }, []);
+
+    const handleClickChatRoom = async (chatRoom) => {
+        localStorage.setItem("chatRoom", JSON.stringify(chatRoom));
+        chatRoomRef.current = chatRoom;
+        navigate(`/chat/${chatRoom.id}`);
     }
 
-    return (
+    return user && (
         <div style={{
             backgroundColor: 'lightgray',
         }}>
@@ -218,15 +263,12 @@ const Chat = () => {
                         <p className="filter-choice">Chưa đọc</p>
                     </div>
                     <div className="chat-room-container">
-                        {chatRooms && chatRooms.map((chatRoom, index) => (
-                            <div className="chat-room" key={index} onClick={() => {
-                                setChatRoom(chatRoom);
-                                localStorage.setItem("chatRoom", JSON.stringify(chatRoom));
-                            }}>
+                        {chatRooms && chatRooms.map((data, index) => (
+                            <div className="chat-room" key={index} onClick={() => handleClickChatRoom(data)}>
                                 <div style={{
                                     position: 'relative',
                                 }}>
-                                    <img src={`data:${getImageMime(chatRoom.avatar)};base64,${chatRoom.avatar}`} className="chat-room-avatar"/>
+                                    <img src={`data:${getImageMime(data.avatar)};base64,${data.avatar}`} className="chat-room-avatar"/>
                                     <img src="/green-dot.jpg" alt="" style={{
                                         position: 'absolute',
                                         right: '-3px',
@@ -243,21 +285,26 @@ const Chat = () => {
                                     justifyContent: 'center',
                                     gap: '10px'
                                 }}>
-                                    <p className="chat-room-name">{chatRoom.name !== "" ? chatRoom.name : chatRoom.displayName}</p>
+                                    <p className="chat-room-name">{data.name !== "" ? data.name : data.displayName}</p>
                                     <div style={{
                                         display: 'flex',
                                         alignItems: 'center',
+                                        justifyContent: 'space-between',
                                         gap: '10px'
                                     }}>
-                                        <p>{chatRoom.lastMessage && chatRoom.lastMessage.content}</p>
-                                        <p>20 giờ</p>
+                                        {data.lastMessage && (
+                                            <p className={`last-message ${data.lastMessage.notRead.find(id => id === user.id) && "not-read"}`}>
+                                                {data.lastMessage.senderId !== user.id ? `${data.lastMessage.senderName}: ` : `Bạn: `}
+                                                {data.lastMessage.content}
+                                            </p>
+                                        )}
                                     </div>
                                 </div>
                             </div>
                         ))}
                     </div>
                 </div>
-                {chatRoom && (
+                {chatRoomRef.current && (
                     <div className="middle-content">
                         <div className="chat-room-header">
                             <div className="chat-room-info">
@@ -266,7 +313,7 @@ const Chat = () => {
                                     alignItems: 'center',
                                     gap: '10px'
                                 }}>
-                                    <img src={`data:${getImageMime(chatRoom.avatar)};base64,${chatRoom.avatar}`} alt="" style={{
+                                    <img src={`data:${getImageMime(chatRoomRef.current.avatar)};base64,${chatRoomRef.current.avatar}`} alt="" style={{
                                         width: '50px',
                                         height: '50px',
                                         border: '1px solid black',
@@ -278,7 +325,7 @@ const Chat = () => {
                                         justifyContent: 'center',
                                         gap: '8px'
                                     }}>
-                                        <p style={{fontWeight : 'bold', fontSize : "19px"}}>{chatRoom.name !== "" ? chatRoom.name : chatRoom.displayName}</p>
+                                        <p style={{fontWeight : 'bold', fontSize : "19px"}}>{chatRoomRef.current.name !== "" ? chatRoomRef.current.name : chatRoomRef.current.displayName}</p>
                                         <p style={{color: "rgb(117,117,117)", fontSize: "15px", marginTop: "-5px"}}>Online 2 phút trước</p>
                                     </div>
                                 </div>
@@ -293,13 +340,15 @@ const Chat = () => {
                             {messages.map((message, index) => (
                                 message.sender.id === user.id ? (
                                     <div className="sender-message" key={index}>
-                                        <p style={{
-                                            backgroundColor: '#E53935',
-                                            padding: '10px',
-                                            borderRadius: '25px',
-                                            color: 'white',
-                                            lineHeight: '1.3'
-                                        }}>{message.content}</p>
+                                        {message.content !== "" &&
+                                            <p style={{
+                                                backgroundColor: '#E53935',
+                                                padding: '10px',
+                                                borderRadius: '25px',
+                                                color: 'white',
+                                                lineHeight: '1.3'
+                                            }}>{message.content}</p>
+                                        }
                                         {showFiles(message.mediaList, "sender")}
                                     </div>
                                 ) : (
@@ -309,18 +358,28 @@ const Chat = () => {
                                             alignItems: 'flex-end',
                                             gap: '10px'
                                         }}>
-                                            <img src={`data:${getImageMime(message.sender.avatar)};base64,${message.sender.avatar}`} alt=""/>
+                                            <img src={`data:${getImageMime(message.sender.avatar)};base64,${message.sender.avatar}`} alt="" style={{
+                                                width: '50px',
+                                                height: '50px',
+                                                objectFit: 'cover',
+                                                borderRadius: '50%',
+                                            }}/>
                                             <div className="message-content">
                                                 <p style={{
+                                                    fontSize: '15px',
+                                                    color: 'lightgray'
+                                                }}>{message.sender.username}</p>
+                                                {message.content !== "" &&
+                                                    <p style={{
                                                     backgroundColor: 'lightgray',
                                                     padding: '10px',
                                                     borderRadius: '25px',
                                                     color: 'black',
                                                     lineHeight: '1.3',
                                                     alignSelf: 'flex-start'
-                                                }}>{message.content}</p>
+                                                }}>{message.content}</p>}
+                                                {showFiles(message.mediaList, "recipient")}
                                             </div>
-                                            {showFiles(message.mediaList, "recipient")}
                                         </div>
                                     </div>
                                 )
@@ -382,7 +441,7 @@ const Chat = () => {
                                                 position: 'relative'
                                             }}>
                                                 {file.type.includes('image') || file.type.includes('video') ? (
-                                                    <img src={file.url} alt="" key={index} style={{
+                                                    <img src={URL.createObjectURL(file)} alt="" key={index} style={{
                                                         width: '60px',
                                                         height: '60px',
                                                         borderRadius: '10px',
@@ -416,12 +475,12 @@ const Chat = () => {
                                     placeholder="Nhập tin nhắn"
                                     value={messageInput}
                                     onChange={(e) => setMessageInput(e.target.value)}
-                                    onKeyDown={(e) => {
-                                        if (e.key === "Enter") sendMessage(e);
+                                    onKeyDown={async (e) => {
+                                        if (e.key === "Enter") await sendMessage();
                                     }}
                                 />
                             </div>
-                            <div className="send-icon" onClick={(e) => sendMessage(e)}></div>
+                            <div className="send-icon" onClick={async () => await sendMessage()}></div>
                         </div>
                     </div>
                 )}

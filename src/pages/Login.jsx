@@ -1,7 +1,7 @@
 import {useContext, useState} from "react";
 import { login } from "../services/authentication";
 import * as userService from "../services/user.js";
-import { useNavigate } from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
 import "../styles/login.css";
 import AuthContext from "@/context/AuthContext.jsx";
 
@@ -16,6 +16,7 @@ const Login = () => {
     e.preventDefault();
     try {
       const res = await login(emailOrPhone, password);
+      localStorage.clear();
       localStorage.setItem("accessToken", res.accessToken);
       localStorage.setItem("refreshToken", res.refreshToken);
       const user = await userService.getCurrentUser();

@@ -22,7 +22,7 @@ const AppRoutes = () => {
       {/*<Route path="/add-post" element={<AddPost />} />*/}
       {/*<Route path="/other-user" element={<UserPersonalInformation />} />*/}
       {/*<Route path="/notification" element={<Notification />} />*/}
-      <Route path="/chat" element={<Chat />} />
+      <Route path="/chat/:chatId?" element={<Chat />} />
     </Routes>
   );
 };

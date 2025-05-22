@@ -9,7 +9,7 @@ export const getChatRoom = async () => {
 }
 
 export const updateLastMessageStatus = async (conversationId, userId) => {
-    return request.put(`/conversation/updateLastMessageStatus/${conversationId}/${userId}`, {}, {
+    return request.put(`/conversation/lastMessage/updateStatus/${conversationId}/${userId}`, {}, {
         headers: {
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`
         }
