@@ -8,6 +8,18 @@ export const getChatRoom = async () => {
     })
 }
 
+export const getConversationFiles = async (conversationId, types, pageNumber) => {
+    return request.get(`/conversation/getFiles/${conversationId}`, {
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+        },
+        params: {
+            types: types.join(','),
+            pageNumber
+        }
+    })
+}
+
 export const updateLastMessageStatus = async (conversationId, userId) => {
     return request.put(`/conversation/lastMessage/updateStatus/${conversationId}/${userId}`, {}, {
         headers: {

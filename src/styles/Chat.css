@@ -15,7 +15,7 @@
     width: 420px;
     overflow-y: auto;
     align-items: center;
-    padding: 20px 0 20px 10px;
+    padding: 20px 20px 20px 20px;
 }
 
 .middle-content, .right-content{
@@ -299,6 +299,13 @@
     font-weight: bold;
 }
 
+.show-file-name{
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: bold;
+}
+
 .file-size{
     font-size: 15px;
     color: gray;
@@ -319,10 +326,11 @@
     row-gap: 0;
     column-gap: 10px;
     grid-template-columns: repeat(3, 1fr);
+    max-width: 550px;
+
 }
 
 .media-grid img{
-    width: 150px;
     height: 150px;
     border-radius: 10px;
     object-fit: cover;
@@ -333,8 +341,16 @@
     grid-template-columns: 1fr;
 }
 
+.media-grid.media-count-1 img{
+    height: 300px;
+}
+
 .media-count-2 {
     grid-template-columns: repeat(2, 1fr);
+}
+
+.media-grid.media-count-2 img{
+    height: 200px;
 }
 
 .media-count-3 {
@@ -520,4 +536,69 @@
 
 .check-icon.checked{
     background-color: #E53935;
+}
+
+.file-category{
+    padding: 15px;
+    font-size: 18px;
+    color: #65676b;
+    border-radius: 10px;
+    transition: 0.1s ease-in-out;
+    cursor: pointer;
+}
+
+.file-category.selected{
+    color: #E53935;
+    border-bottom: 2px solid #E53935;
+    border-radius: 0;
+}
+
+.file-category:hover{
+    background-color: lightgray;
+}
+
+.file-category.selected:hover{
+    background-color: white;
+    cursor: default;
+}
+
+.show-media-grid{
+    margin-top: 10px;
+    max-width: 420px;
+    max-height: 1010px;
+    overflow-y: auto;
+    display: grid;
+    gap: 5px;
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.show-media-grid img {
+    max-width: 100%;
+    height: 130px;
+    display: block;
+}
+
+.file-container{
+    display: flex;
+    align-items: center;
+    background-color: white;
+    transition: 0.1s ease-in-out;
+    text-decoration: none;
+    color: inherit;
+    padding: 15px;
+    border-bottom: 1px solid lightgray;
+}
+
+.back-icon{
+    font-size: 20px;
+    margin-left: 10px;
+    margin-right: 10px;
+    cursor: pointer;
+    transition: 0.1s ease-in-out;
+    padding: 10px;
+    border-radius: 50%;
+}
+
+.back-icon:hover{
+    background-color: lightgray;
 }

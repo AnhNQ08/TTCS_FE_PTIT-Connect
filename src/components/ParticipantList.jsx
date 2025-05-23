@@ -101,7 +101,7 @@ const ParticipantList = ({sendNoticeToUser, sendMessage, index, participant, cur
             <FontAwesomeIcon icon={faEllipsis} className="participant-more-icon" onClick={() => setChoice(prev => !prev)}/>
             {choice &&
                 <div className="participant-option">
-                    { currentUser.participantId !== participant.participantId &&
+                    { (chatRoomRef.current.type === "GROUP" && (currentUser.participantId !== participant.participantId)) &&
                         <div>
                             <FontAwesomeIcon icon={faComment} />
                             <p>Nhắn tin</p>
@@ -112,7 +112,7 @@ const ParticipantList = ({sendNoticeToUser, sendMessage, index, participant, cur
                         <p>Xem trang cá nhân</p>
                     </div>
                     {
-                        (currentUser.role === "Người tạo nhóm" || currentUser.role === "Quản trị viên") && (
+                        (chatRoomRef.current.type === "GROUP" && (currentUser.role === "Người tạo nhóm" || currentUser.role === "Quản trị viên")) && (
                             (currentUser.participantId !== participant.participantId) && (
                                 (participant.role !== "Người tạo nhóm" && (
                                     (participant.role === "Quản trị viên" && currentUser.role === "Người tạo nhóm") ? (
@@ -130,13 +130,13 @@ const ParticipantList = ({sendNoticeToUser, sendMessage, index, participant, cur
                             )
                         )
                     }
-                    {currentUser.participantId === participant.participantId ? (
+                    {chatRoomRef.current.type === "GROUP" && (currentUser.participantId === participant.participantId) ? (
                         <div onClick={() => handleDeleteParticipant(currentUser.id)}>
                             <FontAwesomeIcon icon={faRightToBracket} flip="horizontal" />
                             <p>Rời nhóm</p>
                         </div>
                     ) : (
-                        (currentUser.role === "Người tạo nhóm" || currentUser.role === "Quản trị viên") && (
+                        (chatRoomRef.current.type === "GROUP" && (currentUser.role === "Người tạo nhóm" || currentUser.role === "Quản trị viên")) && (
                             (participant.role !== "Người tạo nhóm" && participant.role !== currentUser.role) && (
                                 <div onClick={() => handleDeleteParticipant(participant.participantId)}>
                                     <FontAwesomeIcon icon={faUserXmark} />

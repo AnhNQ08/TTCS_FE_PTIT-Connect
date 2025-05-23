@@ -1,7 +1,7 @@
 import React, {useCallback, useContext, useEffect, useRef, useState} from 'react';
 import {
     faCamera,
-    faChevronDown,
+    faChevronDown, faChevronLeft,
     faChevronUp,
     faCircleInfo,
     faFile,
@@ -32,12 +32,11 @@ import ParticipantList from "@/components/ParticipantList.jsx";
 import FriendList from "@/components/FriendList.jsx";
 import {useInView} from "react-intersection-observer";
 import {useDebounce} from '../hooks/useDebounce.js';
-import {getParticipants} from "../services/chatParticipant.js";
 
 const Chat = () => {
     const {chatId} = useParams();
     const navigate = useNavigate();
-    const {stompClientRef, setUpStompClient, disconnectStomp, unsubscribe, subscribe} = useContext(SockJSContext);
+    const {stompClientRef, setUpStompClient, disconnectStomp, unsubscribe} = useContext(SockJSContext);
     const {user} = useContext(AuthContext);
     const [chatRooms, setChatRooms] = useState([]);
     const [messageInput, setMessageInput] = useState('');
@@ -47,8 +46,16 @@ const Chat = () => {
     const chatRoomRef = useRef(null);
     const messageEndRef = useRef(null);
     const userRef = useRef(null);
-    const participantRef = useRef(null);
-    const pageNumberRef = useRef(0);
+    const currentParticipantRef = useRef(null);
+    const friendPageNumberRef = useRef(0);
+    const filePageNumberRef = useRef(0);
+    const fileTypeRef = useRef([]);
+    const mediaListRef = useRef([]);
+    const showApplicationRef = useRef(false);
+    const showMediaRef = useRef(false);
+    const [showedFile, setShowedFile] = useState([]);
+    const [showMedia, setShowMedia] = useState(false);
+    const [showApplication, setShowApplication] = useState(false);
     const [chosenParticipant, setChosenParticipant] = useState([]);
     const [option1, setOption1] = useState(false);
     const [option2, setOption2] = useState(false);
@@ -56,20 +63,19 @@ const Chat = () => {
     const [option11, setOption11] = useState(false);
     const [option13, setOption13] = useState(false);
     const [option21, setOption21] = useState(false);
-    const [option31, setOption31] = useState(false);
-    const [option32, setOption32] = useState(false);
+    const [option312, setOption312] = useState(false);
     const [findParticipantList, setFindParticipantList] = useState([]);
     const [optionInput, setOptionInput] = useState("");
     const [participantNameInput, setParticipantNameInput] = useState("");
     const participantInputDebounce = useDebounce(participantNameInput, 300);
-    const {ref: loadMoreRef, inView} = useInView({});
+    const {ref: loadMoreFriendRef, inView} = useInView({});
+    const {ref: loadMoreFileRef, inView: inViewFile} = useInView({});
     const [beingKicked, setBeingKicked] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
             if(user){
                 userRef.current = user;
-                setFindParticipantList([]);
                 const response = await fetchChatRooms();
                 setChatRooms(response);
                 const chatRoomIds = response.map(chatRoom => chatRoom.id);
@@ -78,10 +84,8 @@ const Chat = () => {
                 if(savedChatRoom) {
                     const tmpMessage = await messageService.getMessages(savedChatRoom.id);
                     setMessages(tmpMessage);
-                    participantRef.current = savedChatRoom.participants.find(participant => participant.participantId === user.id);
+                    currentParticipantRef.current = savedChatRoom.participants.find(participant => participant.participantId === user.id);
                     chatRoomRef.current = savedChatRoom;
-                    const savedMessage = JSON.parse(localStorage.getItem("messages"));
-                    if(savedMessage) setMessages(savedMessage);
                 }
             }
         }
@@ -114,7 +118,7 @@ const Chat = () => {
 
     useEffect(() => {
         if(inView){
-            pageNumberRef.current++;
+            friendPageNumberRef.current++;
             fetchParticipantList().then(newFriendList => {
                 setFindParticipantList(prev => prev.concat(newFriendList));
             })
@@ -122,21 +126,51 @@ const Chat = () => {
     }, [inView]);
 
     useEffect(() => {
-        pageNumberRef.current = 0;
+        if(inViewFile){
+            filePageNumberRef.current++;
+            fetchFile(fileTypeRef.current).then(newFile => {
+                setShowedFile(prev => prev.concat(newFile));
+            })
+        }
+    }, [inViewFile]);
+
+    useEffect(() => {
+        friendPageNumberRef.current = 0;
         fetchParticipantList().then(newFriendList => {
             setFindParticipantList(newFriendList);
         })
     }, [participantInputDebounce]);
 
+    useEffect(() => {
+        const fetchFiles = async () => {
+            if(showMedia || showApplication){
+                try {
+                    setShowedFile(await fetchFile());
+                }catch (e){
+                    console.log(e);
+                }
+            }
+        }
+        fetchFiles();
+    }, [showMedia, showApplication]);
+
     const fetchParticipantList = async () => {
         try {
-            console.log(participantNameInput);
-            const response = await friendService.findFriends(user.id, participantNameInput, pageNumberRef.current);
+            const response = await friendService.findFriends(user.id, participantNameInput, friendPageNumberRef.current);
             const res = response.filter(friend =>
                 !chatRoomRef.current.participants.some(participant => participant.participantId === friend.id)
             );
             return res || [];
         }catch(e) {
+            console.log(e);
+        }
+    }
+
+    const fetchFile = async () => {
+        try {
+            console.log("DSFDSFDS" + fileTypeRef.current);
+            return await conversationService.getConversationFiles(chatRoomRef.current.id, fileTypeRef.current, filePageNumberRef.current);
+        } catch (e) {
             console.log(e);
         }
     }
@@ -168,8 +202,9 @@ const Chat = () => {
             setChatRooms(prev => prev.filter(chatRoom => chatRoom.id !== chatRoomRef.current.id));
             setBeingKicked(true);
             if(chatRoomRef.current.id === message.conversationId){
-                chatRoomRef.current.participants = chatRoomRef.current.partcipants.filter(participant => participant.participantId !== userRef.current.id);
+                chatRoomRef.current.participants = chatRoomRef.current.participants.filter(participant => participant.participantId !== userRef.current.id);
             }
+            localStorage.removeItem("chatRoom");
         }else if(message.content === "được thêm vào nhóm"){
             if(stompClientRef.current){
                 stompClientRef.current.subscribe(
@@ -181,16 +216,34 @@ const Chat = () => {
     }, [])
 
     const sendMessage = useCallback(async (content, type) => {
-        if(content.length === 0 && mediaList.length === 0){
+        if(content.length === 0 && mediaListRef.current.length === 0){
             alert("Hãy nhập tin nhắn hoặc gửi file!");
             return;
         }
+        const tmpMediaFile = [];
+        const tmpApplicationFile = [];
         let response = [];
-        if(mediaList.length > 0){
+        if(mediaListRef.current.length > 0){
             const formData = new FormData();
-            for(const file of mediaList){
+            for(const file of mediaListRef.current){
                 formData.append('file', file);
+                if(file.type.startsWith("image") || file.type.startsWith("video")){
+                    tmpMediaFile.push({
+                        name: file.name,
+                        url: URL.createObjectURL(file),
+                        size: file.size,
+                        type: file.type.split("/")[0].toUpperCase()
+                });
+                }else if(file.type.startsWith("application")){
+                    tmpApplicationFile.push({
+                        name: file.name,
+                        url: URL.createObjectURL(file),
+                        size: file.size,
+                        type: file.type.split("/")[0].toUpperCase()
+                    });
+                }
             }
+            formData.append('conversationId', chatRoomRef.current.id);
             response = await chatService.uploadMessageFile(formData);
         }
         const payload = {
@@ -212,6 +265,8 @@ const Chat = () => {
                 body: JSON.stringify(payload)
             });
         }
+        if(showMediaRef.current) setShowedFile(prev => prev.concat(tmpMediaFile));
+        else if(showApplicationRef.current) setShowedFile(prev => prev.concat(tmpApplicationFile));
         const lastMessage = {
             senderName: chatRoomRef.current.participants.find(participant => participant.participantId === userRef.current.id).participantName,
             senderId: userRef.current.id,
@@ -256,6 +311,10 @@ const Chat = () => {
                 }
                 if(message.sender.id !== userRef.current.id){
                     setMessages((prev) => [...prev, message]);
+                    const tmpMediaFile = message.mediaList.filter(media => media.type === "IMAGE" || media.type === "VIDEO");
+                    const tmpApplicationFile = message.mediaList.filter(media => media.type === "APPLICATION");
+                    if(showMediaRef.current) setShowedFile(prev => prev.concat(tmpMediaFile));
+                    else if(showApplicationRef.current) setShowedFile(prev => prev.concat(tmpApplicationFile));
                 }
             }
             const tmpChatRooms = await fetchChatRooms();
@@ -270,13 +329,13 @@ const Chat = () => {
     //     setMessages(await chatService.getMessages(payload.body));
     // }
 
-    const showFileSize = useCallback((size) => {
+    const showFileSize = (size) => {
         const tmp = size / 1000;
         if(tmp < 1024){
             return `${tmp.toFixed(0)} KB`;
         }
         return `${(tmp / 1024).toFixed(0)} MB`;
-    }, [])
+    }
 
     const showFiles = useCallback((files, type) => {
         const imageVideoList = [];
@@ -299,7 +358,7 @@ const Chat = () => {
                     </div>
                 )}
                 {fileList.map((file, index) => (
-                    <a className={`file-info-message ${type}`} key={index} href={file.url} download>
+                    <a target="_blank" className={`file-info-message ${type}`} key={index} href={file.url} download>
                         <FontAwesomeIcon icon={faFile} style={{ fontSize: '35px' }} />
                         <div style={{ maxWidth: '230px', overflow: 'hidden' }}>
                             <p className="file-name">{file.name}</p>
@@ -313,7 +372,8 @@ const Chat = () => {
 
     const handleClickChatRoom = async (chatRoom) => {
         localStorage.setItem("chatRoom", JSON.stringify(chatRoom));
-        if(chatRoom.lastMessage){
+        setBeingKicked(false);
+        if(chatRoom.lastMessage && chatRoom.lastMessage.notRead.find(id => id === user.id)){
             await conversationService.updateLastMessageStatus(chatRoom.id, user.id);
             setChatRooms(prev => prev.map(prevChatRoom => {
                 if (prevChatRoom.id === chatRoom.id && chatRoom.lastMessage) {
@@ -329,6 +389,12 @@ const Chat = () => {
             }));
         }
         chatRoomRef.current = chatRoom;
+        if(showMedia) {
+            filePageNumberRef.current = 0;
+            const response = await fetchFile();
+            setShowedFile(response);
+        }
+        if(showApplication) setShowedFile(await fetchFile());
         navigate(`/chat/${chatRoom.id}`);
     }
 
@@ -348,7 +414,7 @@ const Chat = () => {
             }
             setOption21(false);
             setChosenParticipant([]);
-            pageNumberRef.current = 0;
+            friendPageNumberRef.current = 0;
         }catch (e){
             console.log(e);
         }
@@ -432,7 +498,7 @@ const Chat = () => {
                             gap: '10px'
                         }}>
                             {chatRoomRef.current.participants.map((participant, index) => (
-                                <ParticipantListNickname user={participantRef} stompClientRef={stompClientRef} sendMessage={sendMessage} setMessages={setMessages} optionInput={optionInput} setOptionInput={setOptionInput} participant={participant} index={index} chatRoomRef={chatRoomRef}/>
+                                <ParticipantListNickname user={currentParticipantRef} stompClientRef={stompClientRef} sendMessage={sendMessage} setMessages={setMessages} optionInput={optionInput} setOptionInput={setOptionInput} participant={participant} index={index} chatRoomRef={chatRoomRef}/>
                             ))}
                             <FontAwesomeIcon icon={faX} style={{
                                 fontSize: '15px',
@@ -514,10 +580,10 @@ const Chat = () => {
                                 flexDirection: 'column',
                                 gap: '5px',
                             }}>
-                                {findParticipantList.length > 0 && findParticipantList.map((friend, index) => (
+                                {findParticipantList && (findParticipantList.length > 0 && findParticipantList.map((friend, index) => (
                                     <FriendList index={index} setChosenParticipant={setChosenParticipant} opponent={friend} chosenParticipant={chosenParticipant}/>
-                                ))}
-                                <div ref={loadMoreRef}></div>
+                                )))}
+                                <div ref={loadMoreFriendRef}></div>
                             </div>
                             <FontAwesomeIcon icon={faX} style={{
                                 fontSize: '15px',
@@ -530,7 +596,7 @@ const Chat = () => {
                                 backgroundColor: 'lightgray'
                             }} onClick={() => {
                                 setOption21(false);
-                                pageNumberRef.current = 1;
+                                friendPageNumberRef.current = 1;
                             }}/>
                         </div>
                         <button className="confirm-button" style={{margin: '0px 20px 20px 20px'}} onClick={() => handleAddParticipant()}>Xác nhận</button>
@@ -545,7 +611,7 @@ const Chat = () => {
             backgroundColor: 'lightgray',
             position: 'relative'
         }}>
-            {(option11 || option13 || option21 || option31 || option32) && (
+            {(option11 || option13 || option21) && (
                 <>
                     <div className="curtain">
                     </div>
@@ -620,9 +686,10 @@ const Chat = () => {
                                                     data.lastMessage.content
                                                 ) : (
                                                     data.lastMessage.senderId !== user.id
-                                                        ? `${data.lastMessage.senderName}: ${data.lastMessage.content}`
-                                                        : `Bạn: ${data.lastMessage.content}`
-                                                )}
+                                                        ? `${data.lastMessage.senderName}: ${data.lastMessage.content !== "" ? data.lastMessage.content : "Đã gửi file"}`
+                                                        : `Bạn: ${data.lastMessage.content !== "" ? data.lastMessage.content : "Đã gửi file"}`
+                                                    )
+                                                }
                                             </p>
                                         )}
                                     </div>
@@ -643,7 +710,6 @@ const Chat = () => {
                                     <img src={`data:${getImageMime(chatRoomRef.current.avatar)};base64,${chatRoomRef.current.avatar}`} alt="" style={{
                                         width: '50px',
                                         height: '50px',
-                                        border: '1px solid black',
                                         borderRadius: '50%',
                                     }}/>
                                     <div style={{
@@ -810,11 +876,17 @@ const Chat = () => {
                                             value={messageInput}
                                             onChange={(e) => setMessageInput(e.target.value)}
                                             onKeyDown={async (e) => {
-                                                if (e.key === "Enter") await sendMessage(messageInput, "NORMAL");
+                                                if (e.key === "Enter") {
+                                                    await sendMessage(messageInput, "NORMAL");
+                                                    mediaListRef.current = mediaList;
+                                                }
                                             }}
                                         />
                                     </div>
-                                    <div className="send-icon" onClick={async () => await sendMessage(messageInput, "NORMAL")}></div>
+                                    <div className="send-icon" onClick={async () => {
+                                        mediaListRef.current = mediaList;
+                                        await sendMessage(messageInput, "NORMAL");
+                                    }}></div>
                                 </div>
                             ) : (
                                 <p style={{
@@ -829,143 +901,242 @@ const Chat = () => {
                 )}
                 {showInfo &&
                     <div className="right-content">
-                        <img src={`data:${getImageMime(chatRoomRef.current.avatar)};base64,${chatRoomRef.current.avatar}`} alt="" style={{
-                            width: '80px',
-                            height: '80px',
-                            borderRadius: '50%',
-                            objectFit: 'cover'
-                        }}/>
-                        <p style={{fontSize: '20px', fontWeight: 'bold', marginTop: '10px', marginBottom: '40px'}}>{chatRoomRef.current.name ? chatRoomRef.current.name : chatRoomRef.current.displayName}</p>
-                        <div className="option">
-                            <div className = "option-label" onClick={() => setOption1(prev => !prev)}>
-                                <p>Tùy chỉnh đoạn chat</p>
-                                {!option1 ? <FontAwesomeIcon icon={faChevronDown}/> : <FontAwesomeIcon icon={faChevronUp}/>}
-                            </div>
-                            {option1 &&
-                                <div>
-                                    (chatRoomRef.current.type === "GROUP" && (
-                                    <div className="option-content" onClick={() => {
-                                        if(beingKicked){
-                                            alert("Bạn không thể thực hiện chức năng này");
-                                            return;
-                                        }
-                                        setOption11(true);
-                                        setOptionInput(chatRoomRef.current.name);
-                                    }}>
-                                        <div className="option-item">
-                                            <FontAwesomeIcon icon={faPen} style={{color: '#E53935', fontSize: '25px'}}/>
-                                            <p>Đổi tên đoạn chat</p>
-                                        </div>
+                        {!option312 ? (
+                            <React.Fragment>
+                                <img src={`data:${getImageMime(chatRoomRef.current.avatar)};base64,${chatRoomRef.current.avatar}`} alt="" style={{
+                                    width: '80px',
+                                    height: '80px',
+                                    borderRadius: '50%',
+                                    objectFit: 'cover'
+                                }}/>
+                                <p style={{fontSize: '20px', fontWeight: 'bold', marginTop: '10px', marginBottom: '40px'}}>{chatRoomRef.current.name ? chatRoomRef.current.name : chatRoomRef.current.displayName}</p>
+                                <div className="option">
+                                    <div className = "option-label" onClick={() => setOption1(prev => !prev)}>
+                                        <p>Tùy chỉnh đoạn chat</p>
+                                        {!option1 ? <FontAwesomeIcon icon={faChevronDown}/> : <FontAwesomeIcon icon={faChevronUp}/>}
                                     </div>
-                                    <label htmlFor="file-upload-avatar" className="option-content">
-                                        <div className="option-item">
-                                            <FontAwesomeIcon icon={faImage} style={{color: '#E53935', fontSize: '25px'}}/>
-                                            <p>Thay đổi ảnh</p>
-                                        </div>
-                                        <input
-                                            type="file"
-                                            id="file-upload-avatar"
-                                            hidden
-                                            accept="image/*"
-                                            onChange={async (e) => {
+                                    {option1 &&
+                                        <div>
+                                            {chatRoomRef.current.type === "GROUP" && (
+                                                <React.Fragment>
+                                                    <div className="option-content" onClick={() => {
+                                                        if(beingKicked){
+                                                            alert("Bạn không thể thực hiện chức năng này");
+                                                            return;
+                                                        }
+                                                        setOption11(true);
+                                                        setOptionInput(chatRoomRef.current.name);
+                                                    }}>
+                                                        <div className="option-item">
+                                                            <FontAwesomeIcon icon={faPen} style={{color: '#E53935', fontSize: '25px'}}/>
+                                                            <p>Đổi tên đoạn chat</p>
+                                                        </div>
+                                                    </div>
+                                                    <label htmlFor="file-upload-avatar" className="option-content">
+                                                        <div className="option-item">
+                                                            <FontAwesomeIcon icon={faImage} style={{color: '#E53935', fontSize: '25px'}}/>
+                                                            <p>Thay đổi ảnh</p>
+                                                        </div>
+                                                        <input
+                                                            type="file"
+                                                            id="file-upload-avatar"
+                                                            hidden
+                                                            accept="image/*"
+                                                            onClick={(e) => {
+                                                                if(beingKicked){
+                                                                    e.preventDefault();
+                                                                    alert("Bạn không thể thực hiện chức năng này");
+                                                                }
+                                                            }}
+                                                            onChange={async (e) => {
+                                                                const formData = new FormData();
+                                                                formData.append('image', e.target.files[0]);
+                                                                try {
+                                                                    chatRoomRef.current.avatar = await conversationService.changeAvatar(chatRoomRef.current.id, formData);
+                                                                    await sendMessage(user.username + " đã đổi ảnh nhóm.", "GROUP_NOTICE");
+                                                                    localStorage.setItem("chatRoom", JSON.stringify(chatRoomRef.current));
+                                                                    // setChatRooms(prev => prev.map(chatRoom => {
+                                                                    //     if(chatRoom.id === chatRoomRef.current.id){
+                                                                    //         return {
+                                                                    //             ...chatRoom,
+                                                                    //             avatar: response
+                                                                    //         }
+                                                                    //     }
+                                                                    //     return chatRoom;
+                                                                    // }));
+                                                                }catch (e) {
+                                                                    console.log(e);
+                                                                }
+                                                            }}
+                                                        />
+                                                    </label>
+                                                </React.Fragment>
+                                            )}
+                                            <div className="option-content" onClick={() => {
                                                 if(beingKicked){
                                                     alert("Bạn không thể thực hiện chức năng này");
                                                     return;
                                                 }
-                                                const formData = new FormData();
-                                                formData.append('image', e.target.files[0]);
-                                                try {
-                                                    chatRoomRef.current.avatar = await conversationService.changeAvatar(chatRoomRef.current.id, formData);
-                                                    await sendMessage(user.username + " đã đổi ảnh nhóm.", "GROUP_NOTICE");
-                                                    localStorage.setItem("chatRoom", JSON.stringify(chatRoomRef.current));
-                                                    // setChatRooms(prev => prev.map(chatRoom => {
-                                                    //     if(chatRoom.id === chatRoomRef.current.id){
-                                                    //         return {
-                                                    //             ...chatRoom,
-                                                    //             avatar: response
-                                                    //         }
-                                                    //     }
-                                                    //     return chatRoom;
-                                                    // }));
-                                                }catch (e) {
-                                                    console.log(e);
-                                                }
-                                            }}
-                                        />
-                                    </label>
-                                    ))
-                                    <div className="option-content" onClick={() => {
-                                        if(beingKicked){
-                                            alert("Bạn không thể thực hiện chức năng này");
-                                            return;
-                                        }
-                                        setOption13(true);
-                                        setOptionInput("");
-                                    }}>
-                                        <div className="option-item">
-                                            <div className="change-nickname-icon"></div>
-                                            <p>Chỉnh sửa biệt danh</p>
+                                                setOption13(true);
+                                                setOptionInput("");
+                                            }}>
+                                                <div className="option-item">
+                                                    <div className="change-nickname-icon"></div>
+                                                    <p>Chỉnh sửa biệt danh</p>
+                                                </div>
+                                            </div>
                                         </div>
-                                    </div>
+                                    }
                                 </div>
-                            }
-                        </div>
-                        <div className="option">
-                            <div className = "option-label"  onClick={() => setOption2(prev => !prev)}>
-                                <p>Thành viên trong đoạn chat</p>
-                                {!option2 ? <FontAwesomeIcon icon={faChevronDown}/> : <FontAwesomeIcon icon={faChevronUp}/>}
-                            </div>
-                            {option2 &&
+                                <div className="option">
+                                    <div className = "option-label"  onClick={() => setOption2(prev => !prev)}>
+                                        <p>Thành viên trong đoạn chat</p>
+                                        {!option2 ? <FontAwesomeIcon icon={faChevronDown}/> : <FontAwesomeIcon icon={faChevronUp}/>}
+                                    </div>
+                                    {option2 &&
+                                        <div style={{
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            gap: '10px',
+                                            padding: '5px 10px 5px 10px'
+                                        }}>
+                                            {chatRoomRef.current.participants.map((participant, index) =>
+                                                <ParticipantList sendNoticeToUser={sendNoticeToUser} sendMessage={sendMessage} chatRoomRef={chatRoomRef} participant={participant} index={index} currentUser={currentParticipantRef.current}/>
+                                            )}
+                                            {chatRoomRef.current.type === "GROUP" && (
+                                            <div className="option-item" onClick={() => {
+                                                if(beingKicked){
+                                                    alert("Bạn không thể thực hiện chức năng này");
+                                                    return;
+                                                }
+                                                setOption21(true);
+                                                friendPageNumberRef.current = 0;
+                                                fetchParticipantList().then(res => {
+                                                    setFindParticipantList(res);
+                                                })
+                                            }}>
+                                                <FontAwesomeIcon icon={faUserPlus} style={{fontSize: '25px', color: '#E53935'}}/>
+                                                <p>Thêm người</p>
+                                            </div>
+                                            )}
+                                        </div>
+                                    }
+                                </div>
+                                <div className="option">
+                                    <div className = "option-label" onClick={() => setOption3(prev => !prev)}>
+                                        <p>File phương tiện & file</p>
+                                        {!option3 ? <FontAwesomeIcon icon={faChevronDown}/> : <FontAwesomeIcon icon={faChevronUp}/>}
+                                    </div>
+                                    {option3 &&
+                                        <div>
+                                            <div className="option-content" onClick={() => {
+                                                showMediaRef.current = true;
+                                                filePageNumberRef.current = 0;
+                                                fileTypeRef.current = ["IMAGE", "VIDEO"];
+                                                setOption312(true);
+                                                setShowMedia(true);
+                                                setShowApplication(false);
+                                            }}>
+                                                <div className="option-item">
+                                                    <FontAwesomeIcon icon={faFileImage} style={{color: '#E53935', fontSize: '25px'}}/>
+                                                    <p>File phương tiện</p>
+                                                </div>
+                                            </div>
+                                            <div className="option-content" onClick={() => {
+                                                showApplicationRef.current = true;
+                                                filePageNumberRef.current = 0;
+                                                fileTypeRef.current = ["APPLICATION"];
+                                                setOption312(true);
+                                                setShowApplication(true);
+                                                setShowMedia(false);
+                                            }}>
+                                                <div className="option-item">
+                                                    <FontAwesomeIcon icon={faFileLines} style={{color: '#E53935', fontSize: '25px'}}/>
+                                                    <p>File</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </React.Fragment>
+                        ) : (
+                            <React.Fragment>
                                 <div style={{
                                     display: 'flex',
-                                    flexDirection: 'column',
-                                    gap: '10px',
-                                    padding: '5px 10px 5px 10px'
+                                    alignItems: 'center',
+                                    width: '100%',
+                                    marginTop: '-20px'
                                 }}>
-                                    {chatRoomRef.current.participants.map((participant, index) =>
-                                        <ParticipantList sendNoticeToUser={sendNoticeToUser} sendMessage={sendMessage} chatRoomRef={chatRoomRef} participant={participant} index={index} currentUser={participantRef.current}/>
-                                    )}
-                                    (chatRoomRef.current.type === "GROUP" && (
-                                        <div className="option-item" onClick={() => {
-                                            if(beingKicked){
-                                                alert("Bạn không thể thực hiện chức năng này");
-                                                return;
-                                            }
-                                            setOption21(true);
-                                            pageNumberRef.current = 0;
-                                            fetchParticipantList().then(res => {
-                                                setFindParticipantList(res);
-                                            })
-                                        }}>
-                                            <FontAwesomeIcon icon={faUserPlus} style={{fontSize: '25px', color: '#E53935'}}/>
-                                            <p>Thêm người</p>
-                                        </div>
-                                    )
+                                    <FontAwesomeIcon icon={faChevronLeft} className="back-icon"
+                                    onClick={() => setOption312(false)}
+                                    />
+                                    <h3 style={{
+                                        padding: '10px',
+                                    }}>File phương tiện và file</h3>
                                 </div>
-                            }
-                        </div>
-                        <div className="option">
-                            <div className = "option-label" onClick={() => setOption3(prev => !prev)}>
-                                <p>File phương tiện & file</p>
-                                {!option3 ? <FontAwesomeIcon icon={faChevronDown}/> : <FontAwesomeIcon icon={faChevronUp}/>}
-                            </div>
-                            {option3 &&
-                                <div>
-                                    <div className="option-content" onClick={() => setOption31(true)}>
-                                        <div className="option-item">
-                                            <FontAwesomeIcon icon={faFileImage} style={{color: '#E53935', fontSize: '25px'}}/>
-                                            <p>File phương tiện</p>
-                                        </div>
-                                    </div>
-                                    <div className="option-content" onClick={() => setOption32(true)}>
-                                        <div className="option-item">
-                                            <FontAwesomeIcon icon={faFileLines} style={{color: '#E53935', fontSize: '25px'}}/>
-                                            <p>File</p>
-                                        </div>
-                                    </div>
+                                <div style={{
+                                    display: 'flex',
+                                    marginRight: 'auto',
+                                }}>
+                                    <p className={`file-category ${showMedia && "selected"}`} onClick={() => {
+                                        if(!showMedia){
+                                            setShowedFile([]);
+                                            showMediaRef.current = true;
+                                            filePageNumberRef.current = 0;
+                                            fileTypeRef.current = ["IMAGE", "VIDEO"];
+                                            setShowMedia(true);
+                                            setShowApplication(false);
+                                        }
+                                    }}>File phương tiện</p>
+                                    <p className={`file-category ${showApplication && "selected"}`} onClick={() => {
+                                        if(!showApplication){
+                                            setShowedFile([]);
+                                            showApplicationRef.current = true;
+                                            filePageNumberRef.current = 0;
+                                            fileTypeRef.current = ["APPLICATION"];
+                                            setShowApplication(true);
+                                            setShowMedia(false);
+                                        }
+                                    }}>File</p>
                                 </div>
-                            }
-                        </div>
+                                {showMedia && (
+                                    <div className="show-media-grid">
+                                        {showedFile.map((file, index) => (
+                                            <img src={file.url} alt="" key={index}/>
+                                        ))}
+                                        <div ref={loadMoreFileRef}></div>
+                                    </div>
+                                )}
+                                {showApplication && (
+                                    <div style={{
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        gap: '10px',
+                                        padding: '5px 10px 5px 10px',
+                                        width: '100%'
+                                    }}>
+                                        {showedFile.map((file, index) => (
+                                            <a target="_blank" className="file-container" key={index} href={file.url} download>
+                                                <FontAwesomeIcon icon={faFileLines} style={{
+                                                    fontSize: '25px',
+                                                    padding: '15px',
+                                                    backgroundColor: 'lightgray',
+                                                    borderRadius: '10px',
+                                                    marginRight: 'auto'
+                                                }}/>
+                                                <div style={{
+                                                    maxWidth: '300px',
+                                                }}>
+                                                    <p className="show-file-name">{file.name}</p>
+                                                    <p>{showFileSize(file.size)}</p>
+                                                </div>
+                                            </a>
+                                        ))}
+                                        <div ref={loadMoreFileRef}></div>
+                                    </div>
+                                )}
+                            </React.Fragment>
+                        )}
                     </div>
                 }
             </div>
