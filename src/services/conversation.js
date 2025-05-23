@@ -1,9 +1,36 @@
 import * as request from '../utils/request.js'
 
-export const getChatRoom = async () => {
-    return request.get('/conversation', {
+export const getAll = async () => {
+    return request.get('/conversation/getAll', {
         headers: {
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+        }
+    })
+}
+
+export const getNotReads = async () => {
+    return request.get('/conversation/getNotRead', {
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+        }
+    })
+}
+
+export const getById = async (id) => {
+    return request.get(`/conversation/${id}`, {
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+        }
+    })
+}
+
+export const searchConversation = async (keyword) => {
+    return request.get('/conversation/search', {
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+        },
+        params: {
+            keyword
         }
     })
 }
@@ -16,6 +43,14 @@ export const getConversationFiles = async (conversationId, types, pageNumber) =>
         params: {
             types: types.join(','),
             pageNumber
+        }
+    })
+}
+
+export const create = async (data) => {
+    return request.post('/conversation/create', data, {
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`
         }
     })
 }

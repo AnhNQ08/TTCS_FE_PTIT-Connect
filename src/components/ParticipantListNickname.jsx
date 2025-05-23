@@ -4,12 +4,11 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCheck, faPenToSquare} from "@fortawesome/free-solid-svg-icons";
 import {changeNickname} from '../services/chatParticipant.js';
 
-const ParticipantListNickname = ({user, participant, optionInput, setOptionInput, index, chatRoomRef, setMessages, sendMessage}) => {
+const ParticipantListNickname = ({user, participant, optionInput, setOptionInput, index, chatRoomRef, setMessages, sendMessage, setChatRooms}) => {
     const [modify, setModify] = useState(false);
     const containerRef = useRef(null);
 
     useEffect(() => {
-        console.log(user.current);
         const handleClickOutside = (event) => {
             if (containerRef.current && !containerRef.current.contains(event.target)) {
                 setModify(false);
@@ -70,6 +69,7 @@ const ParticipantListNickname = ({user, participant, optionInput, setOptionInput
                             if(optionInput === participant.username || optionInput === "") return;
                             const updatedChatRoom = {
                                 ...chatRoomRef.current,
+                                displayName: optionInput,
                                 participants: chatRoomRef.current.participants.map(p =>
                                     p.participantId === participant.participantId ? { ...p, nickname: optionInput } : p
                                 )
@@ -77,15 +77,11 @@ const ParticipantListNickname = ({user, participant, optionInput, setOptionInput
                             const targetParticipant = chatRoomRef.current.participants.find(
                                 p => p.participantId === participant.participantId
                             );
-                            // if(chatRoomRef.current.type === "PRIVATE"){
-                            //     setChatRooms(prev => prev.map(room =>
-                            //         room.id === updatedChatRoom.id ? {
-                            //             ...room,
-                            //             ...updatedChatRoom.participants.find(p => p.participantId === participant.participantId),
-                            //             nickname: optionInput
-                            //         } : room
-                            //     ));
-                            // }
+                            if(chatRoomRef.current.type === "PRIVATE"){
+                                setChatRooms(prev => prev.map(room =>
+                                    room.id === updatedChatRoom.id ? updatedChatRoom : room
+                                ));
+                            }
                             setMessages(prev => prev.map(message => {
                                 if (message.sender.id === targetParticipant.participantId) {
                                     const newMessage = {

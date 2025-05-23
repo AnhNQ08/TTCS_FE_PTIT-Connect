@@ -28,7 +28,7 @@
 }
 
 .search-bounding{
-    width: auto;
+    flex-grow: 1;
     display: flex;
     gap: 10px;
     align-items: center;
@@ -245,7 +245,7 @@
 }
 
 .filter-choice{
-    padding: 8px 8px 8px 8px;
+    padding: 10px;
     cursor: pointer;
     transition: 0.1s ease-in-out;
     border-radius: 20px;
@@ -368,10 +368,10 @@
     text-overflow: ellipsis;
     white-space: nowrap;
     font-size: 15px;
+    color: #65676b;
 }
 
 .last-message.not-read{
-    color: #65676b;
     font-weight: bold;
 }
 
@@ -601,4 +601,9 @@
 
 .back-icon:hover{
     background-color: lightgray;
+}
+
+.filter-choice.selected{
+    background-color: #E53935;
+    color: white;
 }

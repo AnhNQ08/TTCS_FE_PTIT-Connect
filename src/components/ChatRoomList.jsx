@@ -1,0 +1,51 @@
+import React from 'react';
+import getImageMime from "@/services/getImageFromUnit8.js";
+
+const ChatRoomList = ({data, index, handleClickChatRoom, user}) => {
+    return (
+        <div className="chat-room" key={index} onClick={() => handleClickChatRoom(data)}>
+            <div style={{
+                position: 'relative',
+            }}>
+                <img src={`data:${getImageMime(data.avatar)};base64,${data.avatar}`} className="chat-room-avatar" alt=""/>
+                <img src="/green-dot.jpg" alt="" style={{
+                    position: 'absolute',
+                    right: '-3px',
+                    bottom: '10px',
+                    width: '20px',
+                    height: '20px',
+                    borderRadius: '50%',
+                }}/>
+            </div>
+            <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'flex-start',
+                justifyContent: 'center',
+                gap: '5px'
+            }}>
+                <p className="chat-room-name">{data.name ? data.name : data.displayName}</p>
+                <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between'
+                }}>
+                    {data.lastMessage && (
+                        <p className={`last-message ${data.lastMessage.notRead.find(id => id === user.id) && "not-read"}`}>
+                            {data.lastMessage.type === "GROUP_NOTICE" ? (
+                                data.lastMessage.content
+                            ) : (
+                                data.lastMessage.senderId !== user.id
+                                    ? `${data.lastMessage.senderName}: ${data.lastMessage.content !== "" ? data.lastMessage.content : "Đã gửi file"}`
+                                    : `Bạn: ${data.lastMessage.content !== "" ? data.lastMessage.content : "Đã gửi file"}`
+                            )
+                            }
+                        </p>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default ChatRoomList;

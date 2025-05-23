@@ -1,7 +1,9 @@
 import React, {useCallback, useContext, useEffect, useRef, useState} from 'react';
 import {
+    faArrowLeft,
     faCamera,
-    faChevronDown, faChevronLeft,
+    faChevronDown,
+    faChevronLeft,
     faChevronUp,
     faCircleInfo,
     faFile,
@@ -11,7 +13,8 @@ import {
     faMagnifyingGlass,
     faPen,
     faPhone,
-    faPlus, faUserPlus,
+    faPlus,
+    faUserPlus,
     faVideo,
     faX,
     faXmark
@@ -32,17 +35,13 @@ import ParticipantList from "@/components/ParticipantList.jsx";
 import FriendList from "@/components/FriendList.jsx";
 import {useInView} from "react-intersection-observer";
 import {useDebounce} from '../hooks/useDebounce.js';
+import ChatRoomList from "@/components/ChatRoomList.jsx";
 
 const Chat = () => {
     const {chatId} = useParams();
     const navigate = useNavigate();
     const {stompClientRef, setUpStompClient, disconnectStomp, unsubscribe} = useContext(SockJSContext);
     const {user} = useContext(AuthContext);
-    const [chatRooms, setChatRooms] = useState([]);
-    const [messageInput, setMessageInput] = useState('');
-    const [mediaList, setMediaList] = useState([]);
-    const [showInfo, setShowInfo] = useState(false);
-    const [messages, setMessages] = useState([]);
     const chatRoomRef = useRef(null);
     const messageEndRef = useRef(null);
     const userRef = useRef(null);
@@ -53,6 +52,13 @@ const Chat = () => {
     const mediaListRef = useRef([]);
     const showApplicationRef = useRef(false);
     const showMediaRef = useRef(false);
+    const currentChatRoomsRef = useRef([]);
+    const [chatRooms, setChatRooms] = useState([]);
+    const [messageInput, setMessageInput] = useState('');
+    const [mediaList, setMediaList] = useState([]);
+    const [showInfo, setShowInfo] = useState(false);
+    const [messages, setMessages] = useState([]);
+    const [filterChoice, setFilterChoice] = useState(0);
     const [showedFile, setShowedFile] = useState([]);
     const [showMedia, setShowMedia] = useState(false);
     const [showApplication, setShowApplication] = useState(false);
@@ -66,17 +72,34 @@ const Chat = () => {
     const [option312, setOption312] = useState(false);
     const [findParticipantList, setFindParticipantList] = useState([]);
     const [optionInput, setOptionInput] = useState("");
+    const [beingKicked, setBeingKicked] = useState(false);
+    const [searchingConversation, setSearchingConversation] = useState(false);
+    const [searchConversationInput, setSearchConversationInput] = useState("");
+    const [searchConversationResponse, setSearchConversationResponse] = useState([]);
     const [participantNameInput, setParticipantNameInput] = useState("");
     const participantInputDebounce = useDebounce(participantNameInput, 300);
+    const searchConversationDebounce = useDebounce(searchConversationInput, 300);
     const {ref: loadMoreFriendRef, inView} = useInView({});
     const {ref: loadMoreFileRef, inView: inViewFile} = useInView({});
-    const [beingKicked, setBeingKicked] = useState(false);
+
+    useEffect(() => {
+        const fetchConversation = async () => {
+            try {
+                if(!filterChoice) setChatRooms(await fetchChatRooms());
+                else setChatRooms(await conversationService.getNotReads());
+            }catch (e){
+                console.log(e);
+            }
+        }
+        fetchConversation();
+    }, [filterChoice])
 
     useEffect(() => {
         const fetchData = async () => {
             if(user){
                 userRef.current = user;
                 const response = await fetchChatRooms();
+                currentChatRoomsRef.current = response;
                 setChatRooms(response);
                 const chatRoomIds = response.map(chatRoom => chatRoom.id);
                 await setUpStompClient(chatRoomIds, user.id, onMessageReceived, onNoticeReceived);
@@ -100,6 +123,12 @@ const Chat = () => {
         const fetchMessages = async () => {
             try {
                 const response = await messageService.getMessages(chatId);
+                const currentChatRoom = chatRooms.find(chatRoom => chatRoom.id === chatId);
+                if(currentChatRoom) {
+                    chatRoomRef.current = currentChatRoom;
+                }else{
+                    chatRoomRef.current = await conversationService.getById(chatId);
+                }
                 localStorage.setItem("messages", JSON.stringify(response));
                 setMessages(response);
             }catch(e) {
@@ -110,7 +139,17 @@ const Chat = () => {
     }, [chatId]);
 
     useEffect(() => {
-        localStorage.setItem("messages", JSON.stringify(messages));
+        const fetchConversation = async () => {
+            try {
+                setSearchConversationResponse(await conversationService.searchConversation(searchConversationInput));
+            }catch (e){
+                console.log(e);
+            }
+        }
+        fetchConversation();
+    }, [searchConversationDebounce]);
+
+    useEffect(() => {
         if (messageEndRef.current) {
             messageEndRef.current.scrollIntoView({ behavior: 'smooth' });
         }
@@ -168,7 +207,6 @@ const Chat = () => {
 
     const fetchFile = async () => {
         try {
-            console.log("DSFDSFDS" + fileTypeRef.current);
             return await conversationService.getConversationFiles(chatRoomRef.current.id, fileTypeRef.current, filePageNumberRef.current);
         } catch (e) {
             console.log(e);
@@ -177,7 +215,7 @@ const Chat = () => {
 
     const fetchChatRooms = async () => {
         try {
-            return await conversationService.getChatRoom();
+            return await conversationService.getAll();
         }catch(err) {
             console.log(err);
         }
@@ -273,6 +311,9 @@ const Chat = () => {
             content: content,
             notRead: chatRoomRef.current.participants.filter(id => id !== userRef.current.id),
             sentAt: new Date()
+        }
+        if(!currentChatRoomsRef.current.find(chatRoom => chatRoom.id === chatRoomRef.current.id) && !filterChoice){
+            setChatRooms(prev => prev.concat(chatRoomRef.current));
         }
         setChatRooms(prev => prev.map(chatRoom => {
             if(chatRoom.id === chatRoomRef.current.id){
@@ -398,6 +439,21 @@ const Chat = () => {
         navigate(`/chat/${chatRoom.id}`);
     }
 
+    const handleClickSearchChatRoom = async (chatRoom) => {
+        if(!chatRoom.conversationId){
+            const request = {
+                name: "",
+                type: "PRIVATE",
+                creatorId: user.id,
+                participantIds: [chatRoom.userId]
+            }
+            chatRoomRef.current = await conversationService.create(request);
+            setMessages([]);
+        }else{
+            navigate(`/chat/${chatRoom.conversationId}`);
+        }
+    }
+
     const handleAddParticipant = async () => {
         try {
             for(const participant of chosenParticipant){
@@ -498,7 +554,7 @@ const Chat = () => {
                             gap: '10px'
                         }}>
                             {chatRoomRef.current.participants.map((participant, index) => (
-                                <ParticipantListNickname user={currentParticipantRef} stompClientRef={stompClientRef} sendMessage={sendMessage} setMessages={setMessages} optionInput={optionInput} setOptionInput={setOptionInput} participant={participant} index={index} chatRoomRef={chatRoomRef}/>
+                                <ParticipantListNickname setChatRooms={setChatRooms} user={currentParticipantRef} stompClientRef={stompClientRef} sendMessage={sendMessage} setMessages={setMessages} optionInput={optionInput} setOptionInput={setOptionInput} participant={participant} index={index} chatRoomRef={chatRoomRef}/>
                             ))}
                             <FontAwesomeIcon icon={faX} style={{
                                 fontSize: '15px',
@@ -628,74 +684,56 @@ const Chat = () => {
             }}>
                 <div className="left-content">
                     <h1>Đoạn chat</h1>
-                    <div className="search-bounding">
-                        <FontAwesomeIcon icon={faMagnifyingGlass} style={{fontSize: '20px'}}/>
-                        <input
-                            type="text" placeholder="Tìm kiếm trên PTIT Connect"
-                            style={{
-                               width: '100%',
-                               border: 'none',
-                                fontSize: '20px',
-                                backgroundColor: 'inherit',
-                                color: 'rgb(255,255,255)',
-                                outline: 'none'
-                            }}
-                        />
-                    </div>
                     <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                    }}>
+                        {searchingConversation &&
+                            <FontAwesomeIcon icon={faArrowLeft} className="back-icon" style={{marginLeft: '0'}} onClick={() => {
+                                setSearchingConversation(false);
+                                setSearchConversationInput("");}}
+                            />
+                        }
+                        <div className="search-bounding">
+                            <FontAwesomeIcon icon={faMagnifyingGlass} style={{fontSize: '20px'}}/>
+                            <input
+                                type="text" placeholder="Tìm kiếm trên PTIT Connect"
+                                style={{
+                                    width: '100%',
+                                    border: 'none',
+                                    fontSize: '20px',
+                                    backgroundColor: 'inherit',
+                                    outline: 'none'
+                                }}
+                                onClick={() => setSearchingConversation(true)}
+                                onChange={(e) => setSearchConversationInput(e.target.value)}
+                            />
+                        </div>
+                    </div>
+                    {!searchingConversation && <div style={{
                         display: 'flex',
                         gap: '5px',
                         fontSize: '18px',
-                        fontWeight: 'bold'
+                        fontWeight: 'bold',
+                        marginTop: '10px'
                     }}>
-                        <p className="filter-choice">Tất cả</p>
-                        <p className="filter-choice">Chưa đọc</p>
-                    </div>
+                        <p className={`filter-choice ${!filterChoice && "selected"}`} onClick={() => {
+                            setFilterChoice(0);
+                        }}>Tất cả</p>
+                        <p className={`filter-choice ${filterChoice && "selected"}`} onClick={() => {
+                            setFilterChoice(1);
+                        }}>Chưa đọc</p>
+                    </div>}
                     <div className="chat-room-container">
-                        {chatRooms && chatRooms.map((data, index) => (
-                            <div className="chat-room" key={index} onClick={() => handleClickChatRoom(data)}>
-                                <div style={{
-                                    position: 'relative',
-                                }}>
-                                    <img src={`data:${getImageMime(data.avatar)};base64,${data.avatar}`} className="chat-room-avatar"/>
-                                    <img src="/green-dot.jpg" alt="" style={{
-                                        position: 'absolute',
-                                        right: '-3px',
-                                        bottom: '10px',
-                                        width: '20px',
-                                        height: '20px',
-                                        borderRadius: '50%',
-                                    }}/>
-                                </div>
-                                <div style={{
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    alignItems: 'flex-start',
-                                    justifyContent: 'center',
-                                    gap: '5px'
-                                }}>
-                                    <p className="chat-room-name">{data.name !== "" ? data.name : data.displayName}</p>
-                                    <div style={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'space-between'
-                                    }}>
-                                        {data.lastMessage && (
-                                            <p className={`last-message ${data.lastMessage.notRead.find(id => id === user.id) && "not-read"}`}>
-                                                {data.lastMessage.type === "GROUP_NOTICE" ? (
-                                                    data.lastMessage.content
-                                                ) : (
-                                                    data.lastMessage.senderId !== user.id
-                                                        ? `${data.lastMessage.senderName}: ${data.lastMessage.content !== "" ? data.lastMessage.content : "Đã gửi file"}`
-                                                        : `Bạn: ${data.lastMessage.content !== "" ? data.lastMessage.content : "Đã gửi file"}`
-                                                    )
-                                                }
-                                            </p>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
+                        {!searchingConversation ? (
+                            chatRooms && chatRooms.map((data, index) => (
+                                <ChatRoomList user={user} data={data} index={index} handleClickChatRoom={handleClickChatRoom}/>
+                            ))
+                        ) : (
+                            searchConversationResponse.map((data, index) => (
+                                <ChatRoomList user={user} data={data} index={index} handleClickChatRoom={handleClickSearchChatRoom}/>
+                            ))
+                        )}
                     </div>
                 </div>
                 {chatRoomRef.current && (
@@ -718,7 +756,7 @@ const Chat = () => {
                                         justifyContent: 'center',
                                         gap: '8px'
                                     }}>
-                                        <p style={{fontWeight : 'bold', fontSize : "19px"}}>{chatRoomRef.current.name !== "" ? chatRoomRef.current.name : chatRoomRef.current.displayName}</p>
+                                        <p style={{fontWeight : 'bold', fontSize : "19px"}}>{chatRoomRef.current.name ? chatRoomRef.current.name : chatRoomRef.current.displayName}</p>
                                         <p style={{color: "rgb(117,117,117)", fontSize: "15px", marginTop: "-5px"}}>Online 2 phút trước</p>
                                     </div>
                                 </div>
