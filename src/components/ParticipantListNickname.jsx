@@ -1,14 +1,15 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
 import getImageMime from "@/services/getImageFromUnit8.js";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faCheck, faPenToSquare, faX} from "@fortawesome/free-solid-svg-icons";
+import {faCheck, faPenToSquare} from "@fortawesome/free-solid-svg-icons";
 import {changeNickname} from '../services/chatParticipant.js';
 
-const ParticipantListNickname = ({participant, optionInput, setOptionInput, index, chatRoomRef, setChatRooms, setMessages}) => {
+const ParticipantListNickname = ({user, participant, optionInput, setOptionInput, index, chatRoomRef, setMessages, sendMessage}) => {
     const [modify, setModify] = useState(false);
     const containerRef = useRef(null);
 
     useEffect(() => {
+        console.log(user.current);
         const handleClickOutside = (event) => {
             if (containerRef.current && !containerRef.current.contains(event.target)) {
                 setModify(false);
@@ -66,6 +67,7 @@ const ParticipantListNickname = ({participant, optionInput, setOptionInput, inde
                         const response = await changeNickname(chatRoomRef.current.id, participant.participantId, optionInput);
                         if(response !== "Nickname changed") alert("Có lỗi xảy ra");
                         else{
+                            if(optionInput === participant.username || optionInput === "") return;
                             const updatedChatRoom = {
                                 ...chatRoomRef.current,
                                 participants: chatRoomRef.current.participants.map(p =>
@@ -75,29 +77,33 @@ const ParticipantListNickname = ({participant, optionInput, setOptionInput, inde
                             const targetParticipant = chatRoomRef.current.participants.find(
                                 p => p.participantId === participant.participantId
                             );
-                            if(chatRoomRef.current.type === "PRIVATE"){
-                                setChatRooms(prev => prev.map(room =>
-                                    room.id === updatedChatRoom.id ? {
-                                        ...room,
-                                        ...updatedChatRoom.participants.find(p => p.participantId === participant.participantId),
-                                        nickname: optionInput
-                                    } : room
-                                ));
-                            }
+                            // if(chatRoomRef.current.type === "PRIVATE"){
+                            //     setChatRooms(prev => prev.map(room =>
+                            //         room.id === updatedChatRoom.id ? {
+                            //             ...room,
+                            //             ...updatedChatRoom.participants.find(p => p.participantId === participant.participantId),
+                            //             nickname: optionInput
+                            //         } : room
+                            //     ));
+                            // }
                             setMessages(prev => prev.map(message => {
-                                if (message.sender.id === targetParticipant.id) {
-                                    return {
+                                if (message.sender.id === targetParticipant.participantId) {
+                                    const newMessage = {
                                         ...message,
                                         sender: {
                                             ...message.sender,
                                             username: optionInput
                                         }
                                     };
+                                    console.log(newMessage);
+                                    return newMessage;
+
                                 }
                                 return message;
                             }));
                             chatRoomRef.current = updatedChatRoom;
                             localStorage.setItem('chatRoom', JSON.stringify(updatedChatRoom));
+                            sendMessage(user.current.username + " đã đổi biệt danh của " + participant.username + " thành " + optionInput + ".", "GROUP_NOTICE");
                             setOptionInput("");
                             setModify(false);
                         }

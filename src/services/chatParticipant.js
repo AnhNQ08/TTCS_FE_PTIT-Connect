@@ -1,5 +1,13 @@
 import * as request from '../utils/request';
 
+export const getParticipants = (conversationId) => {
+    return request.get(`/participant/getByConversation/${conversationId}`, {
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+        }
+    })
+}
+
 export const changeRole = (conversationId, participantId, role) => {
     return request.put(`/participant/changeRole/${conversationId}/${participantId}`, {role}, {
         headers: {
@@ -16,8 +24,8 @@ export const changeNickname = (conversationId, participantId, nickname) => {
     })
 }
 
-export const addParticipant = (conversationId, participantIds) => {
-    return request.put(`/participant/addParticipant/${conversationId}`, {participantIds}, {
+export const addParticipant = (conversationId, participantId) => {
+    return request.post(`/participant/add/${conversationId}`, {participantId}, {
         headers: {
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`
         }
@@ -25,7 +33,7 @@ export const addParticipant = (conversationId, participantIds) => {
 }
 
 export const kickParticipant = (conversationId, participantId) => {
-    return request.remove(`/participant/kickParticipant/${conversationId}/${participantId}`, {
+    return request.remove(`/participant/delete/${conversationId}/${participantId}`, {
         headers: {
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`
         }

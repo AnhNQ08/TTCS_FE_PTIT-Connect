@@ -6,8 +6,9 @@ export const SockJSContext = createContext();
 
 export const SockJSProvider = ({children}) => {
     const stompClientRef = useRef(null);
+    const subscriptions = useRef({});
 
-    const setUpStompClient = (groupIds, userId, onMessageReceived, onPublicChannel) => {
+    const setUpStompClient = (groupIds, userId, onMessageReceived, onNoticeReceived) => {
         return new Promise((resolve, reject) => {
             const socket = new SockJS("http://100.114.40.116:8081/ws");
             const stompClient = new Client({
@@ -15,33 +16,31 @@ export const SockJSProvider = ({children}) => {
                 reconnectDelay: 5000,
                 heartbeatIncoming: 4000,
                 heartbeatOutgoing: 4000,
-                connectHeaders: {
-                    Authorization: `Bearer ${localStorage.getItem("accessToken")}`
-                },
                 onConnect: () => {
-                    console.log('STOMP Connected');
                     try {
-                        if (userId && onMessageReceived) {
-                            stompClient.subscribe(
+                        if(localStorage.getItem('subscriptions')) {
+                            subscriptions.current = JSON.parse(localStorage.getItem('subscriptions'));
+                        }
+                        if (userId) {
+                            subscriptions.current[userId + "_message"] = stompClient.subscribe(
                                 `/user/${userId}/queue/messages`,
                                 onMessageReceived
-                            )
+                            );
+                            subscriptions.current[userId + "_notice"] = stompClient.subscribe(
+                                `/user/${userId}/queue/notices`,
+                                onNoticeReceived
+                            );
                         }
                         if (groupIds && onMessageReceived) {
                             groupIds.forEach(groupId => {
-                                stompClient.subscribe(
+                                subscriptions.current[groupId] = stompClient.subscribe(
                                     `/topic/group/${groupId}`,
                                     onMessageReceived
-                                )
+                                );
                             });
                         }
-                        if (onPublicChannel) {
-                            stompClient.subscribe(
-                                '/topic/public',
-                                onPublicChannel
-                            )
-                        }
                         stompClientRef.current = stompClient;
+                        localStorage.setItem('subscriptions', JSON.stringify(subscriptions.current));
                         resolve(true);
                     } catch (err) {
                         reject(err);
@@ -64,6 +63,12 @@ export const SockJSProvider = ({children}) => {
         });
     };
 
+    const unsubscribe = (subscriptionId) => {
+        if (stompClientRef.current) {
+            stompClientRef.current.unsubscribe(subscriptions.current[subscriptionId]);
+        }
+    }
+
     const disconnectStomp = () => {
         if (stompClientRef.current) {
             stompClientRef.current.deactivate().then(() => {
@@ -73,7 +78,7 @@ export const SockJSProvider = ({children}) => {
     };
 
     return (
-        <SockJSContext.Provider value={{setUpStompClient, disconnectStomp, stompClientRef}}>
+        <SockJSContext.Provider value={{setUpStompClient, disconnectStomp, stompClientRef, unsubscribe}}>
             {children}
         </SockJSContext.Provider>
     );
