@@ -1,7 +1,12 @@
 import {useContext, useState} from "react";
 import { login } from "../services/authentication";
+<<<<<<< HEAD
+import { useNavigate } from "react-router-dom";
+import { getCurrentUser } from "@/services/userAPI";
+=======
 import * as userService from "../services/user.js";
 import {useNavigate, useParams} from "react-router-dom";
+>>>>>>> 8c14b1e58cd611985bd0941b79a6019690763bb5
 import "../styles/login.css";
 import AuthContext from "@/context/AuthContext.jsx";
 
