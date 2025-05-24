@@ -3,25 +3,32 @@ import getImageMime from "@/services/getImageFromUnit8.js";
 import {faCheck} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 
-const FriendList = ({setChosenParticipant, opponent, index, chosenParticipant}) => {
+const FriendList = ({setTmpChatRoomName,setChosenParticipant, opponent, index, chosenParticipant, hasCheck, setShowUserList}) => {
     const [chosen, setChosen] = useState(false);
 
     useEffect(() => {
-        if(chosen) setChosenParticipant(prev => prev.concat(opponent));
-        else if(chosen === false) setChosenParticipant(prev => prev.filter(participant => participant.id !== opponent.id));
+        if(chosen && opponent) {
+            setChosenParticipant(prev => prev.concat(opponent));
+            if(!hasCheck){
+                setShowUserList(false);
+                setTmpChatRoomName(prev => prev.concat(opponent.username));
+            }
+
+        }
+        else if(chosen === false && setChosenParticipant) setChosenParticipant(prev => prev.filter(participant => participant.id !== opponent.id));
     }, [chosen]);
 
     useEffect(() => {
-        if(!chosenParticipant.find(participant => participant.id === opponent.id)) setChosen(false);
+        if(hasCheck === true && chosenParticipant && !chosenParticipant.find(participant => participant.id === opponent.id)) setChosen(false);
     }, [chosenParticipant]);
 
     return (
-        <div key={index} className="friend-div" onClick={() => {
+        <div key={index} className={`friend-div ${!hasCheck && "small-font"}`} onClick={() => {
             setChosen(prev => !prev);
         }}>
             <img src={`data:${getImageMime(opponent.avatar)};base64,${opponent.avatar}`} alt="" className="participant-avatar"/>
             <p className="participant-name">{opponent.username}</p>
-            <FontAwesomeIcon icon={faCheck} className={`check-icon ${chosen ? 'checked' : ''}`}/>
+            {hasCheck && <FontAwesomeIcon icon={faCheck} className={`check-icon ${chosen ? 'checked' : ''}`}/>}
         </div>
     );
 };

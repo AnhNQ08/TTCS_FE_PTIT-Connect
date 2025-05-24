@@ -16,3 +16,21 @@ body, p{
     z-index: 100;
     opacity: 0.8;
 }
+
+.icon-down-right-corner{
+    position: absolute;
+    right: 5px;
+    bottom: 5px;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+}
+
+.icon-top-right-corner{
+    position: absolute;
+    right: 5px;
+    top: 5px;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+}

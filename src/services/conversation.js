@@ -47,8 +47,8 @@ export const getConversationFiles = async (conversationId, types, pageNumber) =>
     })
 }
 
-export const create = async (data) => {
-    return request.post('/conversation/create', data, {
+export const create = async (formData) => {
+    return request.post('/conversation/create', formData, {
         headers: {
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`
         }

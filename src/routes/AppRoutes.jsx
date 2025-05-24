@@ -23,6 +23,7 @@ const AppRoutes = () => {
       {/*<Route path="/other-user" element={<UserPersonalInformation />} />*/}
       {/*<Route path="/notification" element={<Notification />} />*/}
       <Route path="/chat/:chatId?" element={<Chat />} />
+        <Route path="/chat/create_group" element={<Chat />} />
     </Routes>
   );
 };

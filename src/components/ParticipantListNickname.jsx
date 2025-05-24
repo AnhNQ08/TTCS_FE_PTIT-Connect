@@ -99,7 +99,13 @@ const ParticipantListNickname = ({user, participant, optionInput, setOptionInput
                             }));
                             chatRoomRef.current = updatedChatRoom;
                             localStorage.setItem('chatRoom', JSON.stringify(updatedChatRoom));
-                            sendMessage(user.current.username + " đã đổi biệt danh của " + participant.username + " thành " + optionInput + ".", "GROUP_NOTICE");
+                            if(chatRoomRef.current.type === "GROUP") sendMessage(user.username + " đã đổi biệt danh của " + participant.username + " thành " + optionInput + ".", "CONVERSATION_NOTICE");
+                            else {
+                                let content = "";
+                                if(participant.participantId === user.id) content = user.username + " đã đổi biệt danh của mình thành " + optionInput + ".";
+                                else content = user.username + " đã đổi biệt danh của " + participant.username + " thành " + optionInput + ".";
+                                sendMessage(content, "CONVERSATION_NOTICE");
+                            }
                             setOptionInput("");
                             setModify(false);
                         }

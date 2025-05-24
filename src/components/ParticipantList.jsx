@@ -42,7 +42,7 @@ const ParticipantList = ({sendNoticeToUser, sendMessage, index, participant, cur
                         return p;
                     });
                     localStorage.setItem("chatRoom", JSON.stringify(chatRoomRef.current));
-                    sendMessage(currentUser.nickname + " đã gỡ quyền quản trị viên của " + participant.nickname + ".", "GROUP_NOTICE");
+                    sendMessage(currentUser.nickname + " đã gỡ quyền quản trị viên của " + participant.nickname + ".", "CONVERSATION_NOTICE");
                     setChoice(false);
                 }
             }else{
@@ -54,7 +54,7 @@ const ParticipantList = ({sendNoticeToUser, sendMessage, index, participant, cur
                         return p;
                     });
                     localStorage.setItem("chatRoom", JSON.stringify(chatRoomRef.current));
-                    sendMessage(currentUser.nickname + " đã thêm " + participant.nickname + " làm quản trị viên nhóm.", "GROUP_NOTICE");
+                    sendMessage(currentUser.nickname + " đã thêm " + participant.nickname + " làm quản trị viên nhóm.", "CONVERSATION_NOTICE");
                     setChoice(false);
                 }
             }
@@ -70,10 +70,10 @@ const ParticipantList = ({sendNoticeToUser, sendMessage, index, participant, cur
             else{
                 chatRoomRef.current.participants = chatRoomRef.current.participants.filter(p => p.participantId !== participantId);
                 if(currentUser.participantId !== participantId) {
-                    sendMessage(currentUser.nickname + " đã xóa " + participant.username + " khỏi nhóm.", "GROUP_NOTICE");
+                    sendMessage(currentUser.nickname + " đã xóa " + participant.username + " khỏi nhóm.", "CONVERSATION_NOTICE");
                     sendNoticeToUser("bị xóa khỏi nhóm", participantId);
                 }
-                else sendMessage(currentUser.nickname + " đã rời khỏi nhóm.", "GROUP_NOTICE");
+                else sendMessage(currentUser.nickname + " đã rời khỏi nhóm.", "CONVERSATION_NOTICE");
             }
         }catch (e){
             console.log(e);

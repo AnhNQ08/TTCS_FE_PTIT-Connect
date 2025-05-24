@@ -67,6 +67,7 @@
 }
 
 .chat-room-name{
+    max-width: 270px;
     font-size: 19px;
     font-weight: bold;
     margin-top: -5px;
@@ -90,6 +91,25 @@
     border-width: 1.5px;
     padding-top: 20px;
     overflow-y: auto;
+}
+
+.spacing{
+    margin-top: auto;
+}
+
+.spacing.hidden{
+    margin-top: 100px;
+}
+
+.friend-div.small-font p{
+    font-size: 15px;
+}
+
+.friend-div.small-font img{
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    object-fit: cover;
 }
 
 .function{
@@ -606,4 +626,44 @@
 .filter-choice.selected{
     background-color: #E53935;
     color: white;
+}
+
+.function-button-for-flex{
+    padding: 10px;
+    font-size: 28px;
+    border-radius: 50%;
+    transition: 0.1s ease-in-out;
+    cursor: pointer;
+}
+
+.function-button-for-flex:hover{
+    background-color: lightgray;
+}
+
+.tmp-chat-room-name{
+    resize: none;
+    border: 2px solid lightgray;
+    border-radius: 10px;
+    padding: 10px;
+    font-size: 20px;
+    width: 600px;
+    outline: none;
+}
+
+.create-post-button{
+    color: #E53935;
+    padding: 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: white;
+    border: 1px solid #E53935;
+    transition: 0.15s ease-in-out;
+    font-size: 20px;
+    margin-top: 50px;
+}
+
+.create-post-button:hover{
+    color: white;
+    border-color: #E53935;
+    background-color: #E53935;
 }
