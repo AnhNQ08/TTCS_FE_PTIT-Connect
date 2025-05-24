@@ -156,6 +156,7 @@ export default function Comment(props: any) {
             }
             const response = await createResponseComment(commentId, formData);
             console.log(response);
+            props.setRefreshFlag;
         } catch (e) {
             console.log("Loi createResponseCommnet", e);
         }

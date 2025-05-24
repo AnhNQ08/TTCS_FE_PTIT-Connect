@@ -34,7 +34,7 @@ export default function CommentContainer({ isVisible, onClose, postId }: any) {
         if (postId) {
             fetchComments();
         }
-    }, [postId, refreshFlag]);
+    }, [postId, refreshFlag, isVisible, onClose]);
 
     const handleImagePickerPress = async () => {
         const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -127,6 +127,7 @@ export default function CommentContainer({ isVisible, onClose, postId }: any) {
                             currentUserReaction={cmt.currentUserReaction}
                             reactionDTO={cmt.reactionDTO}
                             haveResponses={cmt.haveResponses}
+                            setRefreshFlag = {setRefreshFlag(!refreshFlag)}
                         />
                     ))}
                 </ScrollView>
