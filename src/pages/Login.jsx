@@ -1,28 +1,27 @@
 import {useContext, useState} from "react";
-import { login } from "../services/authentication";
-import * as userService from "../services/user.js";
-import {useNavigate, useParams} from "react-router-dom";
+import { login } from "../APIs/authentication";
+import * as userService from "../APIs/user.js";
+import {useNavigate} from "react-router-dom";
 import "../styles/login.css";
 import AuthContext from "@/context/AuthContext.jsx";
 
 const Login = () => {
   const {setUser} = useContext(AuthContext);
   const [error, setError] = useState("");
-  const [emailOrPhone, setEmailOrPhone] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await login(emailOrPhone, password);
-      localStorage.clear();
+      const res = await login(email, password);
       localStorage.setItem("accessToken", res.accessToken);
       localStorage.setItem("refreshToken", res.refreshToken);
       const user = await userService.getCurrentUser();
       setUser(user);
       localStorage.setItem("user", JSON.stringify(user));
-      navigate("/chat");
+      navigate("/");
     } catch (err) {
       setError(err.message || "Đăng nhập thất bại");
     }
@@ -54,8 +53,8 @@ const Login = () => {
             name="username"
             placeholder="Email hoặc số điện thoại"
             required
-            value={emailOrPhone}
-            onChange={(e) => setEmailOrPhone(e.target.value)}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
           />
           <input
             type="password"

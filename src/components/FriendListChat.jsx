@@ -1,9 +1,9 @@
 import React, {useEffect, useState} from 'react';
-import getImageMime from "@/services/getImageFromUnit8.js";
+import {getImageMime} from "../utils/format.js";
 import {faCheck} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 
-const FriendList = ({setTmpChatRoomName,setChosenParticipant, opponent, index, chosenParticipant, hasCheck, setShowUserList}) => {
+const FriendListChat = ({setTmpChatRoomName,setChosenParticipant, opponent, index, chosenParticipant, hasCheck, setShowUserList}) => {
     const [chosen, setChosen] = useState(false);
 
     useEffect(() => {
@@ -33,4 +33,4 @@ const FriendList = ({setTmpChatRoomName,setChosenParticipant, opponent, index, c
     );
 };
 
-export default FriendList;
+export default FriendListChat;

@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
-import getImageMime from "@/services/getImageFromUnit8.js";
+import {getImageMime} from "../utils/format.js";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {
     faComment,
@@ -9,9 +9,9 @@ import {
     faUser,
     faUserXmark
 } from "@fortawesome/free-solid-svg-icons";
-import * as participantService from '../services/chatParticipant.js';
+import * as participantService from '../APIs/chatParticipant.js';
 
-const ParticipantList = ({sendNoticeToUser, sendMessage, index, participant, currentUser, chatRoomRef}) => {
+const ParticipantListChatRoom = ({sendNoticeToUser, sendMessage, index, participant, currentUser, chatRoomRef}) => {
     const containerRef = useRef(null);
     const [choice, setChoice] = useState(false);
 
@@ -151,4 +151,4 @@ const ParticipantList = ({sendNoticeToUser, sendMessage, index, participant, cur
     );
 };
 
-export default ParticipantList;
+export default ParticipantListChatRoom;

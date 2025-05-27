@@ -23,17 +23,17 @@ import {
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import '../styles/Chat.css';
 import SockJSContext from "@/context/SockJSContext.jsx";
-import * as conversationService from '../services/conversation.js';
-import * as chatService from '../services/message.js';
-import * as messageService from '../services/message.js';
-import * as friendService from '../services/friend.js';
-import * as participantService from '../services/chatParticipant.js';
-import getImageMime from "@/services/getImageFromUnit8.js";
+import * as conversationService from '../APIs/conversation.js';
+import * as chatService from '../APIs/message.js';
+import * as messageService from '../APIs/message.js';
+import * as friendService from '../APIs/friend.js';
+import * as participantService from '../APIs/chatParticipant.js';
+import {getImageMime} from "../utils/format.js";
 import AuthContext from "@/context/AuthContext.jsx";
 import {useLocation, useNavigate, useParams} from "react-router-dom";
-import ParticipantListNickname from "@/components/ParticipantListNickname.jsx";
-import ParticipantList from "@/components/ParticipantList.jsx";
-import FriendList from "@/components/FriendList.jsx";
+import ParticipantListNicknameChatRoom from "@/components/ParticipantListNicknameChatRoom.jsx";
+import ParticipantListChatRoom from "@/components/ParticipantListChatRoom.jsx";
+import FriendListChat from "@/components/FriendListChat.jsx";
 import {useInView} from "react-intersection-observer";
 import {useDebounce} from '../hooks/useDebounce.js';
 import ChatRoomList from "@/components/ChatRoomList.jsx";
@@ -148,9 +148,14 @@ const Chat = () => {
             setUserList([]);
             if(chatId){
                 localStorage.setItem("previousPath", location.pathname);
-                const foundRoom = chatRooms.find(chatRoom => chatRoom.id === chatId);
+                const foundRoom = chatRooms.find(chatRoom => {
+                    console.log(chatRoom.id);
+                    console.log(chatId);
+                    if(chatRoom.id === chatId) return chatRoom;
+                });
+                console.log(foundRoom);
+                // currentParticipantRef.current = foundRoom.participants.find(participant => participant.participantId === user.id);
                 if (foundRoom) chatRoomRef.current = foundRoom;
-                else navigate("/chat");
                 fetchMessages();
             }
         }
@@ -202,26 +207,30 @@ const Chat = () => {
     }, [inViewFile]);
 
     useEffect(() => {
-        fetchFriendList().then(newFriendList => {
-            if(newFriendList && newFriendList.length > 0){
-                setUserList(newFriendList);
-            }
-        })
+        if(user){
+            fetchFriendList().then(newFriendList => {
+                if(newFriendList && newFriendList.length > 0){
+                    setUserList(newFriendList);
+                }
+            })
+        }
     }, [showUserList]);
 
     useEffect(() => {
-        friendPageNumberRef.current = 0;
-        if(!creatingGroup && chatRooms){
-            fetchParticipantList().then(newFriendList => {
-                setUserList(newFriendList);
-            })
-        }else{
-            fetchFriendList().then(newFriendList => {
-                const filteredList = newFriendList.filter(
-                    (friend) => !chosenFriends.some((user) => user.id === friend.id)
-                );
-                setUserList(filteredList);
-            })
+        if(user){
+            friendPageNumberRef.current = 0;
+            if(!creatingGroup && chatRooms){
+                fetchParticipantList().then(newFriendList => {
+                    setUserList(newFriendList);
+                })
+            }else{
+                fetchFriendList().then(newFriendList => {
+                    const filteredList = newFriendList.filter(
+                        (friend) => !chosenFriends.some((user) => user.id === friend.id)
+                    );
+                    setUserList(filteredList);
+                })
+            }
         }
     }, [participantInputDebounce]);
 
@@ -291,6 +300,7 @@ const Chat = () => {
 
     const handleClickChatRoom = async (chatRoom) => {
         setBeingKicked(false);
+        currentParticipantRef.current = chatRoom.participants.find(participant => participant.participantId === user.id);
         if(chatRoom.lastMessage && chatRoom.lastMessage.notRead.find(id => id === user.id)){
             await conversationService.updateLastMessageStatus(chatRoom.id, user.id);
             setChatRooms(prev => prev.map(prevChatRoom => {
@@ -330,6 +340,7 @@ const Chat = () => {
             });
             formData.append("data", jsonBlob);
             const created = await conversationService.create(formData);
+            chatRoomRef.current = created;
             const participant = {
                 id: chatRoom.userId,
                 username: chatRoom.displayName
@@ -343,7 +354,7 @@ const Chat = () => {
 
     const handleNoticeToConversationAndUserOnCreatingConversation = async (participant) => {
         chatRoomRef.current.participants = await participantService.getParticipants(chatRoomRef.current.id);
-        await sendMessage(user.username + " đã thêm " + participant.username + " vào nhóm.", "CONVERSATION_NOTICE");
+        if(chatRoomRef.current.type === "GROUP") await sendMessage(user.username + " đã thêm " + participant.username + " vào nhóm.", "CONVERSATION_NOTICE");
         await sendNoticeToUser("được thêm vào nhóm", participant.id);
     }
 
@@ -416,7 +427,6 @@ const Chat = () => {
     const onMessageReceived = useCallback(async (payload) => {
         setTimeout(async () => {
             const message = JSON.parse(payload.body);
-            console.log(message);
             if(chatRoomRef.current && message.conversationId === chatRoomRef.current.id){
                 if(chatRoomRef.current.lastMessage) {
                     const response = await conversationService.updateLastMessageStatus(chatRoomRef.current.id, userRef.current.id);
@@ -434,8 +444,9 @@ const Chat = () => {
                 }
             }
             const tmpChatRooms = await fetchChatRooms();
-            if(message.type === "CONVERSATION_NOTICE" && message.sender.id !== userRef.current.id){
-                chatRoomRef.current = tmpChatRooms.find(chatRoom => chatRoom.id === chatRoomRef.current.id);
+            if(message.content.includes("đã đổi biệt danh") && chatRoomRef.current.id === message.conversationId){
+                console.log("DSFDSFDSF");
+                setMessages(await messageService.getMessages(message.conversationId, userRef.current.id));
             }
             setChatRooms(tmpChatRooms);
         }, 50);
@@ -451,6 +462,9 @@ const Chat = () => {
                 chatRoomRef.current.participants = chatRoomRef.current.participants.filter(participant => participant.participantId !== userRef.current.id);
             }
         }else if(message.content === "được thêm vào nhóm"){
+            if(message.conversationId === chatRoomRef.current.id){
+                setBeingKicked(false);
+            }
             stompClientRef.current.subscribe(
                 `/topic/group/${message.conversationId}`, onMessageReceived
             );
@@ -654,7 +668,7 @@ const Chat = () => {
                             gap: '10px'
                         }}>
                             {chatRoomRef.current.participants.map((participant, index) => (
-                                <ParticipantListNickname setChatRooms={setChatRooms} user={user} stompClientRef={stompClientRef} sendMessage={sendMessage} setMessages={setMessages} optionInput={optionInput} setOptionInput={setOptionInput} participant={participant} index={index} chatRoomRef={chatRoomRef}/>
+                                <ParticipantListNicknameChatRoom setChatRooms={setChatRooms} user={user} stompClientRef={stompClientRef} sendMessage={sendMessage} setMessages={setMessages} optionInput={optionInput} setOptionInput={setOptionInput} participant={participant} index={index} chatRoomRef={chatRoomRef}/>
                             ))}
                             <FontAwesomeIcon icon={faX} style={{
                                 fontSize: '15px',
@@ -739,7 +753,7 @@ const Chat = () => {
                                 gap: '5px',
                             }}>
                                 {userList && (userList.length > 0 && userList.map((friend, index) => (
-                                    <FriendList index={index} setChosenParticipant={setChosenParticipants} opponent={friend} chosenParticipant={chosenParticipants} hasCheck={true}/>
+                                    <FriendListChat index={index} setChosenParticipant={setChosenParticipants} opponent={friend} chosenParticipant={chosenParticipants} hasCheck={true}/>
                                 )))}
                                 <div ref={loadMoreFriendRef}></div>
                             </div>
@@ -821,20 +835,22 @@ const Chat = () => {
                             />
                         </div>
                     </div>
-                    {!searchingConversation && <div style={{
-                        display: 'flex',
-                        gap: '5px',
-                        fontSize: '18px',
-                        fontWeight: 'bold',
-                        marginTop: '10px'
-                    }}>
+                    {!searchingConversation &&
+                        <div style={{
+                            display: 'flex',
+                            gap: '5px',
+                            fontSize: '18px',
+                            fontWeight: 'bold',
+                            marginTop: '10px'
+                        }}>
                         <p className={`filter-choice ${!filterChoice && "selected"}`} onClick={() => {
                             setFilterChoice(0);
                         }}>Tất cả</p>
                         <p className={`filter-choice ${filterChoice && "selected"}`} onClick={() => {
                             setFilterChoice(1);
                         }}>Chưa đọc</p>
-                    </div>}
+                        </div>
+                    }
                     <div className="chat-room-container">
                         {!searchingConversation ? (
                             <React.Fragment>
@@ -1141,7 +1157,9 @@ const Chat = () => {
                                                 </label>
                                                 {mediaList.map((file, index) => (
                                                     <div style={{
-                                                        position: 'relative'
+                                                        position: 'relative',
+                                                        display: 'flex',
+                                                        alignItems: 'center'
                                                     }} key={index}>
                                                         {file.type.includes('image') || file.type.includes('video') ? (
                                                             <img src={URL.createObjectURL(file)} alt="" style={{
@@ -1304,7 +1322,7 @@ const Chat = () => {
                                             padding: '5px 10px 5px 10px'
                                         }}>
                                             {chatRoomRef.current.participants.map((participant, index) =>
-                                                <ParticipantList sendNoticeToUser={sendNoticeToUser} sendMessage={sendMessage} chatRoomRef={chatRoomRef} participant={participant} index={index} currentUser={currentParticipantRef.current}/>
+                                                <ParticipantListChatRoom sendNoticeToUser={sendNoticeToUser} sendMessage={sendMessage} chatRoomRef={chatRoomRef} participant={participant} index={index} currentUser={currentParticipantRef.current}/>
                                             )}
                                             {chatRoomRef.current.type === "GROUP" && (
                                             <div className="option-item" onClick={() => {

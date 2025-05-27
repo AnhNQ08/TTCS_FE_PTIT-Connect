@@ -1,0 +1,40 @@
+.header{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    padding: 10px 15px 10px 15px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    background-color: #ffffff;
+    max-height: 55px;
+    overflow: hidden;
+}
+
+.header-logo{
+    width: 270px;
+    height: 270px;
+    cursor: pointer;
+    background-color: white;
+}
+
+.user-avatar{
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.user-header-container{
+    display: flex;
+    padding: 10px;
+    background-color: lightgray;
+    border-radius: 10px;
+    width: 180px;
+    align-items: center;
+    gap: 20px;
+    cursor: pointer;
+}

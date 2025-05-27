@@ -1,9 +1,9 @@
 import axios from "axios";
-import * as authService from "../services/authentication.js";
+import * as authService from "../APIs/authentication.js";
 
 const request = axios.create({
   baseURL: "http://100.114.40.116:8081",
-  timeout: 5000,
+  timeout: 10000,
 });
 
 let isRefreshing = false;
@@ -25,7 +25,10 @@ request.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-    if (error.response.data === "AccessToken expired!") {
+    const response = error.response.data;
+    console.log(error.response);
+    console.log(response);
+    if (response === "AccessToken expired!") {
       if (isRefreshing) {
         return new Promise((resolve) => {
           failedRequestsQueue.push((newToken) => {
@@ -44,27 +47,47 @@ request.interceptors.response.use(
         failedRequestsQueue = [];
         return res;
       }
+    }else if(response === "AccessToken unauthorized!"){
+      localStorage.clear();
+      window.location.href = "/login";
+
     }
     return Promise.reject(error);
   }
 );
 
 export const get = async (api, config = {}) => {
-  const response = await request.get(api, config);
-  return response.data;
+  try {
+    const response = await request.get(api, config);
+    return response.data;
+  }catch (e) {
+    console.error("Error get:", e);
+  }
 };
 
 export const post = async (api, options = {}, config = {}) => {
-  const response = await request.post(api, options, config);
-  return response.data;
+  try {
+    const response = await request.post(api, options, config);
+    return response.data;
+  }catch (e){
+    console.error("Error post:", e);
+  }
 };
 
 export const put = async (api, options = {}, config = {}) => {
-  const response = await request.put(api, options, config);
-  return response.data;
+  try {
+    const response = await request.put(api, options, config);
+    return response.data;
+  }catch (e){
+    console.error("Error put:", e);
+  }
 };
 
 export const remove = async (api, config = {}) => {
-  const response = await request.delete(api, config);
-  return response.data;
+  try {
+    const response = await request.delete(api, config);
+    return response.data;
+  }catch (e){
+    console.error("Error delete:", e);
+  }
 };

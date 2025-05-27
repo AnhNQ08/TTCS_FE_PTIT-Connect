@@ -1,15 +1,23 @@
 import React, { createContext, useState, useEffect} from 'react';
+import {useNavigate} from "react-router-dom";
+import {getCurrentUser} from "../APIs/user.js";
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({children}) => {
     const [user, setUser] = useState(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
-        const storedUser = localStorage.getItem('user');
-        if (storedUser) {
-            setUser(JSON.parse(storedUser));
+        const fetchUser = async () => {
+            if(localStorage.getItem("accessToken")) {
+                const response = await getCurrentUser();
+                setUser(response);
+            }else{
+                navigate("/login");
+            }
         }
+        fetchUser();
     }, []);
 
     return (

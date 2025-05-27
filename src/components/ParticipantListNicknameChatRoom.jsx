@@ -1,10 +1,10 @@
 import React, {useContext, useEffect, useRef, useState} from 'react';
-import getImageMime from "@/services/getImageFromUnit8.js";
+import {getImageMime} from "../utils/format.js";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCheck, faPenToSquare} from "@fortawesome/free-solid-svg-icons";
-import {changeNickname} from '../services/chatParticipant.js';
+import {changeNickname} from '../APIs/chatParticipant.js';
 
-const ParticipantListNickname = ({user, participant, optionInput, setOptionInput, index, chatRoomRef, setMessages, sendMessage, setChatRooms}) => {
+const ParticipantListNicknameChatRoom = ({user, participant, optionInput, setOptionInput, index, chatRoomRef, setMessages, sendMessage, setChatRooms}) => {
     const [modify, setModify] = useState(false);
     const containerRef = useRef(null);
 
@@ -98,7 +98,6 @@ const ParticipantListNickname = ({user, participant, optionInput, setOptionInput
                                 return message;
                             }));
                             chatRoomRef.current = updatedChatRoom;
-                            localStorage.setItem('chatRoom', JSON.stringify(updatedChatRoom));
                             if(chatRoomRef.current.type === "GROUP") sendMessage(user.username + " đã đổi biệt danh của " + participant.username + " thành " + optionInput + ".", "CONVERSATION_NOTICE");
                             else {
                                 let content = "";
@@ -119,4 +118,4 @@ const ParticipantListNickname = ({user, participant, optionInput, setOptionInput
     );
 };
 
-export default ParticipantListNickname;
+export default ParticipantListNicknameChatRoom;

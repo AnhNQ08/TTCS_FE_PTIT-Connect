@@ -2,7 +2,17 @@
     font-family: 'Roboto', sans-serif;
 }
 
-body, p{
+body{
+    width: 1920px;
+    margin: 0 auto;
+    background-color: #f8f8f8;
+}
+
+a{
+    text-decoration: none;
+}
+
+p{
     margin: 0;
 }
 
@@ -21,8 +31,6 @@ body, p{
     position: absolute;
     right: 5px;
     bottom: 5px;
-    width: 15px;
-    height: 15px;
     border-radius: 50%;
 }
 
@@ -30,7 +38,44 @@ body, p{
     position: absolute;
     right: 5px;
     top: 5px;
-    width: 15px;
-    height: 15px;
     border-radius: 50%;
+}
+
+.icon-gray-background{
+    padding: 10px;
+    border-radius: 50%;
+    transition: 0.1s ease-in-out;
+    background-color: lightgray;
+    cursor: pointer;
+}
+
+.icon-gray-background:hover{
+    opacity: 0.8;
+}
+
+.status-dot{
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 3px solid white;
+    position: absolute;
+    right: 0;
+    bottom: 3px;
+}
+
+.center-body{
+    width: 1350px;
+}
+
+.spinner{
+    mask-image: url('public/spinner.svg');
+    mask-repeat: no-repeat;
+}
+
+.status-dot.online{
+    background-color: #4CAF50;
+}
+
+.status-dot.offline{
+    background-color: #888888;
 }

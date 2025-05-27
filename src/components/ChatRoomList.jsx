@@ -1,5 +1,5 @@
 import React from 'react';
-import getImageMime from "@/services/getImageFromUnit8.js";
+import {getImageMime} from "../utils/format.js"
 
 const ChatRoomList = ({data, index, handleClickChatRoom, user}) => {
     return (
