@@ -650,7 +650,7 @@
     outline: none;
 }
 
-.create-post-button{
+.create-chat-room-button{
     color: #E53935;
     padding: 20px;
     border-radius: 5px;
@@ -662,7 +662,7 @@
     margin-top: 50px;
 }
 
-.create-post-button:hover{
+.create-chat-room-button:hover{
     color: white;
     border-color: #E53935;
     background-color: #E53935;

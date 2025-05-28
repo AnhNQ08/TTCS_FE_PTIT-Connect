@@ -9,6 +9,7 @@ import * as authenticationService from "../APIs/authentication.js"
 import '../styles/HomePage.css'
 import {useDebounce} from "../hooks/useDebounce.js";
 import FriendListHomePage from "@/components/FriendListHomePage.jsx";
+import {Link} from "react-router-dom";
 
 const HomePage = () => {
     const {user} = useContext(AuthContext);
@@ -25,7 +26,7 @@ const HomePage = () => {
             setFriendList(await fetchAllFriends());
         }
         fetchData();
-    }, [])
+    }, [user])
 
     useEffect(() => {
         if(searchInput !== ""){
@@ -107,17 +108,17 @@ const HomePage = () => {
         window.location.href = "/login";
     }
 
-    return (
+    return user && (
         <div style={{
             height: '100vh',
             position: 'relative'
         }}>
             <Header/>
             <div className="sidebar-left">
-                <div className="sidebar-option">
+                <Link style={{textDecoration: 'none', color: 'black'}} to={`/${user.id}`} className="sidebar-option">
                     <FontAwesomeIcon icon={faUser} />
                     <p>Trang cá nhân</p>
-                </div>
+                </Link>
                 <div className="sidebar-option">
                     <FontAwesomeIcon icon={faUserGroup} />
                     <p>Bạn bè</p>

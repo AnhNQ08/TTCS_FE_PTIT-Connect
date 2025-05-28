@@ -2,8 +2,11 @@ import React from 'react';
 import {getImageMime} from "@/utils/format.js";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faComment, faHome} from "@fortawesome/free-solid-svg-icons";
+import {useNavigate} from "react-router-dom";
 
 const FriendListHomePage = ({friend, index}) => {
+    const navigate = useNavigate();
+
     return (
         <React.Fragment>
             <div style={{
@@ -34,7 +37,7 @@ const FriendListHomePage = ({friend, index}) => {
                     marginLeft: 'auto'
                 }}>
                     <FontAwesomeIcon icon={faComment} className="friend-list-icon" fontSize="20px"/>
-                    <FontAwesomeIcon icon={faHome} className="friend-list-icon" fontSize="20px"/>
+                    <FontAwesomeIcon icon={faHome} className="friend-list-icon" fontSize="20px" onClick={() => navigate(`/${friend.id}`)}/>
                 </div>
             </div>
         </React.Fragment>

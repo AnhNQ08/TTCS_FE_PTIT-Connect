@@ -1,33 +1,263 @@
-import React, {useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {getImageMime} from "@/utils/format.js";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faCamera} from "@fortawesome/free-solid-svg-icons";
+import {faCamera, faPen, faXmark} from "@fortawesome/free-solid-svg-icons";
+import * as userService from '../APIs/user.js';
+import AuthContext from "@/context/AuthContext.jsx";
 
-const ProfileHeader = ({isMine, user}) => {
-    const [showEditBackground, setShowEditBackground] = useState(false);
+const ProfileHeader = ({isMine, userInfo, setUserInfo, selectedChoice, setSelectedChoice}) => {
+    const {setUser} = useContext(AuthContext);
+    const [editBio, setEditBio] = useState(false);
+    const [bio, setBio] = useState(null);
+
+    useEffect(() => {
+        if(userInfo) setBio(userInfo.bio);
+    }, [userInfo])
+
+    const handleChangeAvatar = async (image) => {
+        try {
+            const formData = new FormData();
+            const reader = new FileReader();
+            formData.append('file', image);
+            const response = await userService.updateAvatar(formData);
+            if(response === "Change Avatar Successfully!"){
+                reader.onloadend = function () {
+                    const base64data = reader.result.split(',')[1];
+                    setUserInfo(prev => ({ ...prev, avatar: base64data }));
+                    setUser(prev => ({ ...prev, avatar: base64data }));
+                }
+                reader.readAsDataURL(image);
+            }
+
+        }catch (e){
+            console.log(e);
+        }
+    }
+
+    const handleChangeBackground = async (image) => {
+        try {
+            const formData = new FormData();
+            const reader = new FileReader();
+            formData.append('file', image);
+            const response = await userService.updateBackgroundImage(formData);
+            if(response === "Change Background Image Successfully!"){
+                reader.onloadend = function () {
+                    const base64data = reader.result.split(',')[1];
+                    setUserInfo(prev => ({ ...prev, background: base64data }));
+                }
+                reader.readAsDataURL(image);
+            }
+
+        }catch (e){
+            console.log(e);
+        }
+    }
+
+    const handleSubmitBio = async () => {
+        try {
+            const response = await userService.editBio(bio);
+            if(response === "Bio changed"){
+                setUserInfo(prev => ({ ...prev, bio: bio }));
+            }
+        }catch (e){
+            console.log(e);
+        }
+    }
 
     return (
         <div>
             <div style={{
                 position: 'relative'
             }}>
-                <img className="background-image" src={`data:${getImageMime(user.backgroundImage)};base64,${user.backgroundImage}`} alt=""/>
+                <img className="background-image" src={`data:${getImageMime(userInfo.background)};base64,${userInfo.background}`} alt=""/>
                 {isMine &&
-                    <div style={{
-                        display: 'flex',
-                        gap: '10px',
-                        padding: '10px',
-                        backgroundColor: 'white',
-                        borderRadius: '10px',
-                        cursor: 'pointer'
-                    }} onClick={() => setShowEditBackground(prev => !prev)}>
-                        <FontAwesomeIcon icon={faCamera} fontSize="20p"/>
+                    <label htmlFor="background-image-input" className="modify-background-button">
+                        <FontAwesomeIcon icon={faCamera} fontSize="20px"/>
                         <p style={{
-                            fontSize: '20px',
+                            fontSize: '18px',
                             fontWeight: 'bold'
                         }}>Chỉnh sửa ảnh bìa</p>
-                    </div>
+                        <input
+                            type="file"
+                            id="background-image-input"
+                            hidden
+                            accept="image/*"
+                            onChange={(e) => handleChangeBackground(e.target.files[0])}
+                        />
+                    </label>
                 }
+                <div style={{
+                    position: 'absolute',
+                    top: '87%',
+                    left: '30px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '20px'
+                }}>
+                    <div style={{ position: 'relative' }}>
+                        <img
+                            className="profile-avatar"
+                            src={`data:${getImageMime(userInfo.avatar)};base64,${userInfo.avatar}`}
+                            alt=""
+                        />
+                        {isMine && (
+                            <label htmlFor="profile-avatar" style={{
+                                position: 'absolute',
+                                bottom: '15px',
+                                right: '15px',
+                                padding: '10px',
+                                borderRadius: '50%',
+                                backgroundColor: 'white',
+                                cursor: 'pointer'
+                            }}>
+                                <FontAwesomeIcon icon={faCamera} fontSize="20px" />
+                                <input
+                                    type="file"
+                                    id="profile-avatar"
+                                    hidden
+                                    accept="image/*"
+                                    onChange={(e) => handleChangeAvatar(e.target.files[0])}
+                                />
+                            </label>
+                        )}
+                    </div>
+                    <div style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        marginTop: '60px',
+                        justifyContent: 'center',
+                        alignItems: 'flex-start',
+                        gap: '5px',
+                        width: '400px',
+                    }}>
+                        <p style={{
+                            color: 'black',
+                            fontWeight: 'bold',
+                            fontSize: '30px',
+                            margin: 0
+                        }}>
+                            {userInfo.username}
+                        </p>
+                        <p style={{
+                            color: 'rgb(163,163,163)',
+                            fontWeight: 'bold',
+                            fontSize: '20px',
+                            margin: 0
+                        }}>
+                            {userInfo.numberOfFriends} người bạn
+                        </p>
+                        <div style={{
+                            marginTop: '5px',
+                            position: 'relative'
+                        }}>
+                            {!editBio ? (
+                                <p style={{
+                                    fontSize: '17px',
+                                    display: '-webkit-box',
+                                    WebkitLineClamp: 3,
+                                    WebkitBoxOrient: 'vertical',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    margin: 0
+                                }}>
+                                    {userInfo.bio}
+                                </p>
+                            ) : (
+                                <textarea
+                                    value={bio}
+                                    style={{
+                                        width: '300px',
+                                        resize: 'none',
+                                        fontSize: '17px',
+                                        marginBottom: '-30px'
+                                    }}
+                                    rows={3}
+                                    maxLength={104}
+                                    onChange={(e) => setBio(e.target.value)}
+                                    onKeyDown={(e) => {
+                                        const currentLines = bio.split('\n').length;
+                                        if(e.key === "Enter" && !e.shiftKey){
+                                            e.preventDefault();
+                                            handleSubmitBio().then(() => {
+                                                setEditBio(false);
+                                            });
+                                        }
+                                        if (e.key === 'Enter' && currentLines >= 3) {
+                                            e.preventDefault();
+                                        }
+                                    }}
+                                />
+                            )}
+                            {isMine && (
+                                <React.Fragment>
+                                    <svg
+                                        width="80"
+                                        height="20"
+                                        style={{
+                                            position: 'absolute',
+                                            top: '-20px',
+                                            right: '-35px',
+                                            pointerEvents: 'none' // để không chắn click
+                                        }}
+                                    >
+                                        <line
+                                            x1="0"
+                                            y1="60"
+                                            x2="60"
+                                            y2="0"
+                                            stroke="gray"
+                                            strokeWidth="1"
+                                            strokeDasharray="4 4" // 👈 tạo nét đứt
+                                        />
+                                    </svg>
+
+                                    {/* Icon chỉnh sửa */}
+                                    <div style={{
+                                        position: 'absolute',
+                                        top: '-40px',
+                                        right: '-35px',
+                                        padding: '5px',
+                                        border: '1px solid gray',
+                                        backgroundColor: 'white',
+                                        borderRadius: '50%',
+                                        cursor: 'pointer'
+                                    }}
+                                        // onClick={handleEditBio}
+                                         title="Chỉnh sửa tiểu sử"
+                                    >
+                                        {!editBio && <FontAwesomeIcon icon={faPen} style={{ color: 'gray' }} onClick={() => setEditBio(true)}/>}
+                                        {editBio && <FontAwesomeIcon icon={faXmark} style={{ color: 'black' }} onClick={() => {
+                                            setBio(userInfo.bio);
+                                            setEditBio(false);
+                                        }}/>}
+                                    </div>
+                                </React.Fragment>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div style={{
+                marginTop: '30px',
+                display: 'flex',
+                flexDirection: 'column',
+                width: 'auto',
+                gap: '35px'
+            }} className="profile-body">
+                <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: '1fr 1fr',
+                    gap: '20px',
+                    alignSelf: 'flex-end'
+                }}>
+                    <button className={`profile-choice ${selectedChoice === 0 && 'selected'}`} onClick={() => setSelectedChoice(0)}>Bài viết</button>
+                    <button className={`profile-choice ${selectedChoice === 1 && 'selected'}`} onClick={() => setSelectedChoice(1)}>Bạn bè</button>
+                    <button className={`profile-choice ${selectedChoice === 2 && 'selected'}`} onClick={() => setSelectedChoice(2)}>Ảnh</button>
+                    <button className={`profile-choice ${selectedChoice === 3 && 'selected'}`} onClick={() => setSelectedChoice(3)}>Video</button>
+                </div>
+                <div style={{
+                    border: '1px solid lightgray'
+                }}></div>
             </div>
         </div>
     );

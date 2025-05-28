@@ -63,8 +63,33 @@ p{
     bottom: 3px;
 }
 
+.post-creator-avatar{
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.create-post-button{
+    padding: 10px 10px 10px 20px;
+    border-radius: 25px;
+    flex: 1;
+    cursor: pointer;
+    transition: 0.1s ease-in-out;
+    border: none;
+    background-color: lightgray;
+    color: #777777;
+    text-align: start;
+    font-size: 22px;
+}
+
+.create-post-button:hover{
+    opacity: 0.7;
+}
+
 .center-body{
-    width: 1350px;
+    width: 1250px;
+    margin: 0 auto;
 }
 
 .spinner{
@@ -78,4 +103,31 @@ p{
 
 .status-dot.offline{
     background-color: #888888;
+}
+
+.curtain-background{
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: lightgray;
+    opacity: 0.6;
+    z-index: 100;
+}
+
+.popup{
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    border-radius: 10px;
+    z-index: 101;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
 }

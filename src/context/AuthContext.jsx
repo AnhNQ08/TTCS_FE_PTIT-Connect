@@ -10,7 +10,7 @@ export const AuthProvider = ({children}) => {
 
     useEffect(() => {
         const fetchUser = async () => {
-            if(localStorage.getItem("accessToken")) {
+            if(localStorage.getItem("accessToken") !== null) {
                 const response = await getCurrentUser();
                 setUser(response);
             }else{

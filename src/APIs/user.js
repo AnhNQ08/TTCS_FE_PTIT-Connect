@@ -15,3 +15,27 @@ export const getProfile = async (userId) => {
         }
     });
 }
+
+export const updateAvatar = async (avatar) => {
+    return await request.put("/user/profile/update/avatar", avatar, {
+        headers: {
+            Authorization: `Bearer ` + localStorage.getItem("accessToken")
+        }
+    })
+}
+
+export const updateBackgroundImage = async (backgroundImage) => {
+    return await request.put("/user/profile/update/backgroundImage", backgroundImage, {
+        headers: {
+            Authorization: `Bearer ` + localStorage.getItem("accessToken")
+        }
+    })
+}
+
+export const editBio = async (bio) => {
+    return await request.put("/user/profile/update/bio", {bio}, {
+        headers: {
+            Authorization: `Bearer ` + localStorage.getItem("accessToken")
+        }
+    })
+}

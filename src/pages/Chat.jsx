@@ -1096,7 +1096,7 @@ const Chat = () => {
                                         onChange={(e) => {
                                             setTmpChatRoomName(e.target.value)
                                         }}/>
-                                    <button className="create-post-button" onClick={handleCreateChatRoomButton}>
+                                    <button className="create-chat-room-button" onClick={handleCreateChatRoomButton}>
                                         Tạo nhóm chat
                                     </button>
                                 </div>
