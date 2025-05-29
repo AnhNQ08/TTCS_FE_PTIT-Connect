@@ -197,7 +197,8 @@ const ProfileHeader = ({isMine, userInfo, setUserInfo, selectedChoice, setSelect
                                             position: 'absolute',
                                             top: '-20px',
                                             right: '-35px',
-                                            pointerEvents: 'none' // để không chắn click
+                                            pointerEvents: 'none',
+                                            display: (!bio || bio.length === 0) && 'none'
                                         }}
                                     >
                                         <line
@@ -211,18 +212,16 @@ const ProfileHeader = ({isMine, userInfo, setUserInfo, selectedChoice, setSelect
                                         />
                                     </svg>
 
-                                    {/* Icon chỉnh sửa */}
                                     <div style={{
                                         position: 'absolute',
-                                        top: '-40px',
-                                        right: '-35px',
+                                        top: (!bio || bio.length === 0) ? '-20px' : '-40px',
+                                        right: (!bio || bio.length === 0) ? '-35px' : '-35px',
                                         padding: '5px',
                                         border: '1px solid gray',
                                         backgroundColor: 'white',
                                         borderRadius: '50%',
                                         cursor: 'pointer'
                                     }}
-                                        // onClick={handleEditBio}
                                          title="Chỉnh sửa tiểu sử"
                                     >
                                         {!editBio && <FontAwesomeIcon icon={faPen} style={{ color: 'gray' }} onClick={() => setEditBio(true)}/>}

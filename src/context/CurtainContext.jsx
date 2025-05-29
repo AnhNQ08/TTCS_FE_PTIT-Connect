@@ -5,10 +5,6 @@ export const CurtainContext = createContext();
 export const CurtainProvider = ({children}) => {
     const [showCurtain, setShowCurtain] = useState(false);
 
-    useEffect(() => {
-        console.log(showCurtain);
-    }, [showCurtain])
-
     return (
         <CurtainContext.Provider value={{showCurtain, setShowCurtain}}>
             {children}

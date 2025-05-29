@@ -5,3 +5,9 @@ export const getImageMime = (base64) => {
     if (base64.startsWith('UklGR')) return 'image/webp';
     return 'image/jpeg';
 }
+
+export const getFileFromUrl = async (url) => {
+    const response = await fetch(url);
+    const blob = await response.blob();
+    return new File([blob], "sample.jpg", { type: blob.type });
+}

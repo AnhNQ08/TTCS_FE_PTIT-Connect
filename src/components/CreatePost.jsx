@@ -1,5 +1,4 @@
 import React, {useContext, useEffect, useRef, useState} from 'react';
-import {useParams} from "react-router-dom";
 import AuthContext from "@/context/AuthContext.jsx";
 import '../styles/CreatePost.css'
 import {getImageMime} from "@/utils/format.js";
@@ -12,17 +11,19 @@ import {
     faUserGroup,
     faXmark
 } from "@fortawesome/free-solid-svg-icons";
+import {getFileFromUrl} from "@/utils/format.js";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {createNewPost} from "@/APIs/post.js";
+import '../styles/Post.css'
 
-
-const CreatePost = ({opponent}) => {
+const CreatePost = ({opponent, setPosts}) => {
     const {user} = useContext(AuthContext);
     const {showCurtain, setShowCurtain} = useContext(CurtainContext);
     const optionNumberRef = useRef(null);
     const [showBackground, setShowBackground] = useState(false);
     const [isChosing, setIsChosing] = useState(false);
-    const [isPublic, setIsPublic] = useState(false);
-    const [postImages, setPostImages] = useState([]);
+    const [isPublic, setIsPublic] = useState(true);
+    const [postMedia, setPostMedia] = useState([]);
     const [text, setText] = useState("");
     const [selectedBackground, setSelectedBackground] = useState(null);
     const backgroundColors = [
@@ -43,6 +44,42 @@ const CreatePost = ({opponent}) => {
             setShowBackground(false);
         }
     }, [text])
+
+    const handleSubmit = async () => {
+        try {
+            const formData = new FormData()
+            const data = {
+                content: text,
+                privacy: isPublic ? "PUBLIC" : "PRIVATE",
+            }
+            formData.append('data', JSON.stringify(data));
+            if(selectedBackground){
+                const backgroundImage = await getFileFromUrl(selectedBackground);
+                formData.append('postBackground', backgroundImage);
+            }
+            if(postMedia.length > 0){
+                for(let i = 0; i < postMedia.length; i++){
+                    const file = postMedia[i];
+                    formData.append('files', file);
+                }
+            }
+            const response = await createNewPost(formData);
+            if(response !== null){
+                setPosts(prev => [response, ...prev]);
+                alert("Đăng thành công");
+                setShowCurtain(false);
+                setText("");
+                setPostMedia([]);
+                setSelectedBackground(null);
+                setShowBackground(false);
+                optionNumberRef.current = null;
+                setIsChosing(false);
+                setIsPublic(false);
+            }
+        }catch (e){
+            console.log(e);
+        }
+    }
 
     return (
         <div style={{
@@ -97,45 +134,135 @@ const CreatePost = ({opponent}) => {
                                 </div>
                             </div>
                         </div>
-                        <textarea
-                            value={text}
-                            onChange={(e) => setText(e.target.value)}
-                            placeholder={user.id === opponent.id ? "Bạn đang nghĩ gì?" : "Hãy viết gì đó cho " + opponent.username}
-                            style={{
-                                textAlign: !selectedBackground ? 'left' : 'center',
-                                paddingTop: !selectedBackground ? '0px' : '120px',
-                                paddingBottom: !selectedBackground ? '0px' : '50px',
-                                resize: 'none',
-                                border: 'none',
-                                outline: 'none',
-                                color: selectedBackground ? 'white' : 'black',
-                                fontSize: !selectedBackground ? '19px' : '22px',
-                                fontWeight: selectedBackground && 'bold',
-                                backgroundImage: `url(${selectedBackground})`,
-                                height: '150px',
-                                width: '600px',
-                                paddingLeft: '15px',
-                                paddingRight: '15px'
-                            }}
-                        />
+                        <div style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            width: '600px'
+                        }}>
+                            <textarea
+                                value={text}
+                                onChange={(e) => setText(e.target.value)}
+                                placeholder={user.id === opponent.id ? "Bạn đang nghĩ gì?" : "Hãy viết gì đó cho " + opponent.username}
+                                style={{
+                                    resize: 'none',
+                                    border: 'none',
+                                    outline: 'none',
+                                    textAlign: selectedBackground && 'center',
+                                    paddingTop: selectedBackground && '80px',
+                                    color: selectedBackground ? 'white' : 'black',
+                                    fontSize: !selectedBackground ? '19px' : '22px',
+                                    fontWeight: selectedBackground && 'bold',
+                                    backgroundImage: `url(${selectedBackground})`,
+                                    height: postMedia.length > 0 ? '80px' : '150px',
+                                    paddingLeft: '15px',
+                                    paddingRight: '15px'
+                                }}
+                            />
+                            {postMedia.length > 0 && (
+                                <div className={`post-media-grid post-media-count-${postMedia.length}`}>
+                                    {postMedia.length <= 6 ? (
+                                        postMedia.map((file, index) => (
+                                            <img
+                                                key={index}
+                                                src={URL.createObjectURL(file)}
+                                                alt=""
+                                            />
+                                        ))
+                                    ) : (
+                                        <React.Fragment>
+                                            {postMedia.slice(0, 5).map((file, index) => (
+                                                <img
+                                                    key={index}
+                                                    src={URL.createObjectURL(file)}
+                                                    alt="   "
+                                                />
+                                            ))}
+                                            <div
+                                                key="more"
+                                                style={{
+                                                    display: 'flex',
+                                                    justifyContent: 'center',
+                                                    alignItems: 'center',
+                                                    height: '150px',
+                                                    width: '186px',
+                                                    backgroundColor: 'lightgray',
+                                                    fontSize: '20px',
+                                                    fontWeight: 'bold',
+                                                }}
+                                            >
+                                                +{postMedia.length - 5}
+                                            </div>
+                                        </React.Fragment>
+                                    )}
+                                    <div style={{
+                                        position: 'absolute',
+                                        right: '55px',
+                                        top: '5px',
+                                        display: 'flex',
+                                        gap: '10px',
+                                        alignItems: 'center'
+                                    }}>
+                                        <label htmlFor="add-media">
+                                            <div style={{
+                                                backgroundColor: 'white',
+                                                borderRadius: '10px',
+                                                padding: '10px',
+                                                display: 'flex',
+                                                gap: '10px',
+                                                cursor: 'pointer'
+                                            }}>
+                                                <FontAwesomeIcon icon={faFileImage} />
+                                                Thêm ảnh
+                                            </div>
+                                            <input
+                                                type="file"
+                                                hidden
+                                                id="add-media"
+                                                accept="image/*, video/*"
+                                                multiple
+                                                onChange={(e) => setPostMedia([...e.target.files, ...postMedia])}
+                                            />
+                                        </label>
+                                        <FontAwesomeIcon icon={faXmark} style={{
+                                            padding: '8px 10px 8px 10px',
+                                            backgroundColor: 'lightgray',
+                                            borderRadius: '50%',
+                                            cursor: 'pointer'
+                                        }} onClick={() => setPostMedia([])}/>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
                         <div style={{
                             display: 'flex',
                             flex: 1,
                             alignItems: 'center',
                             gap: '10px',
-                            marginTop: '-12px',
                             paddingLeft: '15px',
+                            marginTop: selectedBackground && '-11px',
                             backgroundImage: selectedBackground && `url(${selectedBackground})`
                         }}>
-                            <FontAwesomeIcon icon={faFileImage} fontSize="25px" style={{
-                                padding: '8px 10px 8px 10px',
-                                borderRadius: '50%',
-                                backgroundColor: 'lightgray',
-                                cursor: selectedBackground ? 'not-allowed' : 'pointer',
-                                display: showBackground && 'none'
-                            }}/>
+                            {postMedia.length === 0 &&
+                                <label htmlFor="post-media-input">
+                                    <FontAwesomeIcon icon={faFileImage} fontSize="25px" style={{
+                                        padding: '8px 10px 8px 10px',
+                                        borderRadius: '50%',
+                                        backgroundColor: 'lightgray',
+                                        cursor: selectedBackground ? 'not-allowed' : 'pointer',
+                                        display: showBackground && 'none'
+                                    }}/>
+                                    <input
+                                        type="file"
+                                        hidden
+                                        accept="image/*, video/*"
+                                        id="post-media-input"
+                                        multiple
+                                        onChange={(e) => setPostMedia([...e.target.files])}
+                                    />
+                                </label>
+                            }
                             <div className={`show-background-color ${showBackground && 'active'}`} style={{
-                                display: postImages.length > 0 && 'none'
+                                display: postMedia.length > 0 && 'none'
                             }} onClick={() => {
                                 if(text.length > 150) return;
                                 setShowBackground(!showBackground)
@@ -157,6 +284,19 @@ const CreatePost = ({opponent}) => {
                                 }}/>
                             ))}
                         </div>
+                    </div>
+                    <div style={{
+                        padding: '0px 15px 15px 15px',
+                        flex: '1'
+                    }}>
+                        <button className="confirm-button"
+                            style={{
+                                width: '100%',
+                                backgroundColor: (text.length === 0 && postMedia.length === 0) && 'lightgray',
+                                cursor: (text.length === 0 && postMedia.length === 0) && 'not-allowed'
+                            }}
+                            onClick={handleSubmit}
+                        >Đăng</button>
                     </div>
                 </div>
             }

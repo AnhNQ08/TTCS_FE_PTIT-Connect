@@ -1,13 +1,25 @@
-import { api, getAuthHeaders } from "./index";
+import * as request from "../utils/request";
 
 export const createNewPost = async (formData) => {
-  const res = await api.post("/post/create", formData, {
-    headers: { ...getAuthHeaders(), "Content-Type": "multipart/form-data" },
-  });
-  return res.data;
+    return await request.post("/post/create", formData, {
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        }
+    });
 };
 
 export const getNewestPost = async () => {
-  const res = await api.get("/post/newestPost", { headers: getAuthHeaders() });
-  return res.data;
-};
+    return await request.get("/post/newest", {
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        }
+    })
+}
+
+export const getPostByUserId = async (userId) => {
+    return await request.get(`/post/user/${userId}`, {
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        }
+    })
+}

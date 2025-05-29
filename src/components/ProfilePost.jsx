@@ -1,8 +1,9 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {getImageMime} from "@/utils/format.js";
 import CreatePost from "@/components/CreatePost.jsx";
+import PostsContainer from "@/components/PostsContainer.jsx";
 
-const ProfilePost = ({postedImages, friendList, userInfo}) => {
+const ProfilePost = ({posts, postedImages, friendList, userInfo, setPosts}) => {
     return (
         <div style={{
             display: 'flex',
@@ -76,7 +77,8 @@ const ProfilePost = ({postedImages, friendList, userInfo}) => {
                 flexDirection: 'column',
                 gap: '10px'
             }}>
-                <CreatePost opponent={userInfo}/>
+                <CreatePost opponent={userInfo} setPosts={setPosts}/>
+                <PostsContainer posts={posts} setPosts={setPosts}/>
             </div>
         </div>
     );

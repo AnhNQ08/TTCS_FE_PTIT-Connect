@@ -10,9 +10,11 @@ import '../styles/HomePage.css'
 import {useDebounce} from "../hooks/useDebounce.js";
 import FriendListHomePage from "@/components/FriendListHomePage.jsx";
 import {Link} from "react-router-dom";
+import PostsContainer from "@/components/PostsContainer.jsx";
 
 const HomePage = () => {
     const {user} = useContext(AuthContext);
+    const [posts, setPosts] = useState([]);
     const [isSearching, setIsSearching] = useState(false);
     const [friendRequests, setFriendRequests] = useState([]);
     const [friendList, setFriendList] = useState([]);
@@ -131,6 +133,9 @@ const HomePage = () => {
                     <FontAwesomeIcon icon={faRightToBracket} flip="horizontal" />
                     <p>Đăng xuất</p>
                 </div>
+            </div>
+            <div className="center-body">
+                <PostsContainer/>
             </div>
             <div className="sidebar-right">
                 <div style={{

@@ -26,8 +26,6 @@ request.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
     const response = error.response.data;
-    console.log(error.response);
-    console.log(response);
     if (response === "AccessToken expired!") {
       if (isRefreshing) {
         return new Promise((resolve) => {
@@ -50,7 +48,6 @@ request.interceptors.response.use(
     }else if(response === "AccessToken unauthorized!"){
       localStorage.clear();
       window.location.href = "/login";
-
     }
     return Promise.reject(error);
   }

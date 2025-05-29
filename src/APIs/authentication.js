@@ -24,7 +24,7 @@ export const refreshToken = async () => {
 };
 
 export const logout = async () => {
-    return await request.post("authenticate/logout", {}, {
+    return await request.post("/logout", {}, {
             headers: {
                 Authorization: "Bearer " + localStorage.getItem("accessToken"),
             }
