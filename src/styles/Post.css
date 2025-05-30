@@ -9,7 +9,7 @@
 
 .post-media-grid img {
     width: 100%;
-    height: 100%;
+    height: 400px;
     object-fit: cover;
 }
 
@@ -20,32 +20,45 @@
 }
 
 .post-media-grid.post-media-count-1 img {
-    height: 300px;
+    height: 450px;
     width: 100%;
 }
 
 /* 2 images */
 .post-media-grid.post-media-count-2 {
-    grid-template-columns: repeat(2, 282px);
-    height: 300px;
+    grid-template-columns: repeat(2, 1fr);
+    height: 420px;
 }
 
 /* 3 images */
 .post-media-grid.post-media-count-3 {
-    grid-template-columns: repeat(3, 186px);
-    height: 250px;
+    grid-template-columns: repeat(3, 1fr);
+    height: 420px;
 }
 
 /* 4 images */
 .post-media-grid.post-media-count-4 {
-    grid-template-columns: repeat(2, 282px);
-    grid-template-rows: repeat(2, 200px);
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    height: 420px;
+}
+
+.post-media-grid.post-media-count-4 img {
+    height: 220px;
+    width: 100%;
+    object-fit: cover;
 }
 
 /* 5 images */
 .post-media-grid.post-media-count-5 {
-    grid-template-columns: repeat(2, 282px);
-    grid-template-rows: repeat(2, 200px);
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+}
+
+.post-media-grid.post-media-count-5 img{
+    height: 180px;
+    width: 100%;
+    object-fit: cover;
 }
 
 .post-media-grid.post-media-count-5 img:first-child {
@@ -54,11 +67,19 @@
 
 /* 6 images */
 .post-media-grid.post-media-count-6 {
-    grid-template-columns: repeat(3, 186px);
-    grid-template-rows: repeat(2, 200px);
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+}
+
+.post-media-grid.post-media-count-6 img{
+    height: 220px;
+    width: 100%;
+    object-fit: cover;
 }
 
 .post-container{
+    display: flex;
+    flex-direction: column;
     background-color: white;
     border-radius: 10px;
 }
@@ -123,7 +144,6 @@
     justify-content: space-between;
     padding-bottom: 10px;
     padding-top: 10px;
-    border-bottom: 1px solid lightgray;
 }
 
 .emoji{
@@ -142,6 +162,7 @@
     display: flex;
     align-items: center;
     justify-content: space-around;
+    border-top: 1px solid lightgray;
     padding-bottom: 5px;
     padding-top: 5px;
 }

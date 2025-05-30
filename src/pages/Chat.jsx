@@ -377,7 +377,7 @@ const Chat = () => {
 
     const fetchParticipantList = async () => {
         try {
-            const response = await friendService.findFriends(user.id, friendNameInput, friendPageNumberRef.current);
+            const response = await friendService.findFriends(user.id, friendNameInput, friendPageNumberRef.current, 10);
             const res = response.filter(friend =>
                 !chatRoomRef.current.participants.some(participant => participant.participantId === friend.id)
             );
@@ -389,7 +389,7 @@ const Chat = () => {
 
     const fetchFriendList = async () => {
         try {
-            return await friendService.findFriends(user.id, friendNameInput, friendPageNumberRef.current);
+            return await friendService.findFriends(user.id, friendNameInput, friendPageNumberRef.current, 10);
         }catch (e){
             console.log(e);
         }

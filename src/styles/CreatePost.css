@@ -55,7 +55,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background-image: url('public/post-background/istockphoto-1366265822-612x612.jpg');
+    background-image: url('/public/post-background/istockphoto-1366265822-612x612.jpg');
     background-size: cover;
     background-position: center;
     width: 40px;

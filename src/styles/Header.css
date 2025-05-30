@@ -8,7 +8,7 @@
     top: 0;
     left: 0;
     right: 0;
-    z-index: 100;
+    z-index: 99;
     background-color: #ffffff;
     max-height: 55px;
     overflow: hidden;
@@ -42,6 +42,47 @@
 .notification-container{
     display: flex;
     flex-direction: column;
-    position: absolute;
+    position: fixed;
+    top: 75px;
+    right: 10%;
+    width: 375px;
+    height: 550px;
+    background-color: white;
+    border-radius: 10px;
+    z-index: 1000;
     gap: 10px;
+    align-items: center;
+    padding: 15px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.notification{
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    cursor: pointer;
+    width: 370px;
+    justify-content: space-between;
+    border-radius: 10px;
+    transition: 0.1s ease-in-out;
+}
+
+.notification:hover{
+    background-color: lightgray;
+}
+
+.notice-status.unread{
+    align-self: center;
+    padding: 6px;
+    border-radius: 50%;
+    background-color: #E53935;
+}
+
+.notification-content {
+    width: 274px;
+    font-size: 18px;
+    line-height: 1.2;
+    line-clamp: 3;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }

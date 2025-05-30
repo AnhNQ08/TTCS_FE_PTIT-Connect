@@ -20,6 +20,10 @@ const AppRoutes = () => {
         <Route path="/" element={<HomePage />} />
         <Route path="/chat/create_group" element={<Chat />} />
         <Route path="/profile/:userId" element={<ProfilePage />} />
+        <Route path="/profile/:userId/photo" element={<ProfilePage />} />
+        <Route path="/profile/:userId/video" element={<ProfilePage />} />
+        <Route path="/profile/:userId/friend" element={<ProfilePage />} />
+        <Route path="/register" element={<Register />} />
     </Routes>
   );
 };

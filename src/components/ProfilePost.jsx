@@ -1,6 +1,6 @@
 import React, {useEffect, useRef} from 'react';
 import {getImageMime} from "@/utils/format.js";
-import CreatePost from "@/components/CreatePost.jsx";
+import CreatePostButton from "@/components/CreatePostButton.jsx";
 import PostsContainer from "@/components/PostsContainer.jsx";
 import {useInView} from "react-intersection-observer";
 import {getPostByUserId} from "@/APIs/post.js";
@@ -13,8 +13,9 @@ const ProfilePost = ({posts, postedImages, friendList, userInfo, setPosts}) => {
 
     useEffect(() => {
         if(inView){
+            console.log(pageNumberRef.current);
             pageNumberRef.current += 1;
-            getPostByUserId(pageNumberRef.current).then(res => {
+            getPostByUserId(userInfo.id, pageNumberRef.current).then(res => {
                 setPosts(prev => prev.concat(res));
             })
         }
@@ -48,8 +49,8 @@ const ProfilePost = ({posts, postedImages, friendList, userInfo, setPosts}) => {
                     <div className="x3-grid-container image">
                         {postedImages.map((image, index) => (
                             <img src={image.url} alt="" style={{
-                                width: '115px',
-                                height: '115px',
+                                width: '130px',
+                                height: '130px',
                                 borderRadius: '10px'
                             }} key={index}/>
                         ))}
@@ -78,8 +79,8 @@ const ProfilePost = ({posts, postedImages, friendList, userInfo, setPosts}) => {
                                 navigate(`/profile/${friend.id}`);
                             }}>
                                 <img src={`data:${getImageMime(friend.avatar)};base64,${friend.avatar}`} alt="" style={{
-                                    width: '115px',
-                                    height: '115px',
+                                    width: '130px',
+                                    height: '130px',
                                     borderRadius: '10px'
                                 }}/>
                                 <p style={{
@@ -97,7 +98,7 @@ const ProfilePost = ({posts, postedImages, friendList, userInfo, setPosts}) => {
                 flexDirection: 'column',
                 gap: '10px'
             }}>
-                <CreatePost opponent={userInfo} setPosts={setPosts}/>
+                <CreatePostButton opponent={userInfo} setPosts={setPosts}/>
                 <PostsContainer posts={posts} setPosts={setPosts} ref={ref}/>
             </div>
         </div>

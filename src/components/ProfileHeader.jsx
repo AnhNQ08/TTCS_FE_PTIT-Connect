@@ -4,11 +4,13 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCamera, faComment, faPen, faUserPlus, faXmark} from "@fortawesome/free-solid-svg-icons";
 import * as userService from '../APIs/user.js';
 import AuthContext from "@/context/AuthContext.jsx";
+import {useNavigate} from "react-router-dom";
 
 const ProfileHeader = ({isMine, userInfo, setUserInfo, selectedChoice, setSelectedChoice}) => {
     const {setUser} = useContext(AuthContext);
     const [editBio, setEditBio] = useState(false);
     const [bio, setBio] = useState(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
         if(userInfo) setBio(userInfo.bio);
@@ -88,7 +90,7 @@ const ProfileHeader = ({isMine, userInfo, setUserInfo, selectedChoice, setSelect
                 }
                 <div style={{
                     position: 'absolute',
-                    top: '87%',
+                    top: '84%',
                     left: '30px',
                     display: 'flex',
                     alignItems: 'center',
@@ -152,7 +154,7 @@ const ProfileHeader = ({isMine, userInfo, setUserInfo, selectedChoice, setSelect
                         }}>
                             {!editBio ? (
                                 <p style={{
-                                    fontSize: '15px',
+                                    fontSize: '17px',
                                     display: '-webkit-box',
                                     WebkitLineClamp: 3,
                                     maxWidth: '300px',
@@ -197,7 +199,7 @@ const ProfileHeader = ({isMine, userInfo, setUserInfo, selectedChoice, setSelect
                                         style={{
                                             position: 'absolute',
                                             top: '-20px',
-                                            right: '-25px',
+                                            right: '-35px',
                                             pointerEvents: 'none',
                                             display: (!bio || bio.length === 0) && 'none'
                                         }}
@@ -215,7 +217,7 @@ const ProfileHeader = ({isMine, userInfo, setUserInfo, selectedChoice, setSelect
                                     <div style={{
                                         position: 'absolute',
                                         top: (!bio || bio.length === 0) ? '-20px' : '-40px',
-                                        right: (!bio || bio.length === 0) ? '-35px' : '-25px',
+                                        right: (!bio || bio.length === 0) ? '-35px' : '-35px',
                                         padding: '5px',
                                         border: '1px solid gray',
                                         backgroundColor: 'white',
@@ -267,10 +269,10 @@ const ProfileHeader = ({isMine, userInfo, setUserInfo, selectedChoice, setSelect
                             </div>
                         </React.Fragment>
                     )}
-                    <button className={`profile-choice ${selectedChoice === 0 && 'selected'}`} onClick={() => setSelectedChoice(0)}>Bài viết</button>
-                    <button className={`profile-choice ${selectedChoice === 1 && 'selected'}`} onClick={() => setSelectedChoice(1)}>Bạn bè</button>
-                    <button className={`profile-choice ${selectedChoice === 2 && 'selected'}`} onClick={() => setSelectedChoice(2)}>Ảnh</button>
-                    <button className={`profile-choice ${selectedChoice === 3 && 'selected'}`} onClick={() => setSelectedChoice(3)}>Video</button>
+                    <button className={`profile-choice ${selectedChoice === 0 && 'selected'}`} onClick={() => navigate(`/profile/${userInfo.id}`)}>Bài viết</button>
+                    <button className={`profile-choice ${selectedChoice === 1 && 'selected'}`} onClick={() => navigate(`/profile/${userInfo.id}/friend`)}>Bạn bè</button>
+                    <button className={`profile-choice ${selectedChoice === 2 && 'selected'}`} onClick={() => navigate(`/profile/${userInfo.id}/photo`)}>Ảnh</button>
+                    <button className={`profile-choice ${selectedChoice === 3 && 'selected'}`} onClick={() => navigate(`/profile/${userInfo.id}/video`)}>Video</button>
                 </div>
                 <div style={{
                     border: '1px solid lightgray'

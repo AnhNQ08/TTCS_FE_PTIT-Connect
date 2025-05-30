@@ -11,7 +11,7 @@ import {useDebounce} from "../hooks/useDebounce.js";
 import FriendListHomePage from "@/components/FriendListHomePage.jsx";
 import {Link} from "react-router-dom";
 import PostsContainer from "@/components/PostsContainer.jsx";
-import CreatePost from "@/components/CreatePost.jsx";
+import CreatePostButton from "@/components/CreatePostButton.jsx";
 import CurtainContext from "@/context/CurtainContext.jsx";
 import {useInView} from "react-intersection-observer";
 
@@ -112,7 +112,7 @@ const HomePage = () => {
                     width: '700px',
                     margin: '0 auto'
                 }}>
-                    <CreatePost opponent={user} setPosts={setPosts}/>
+                    <CreatePostButton opponent={user} setPosts={setPosts}/>
                     <PostsContainer posts={posts} setPosts={setPosts} ref={ref}/>
                 </div>
             </div>
@@ -204,7 +204,7 @@ const HomePage = () => {
                         <h3>Bạn bè</h3>
                         <Link to="/friend/list" className="link" style={{
                             alignSelf: 'center'
-                        }}>Tất cá</Link>
+                        }}>Tất cả</Link>
                     </div>
                     <div className="search-bounding">
                         <FontAwesomeIcon icon={faMagnifyingGlass} fontSize="18px"/>

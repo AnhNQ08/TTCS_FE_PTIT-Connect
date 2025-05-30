@@ -8,6 +8,8 @@ import AuthContext from "@/context/AuthContext.jsx";
 import ProfilePost from "@/components/ProfilePost.jsx";
 import CurtainContext from "@/context/CurtainContext.jsx";
 import { getPostByUserId} from "@/APIs/post.js";
+import ProfilePhotos from "@/components/ProfilePhotos.jsx";
+import ProfileFriend from "@/components/ProfileFriend.jsx";
 
 const ProfilePage = () => {
     const { user } = useContext(AuthContext);
@@ -21,6 +23,14 @@ const ProfilePage = () => {
     const [userImages, setUserImages] = useState([]);
     const [selectedChoice, setSelectedChoice] = useState(0);
     const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const pathName = location.pathname;
+        if(pathName.includes("photo")) setSelectedChoice(2);
+        else if(pathName.includes("video")) setSelectedChoice(3);
+        else if(pathName.includes("friend")) setSelectedChoice(1);
+        else setSelectedChoice(0);
+    }, [location]);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -47,7 +57,7 @@ const ProfilePage = () => {
             }
         };
         if(user) fetchData();
-    }, [user, location]);
+    }, [user]);
 
     return !loading && (
         <div>
@@ -59,7 +69,9 @@ const ProfilePage = () => {
                 gap: '20px'
             }}>
                 <ProfileHeader selectedChoice={selectedChoice} isMine={directParam} userInfo={userInfo} setUserInfo={setUserInfo} setSelectedChoice={setSelectedChoice}/>
-                <ProfilePost setPosts={setPosts} posts={posts} friendList={userFriend} postedImages={userImages} userInfo={userInfo} setLoading={setLoading}/>
+                {selectedChoice === 0 && <ProfilePost posts={posts} postedImages={userImages} friendList={userFriend} userInfo={userInfo} setPosts={setPosts}/>}
+                {selectedChoice === 2 && <ProfilePhotos/>}
+                {selectedChoice === 1 && <ProfileFriend friendList={userFriend} setFriendList={setUserFriend}/>}
             </div>
         </div>
     );
