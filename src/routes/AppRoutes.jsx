@@ -1,20 +1,25 @@
 import { Routes, Route } from "react-router-dom";
 import {
     Login,
-    Chat
+    Chat,
+    HomePage,
+    FriendPage,
+    Register,
+    ProfilePage,
 } from "../pages";
-import HomePage from "@/pages/HomePage.jsx";
-import ProfilePage from "@/pages/ProfilePage.jsx";
 
 
 const AppRoutes = () => {
   return (
     <Routes>
+        <Route path="/friend" element={<FriendPage />} />
+        <Route path="/friend/request" element={<FriendPage />}/>
+        <Route path="/friend/list" element={<FriendPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/chat/:chatId?" element={<Chat />} />
         <Route path="/" element={<HomePage />} />
-        <Route path="/:userId" element={<ProfilePage />} />
         <Route path="/chat/create_group" element={<Chat />} />
+        <Route path="/profile/:userId" element={<ProfilePage />} />
     </Routes>
   );
 };

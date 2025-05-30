@@ -8,6 +8,14 @@ export const getAll = async () => {
     })
 }
 
+export const getConversationIdByRecipientId = async (recipientId) => {
+    return request.get('/conversation/getPrivateConversationId/'+ recipientId, {
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+        }
+    })
+}
+
 export const getNotReads = async () => {
     return request.get('/conversation/getNotRead', {
         headers: {

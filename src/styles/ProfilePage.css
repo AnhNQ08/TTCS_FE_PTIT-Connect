@@ -1,5 +1,4 @@
 .background-image{
-    margin-top: 75px;
     width: 100%;
     height: 45vh;
     border-bottom-left-radius: 10px;
@@ -26,11 +25,27 @@
 }
 
 .profile-avatar{
-    width: 200px;
-    height: 200px;
+    width: 160px;
+    height: 160px;
     border-radius: 50%;
     object-fit: cover;
     border: 4px solid white;
+}
+
+.profile-function{
+    display: flex;
+    gap: 15px;
+    padding: 10px 20px 10px 20px;
+    background-color: white;
+    border-radius: 10px;
+    border: 2px solid #E53935;
+    font-size: 20px;
+    cursor: pointer;
+    transition: 0.1s ease-in-out;
+}
+
+.profile-function:hover{
+    opacity: 0.8;
 }
 
 .profile-choice{

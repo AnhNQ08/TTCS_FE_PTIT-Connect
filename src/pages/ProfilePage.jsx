@@ -1,19 +1,19 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { getProfile } from "@/APIs/user.js";
-import { useParams } from "react-router-dom";
+import {useLocation, useParams} from "react-router-dom";
 import ProfileHeader from "@/components/ProfileHeader.jsx";
 import { Header } from "@/components/index.js";
 import '../styles/ProfilePage.css';
 import AuthContext from "@/context/AuthContext.jsx";
 import ProfilePost from "@/components/ProfilePost.jsx";
 import CurtainContext from "@/context/CurtainContext.jsx";
-import PostsContainer from "@/components/PostsContainer.jsx";
-import {getPostByUserId} from "@/APIs/post.js";
+import { getPostByUserId} from "@/APIs/post.js";
 
 const ProfilePage = () => {
     const { user } = useContext(AuthContext);
     const { showCurtain } = useContext(CurtainContext);
     const userId = useParams();
+    const location = useLocation();
     const [directParam, setDirectParam] = useState(false);
     const [posts, setPosts] = useState([]);
     const [userInfo, setUserInfo] = useState(null);
@@ -27,7 +27,7 @@ const ProfilePage = () => {
             setLoading(true);
             try {
                 setDirectParam(Number(user.id) === Number(userId.userId));
-                setPosts(await getPostByUserId(userId.userId));
+                setPosts(await getPostByUserId(userId.userId, 1));
                 const response = await getProfile(userId.userId);
                 const userInfo = {
                     id: response.id,
@@ -47,7 +47,7 @@ const ProfilePage = () => {
             }
         };
         if(user) fetchData();
-    }, [user]);
+    }, [user, location]);
 
     return !loading && (
         <div>

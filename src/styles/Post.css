@@ -80,6 +80,7 @@
     height: 50px;
     border-radius: 50%;
     object-fit: cover;
+    cursor: pointer;
 }
 
 .create-post-button{
@@ -92,20 +93,20 @@
     background-color: lightgray;
     color: #777777;
     text-align: start;
-    font-size: 22px;
+    font-size: 20px;
 }
 
 .post-body{
     display: flex;
     flex-direction: column;
     gap: 10px;
-    padding-left: 15px;
-    padding-right: 15px;
 }
 
 .post-content{
     white-space: pre-line;
     font-size: 17px;
+    padding-left: 15px;
+    padding-right: 15px;
 }
 
 .post-bottom{

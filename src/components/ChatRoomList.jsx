@@ -8,7 +8,7 @@ const ChatRoomList = ({data, index, handleClickChatRoom, user}) => {
                 position: 'relative',
             }}>
                 <img src={`data:${getImageMime(data.avatar)};base64,${data.avatar}`} className="chat-room-avatar" alt=""/>
-                <img src="/green-dot.jpg" alt="" className="icon-down-right-corner"/>
+                <div className="status-dot online"/>
             </div>
             <div style={{
                 display: 'flex',

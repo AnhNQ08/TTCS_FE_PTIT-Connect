@@ -8,7 +8,7 @@ import {
     faCircleInfo,
     faFile,
     faFileImage,
-    faFileLines,
+    faFileLines, faHouse,
     faImage,
     faMagnifyingGlass,
     faPen,
@@ -805,9 +805,15 @@ const Chat = () => {
                         justifyContent: 'space-between'
                     }}>
                         <h1>Đoạn chat</h1>
-                        <FontAwesomeIcon icon={faPenToSquare} className="function-button-for-flex" onClick={async () => {
-                            navigate("/chat/create_group");
-                        }}/>
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center'
+                        }}>
+                            <FontAwesomeIcon icon={faHouse} className="function-button-for-flex" onClick={() => navigate('/')}/>
+                            <FontAwesomeIcon icon={faPenToSquare} className="function-button-for-flex" onClick={async () => {
+                                navigate("/chat/create_group");
+                            }}/>
+                        </div>
                     </div>
                     <div style={{
                         display: 'flex',

@@ -1,9 +1,25 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef} from 'react';
 import {getImageMime} from "@/utils/format.js";
 import CreatePost from "@/components/CreatePost.jsx";
 import PostsContainer from "@/components/PostsContainer.jsx";
+import {useInView} from "react-intersection-observer";
+import {getPostByUserId} from "@/APIs/post.js";
+import {useNavigate} from "react-router-dom";
 
 const ProfilePost = ({posts, postedImages, friendList, userInfo, setPosts}) => {
+    const pageNumberRef = useRef(1);
+    const navigate = useNavigate();
+    const { ref, inView } = useInView({});
+
+    useEffect(() => {
+        if(inView){
+            pageNumberRef.current += 1;
+            getPostByUserId(pageNumberRef.current).then(res => {
+                setPosts(prev => prev.concat(res));
+            })
+        }
+    }, [inView])
+
     return (
         <div style={{
             display: 'flex',
@@ -32,8 +48,8 @@ const ProfilePost = ({posts, postedImages, friendList, userInfo, setPosts}) => {
                     <div className="x3-grid-container image">
                         {postedImages.map((image, index) => (
                             <img src={image.url} alt="" style={{
-                                width: '140px',
-                                height: '140px',
+                                width: '115px',
+                                height: '115px',
                                 borderRadius: '10px'
                             }} key={index}/>
                         ))}
@@ -56,10 +72,14 @@ const ProfilePost = ({posts, postedImages, friendList, userInfo, setPosts}) => {
                     </div>
                     <div className="x3-grid-container friend">
                         {friendList.map((friend, index) => (
-                            <div className="friend-item" key={index}>
+                            <div style={{
+                                cursor: 'pointer'
+                            }} key={index} onClick={() => {
+                                navigate(`/profile/${friend.id}`);
+                            }}>
                                 <img src={`data:${getImageMime(friend.avatar)};base64,${friend.avatar}`} alt="" style={{
-                                    width: '140px',
-                                    height: '140px',
+                                    width: '115px',
+                                    height: '115px',
                                     borderRadius: '10px'
                                 }}/>
                                 <p style={{
@@ -78,7 +98,7 @@ const ProfilePost = ({posts, postedImages, friendList, userInfo, setPosts}) => {
                 gap: '10px'
             }}>
                 <CreatePost opponent={userInfo} setPosts={setPosts}/>
-                <PostsContainer posts={posts} setPosts={setPosts}/>
+                <PostsContainer posts={posts} setPosts={setPosts} ref={ref}/>
             </div>
         </div>
     );

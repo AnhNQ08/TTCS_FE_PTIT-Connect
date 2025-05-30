@@ -1,19 +1,24 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
 import { Header } from "../components/index.js";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faComment, faMagnifyingGlass, faRightToBracket, faUser, faUserGroup} from "@fortawesome/free-solid-svg-icons";
 import {getImageMime} from "@/utils/format.js";
 import AuthContext from "@/context/AuthContext.jsx";
 import * as friendService from "@/APIs/friend.js";
-import * as authenticationService from "../APIs/authentication.js"
+import {getNewestPost} from "@/APIs/post.js";
 import '../styles/HomePage.css'
 import {useDebounce} from "../hooks/useDebounce.js";
 import FriendListHomePage from "@/components/FriendListHomePage.jsx";
 import {Link} from "react-router-dom";
 import PostsContainer from "@/components/PostsContainer.jsx";
+import CreatePost from "@/components/CreatePost.jsx";
+import CurtainContext from "@/context/CurtainContext.jsx";
+import {useInView} from "react-intersection-observer";
 
 const HomePage = () => {
-    const {user} = useContext(AuthContext);
+    const {user, handleLogout} = useContext(AuthContext);
+    const {showCurtain} = useContext(CurtainContext);
+    const {acceptFriendRequest, declineFriendRequest} = useContext(CurtainContext);
     const [posts, setPosts] = useState([]);
     const [isSearching, setIsSearching] = useState(false);
     const [friendRequests, setFriendRequests] = useState([]);
@@ -21,9 +26,21 @@ const HomePage = () => {
     const [friendListSearch, setFriendListSearch] = useState([]);
     const [searchInput, setSearchInput] = useState("");
     const searchDebounce = useDebounce(searchInput, 300);
+    const { ref, inView } = useInView({});
+    const pageNumberRef = useRef(1);
+
+    useEffect(() => {
+        if(inView){
+            pageNumberRef.current += 1;
+            getNewestPost(pageNumberRef.current).then(res => {
+                setPosts(prev => prev.concat(res));
+            })
+        }
+    }, [inView])
 
     useEffect(() => {
         const fetchData = async () => {
+            setPosts(await getNewestPost(1));
             setFriendRequests(await fetchFriendRequests());
             setFriendList(await fetchAllFriends());
         }
@@ -46,55 +63,13 @@ const HomePage = () => {
     }
 
     const fetchAllFriends = async () => {
-        return await friendService.findAllFriends(searchInput);
-    }
-
-    const acceptFriendRequest = async (friend) => {
-        try {
-            const response = await friendService.acceptFriendRequest(friend.userId);
-            if(response === "New friend request accepted"){
-                const tmpFriend = {
-                    ...friend,
-                    status: "accepted"
-                }
-                const tmpRequestList = friendRequests.map(tmp => {
-                        if(tmp.userId === friend.userId) return tmpFriend;
-                        return tmp;
-                    }
-                );
-                setFriendRequests(tmpRequestList);
-            }
-
-        }catch (e){
-            console.log(e);
-        }
-    }
-
-    const declineFriendRequest = async (friend) => {
-        try {
-            const response = await friendService.declineFriendRequest(friend.userId, user.id);
-            if(response === "Friend request deleted"){
-                const tmpFriend = {
-                    ...friend,
-                    status: "declined"
-                }
-                const tmpRequestList = friendRequests.map(tmp => {
-                        if(tmp.userId === friend.userId) return tmpFriend;
-                        return tmp;
-                    }
-                );
-                setFriendRequests(tmpRequestList);
-            }
-        }catch (e){
-            console.log(e);
-        }
+        return await friendService.findFriends(user.id, searchInput, 0, 15);
     }
 
     const showRequestWithStatus = (request) => {
         setTimeout(async () => {
             const response1 = await fetchFriendRequests();
             const response2 = await fetchAllFriends();
-            console.log(response2);
             setFriendRequests(response1);
             setFriendList(response2);
         }, [2000]);
@@ -104,38 +79,42 @@ const HomePage = () => {
         )
     }
 
-    const handleLogout = async () => {
-        await authenticationService.logout();
-        localStorage.clear();
-        window.location.href = "/login";
-    }
-
     return user && (
         <div style={{
             height: '100vh',
             position: 'relative'
         }}>
+            {showCurtain && <div className="curtain-background"></div>}
             <Header/>
             <div className="sidebar-left">
-                <Link style={{textDecoration: 'none', color: 'black'}} to={`/${user.id}`} className="sidebar-option">
+                <Link to={`/profile/${user.id}`} className="sidebar-option">
                     <FontAwesomeIcon icon={faUser} />
                     <p>Trang cá nhân</p>
                 </Link>
-                <div className="sidebar-option">
+                <Link to="/friend" className="sidebar-option">
                     <FontAwesomeIcon icon={faUserGroup} />
                     <p>Bạn bè</p>
-                </div>
-                <div className="sidebar-option">
+                </Link>
+                <Link to="/chat" className="sidebar-option">
                     <FontAwesomeIcon icon={faComment} />
                     <p>Nhắn tin</p>
-                </div>
+                </Link>
                 <div className="sidebar-option" onClick={handleLogout}>
                     <FontAwesomeIcon icon={faRightToBracket} flip="horizontal" />
                     <p>Đăng xuất</p>
                 </div>
             </div>
             <div className="center-body">
-                <PostsContainer/>
+                <div style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '20px',
+                    width: '700px',
+                    margin: '0 auto'
+                }}>
+                    <CreatePost opponent={user} setPosts={setPosts}/>
+                    <PostsContainer posts={posts} setPosts={setPosts} ref={ref}/>
+                </div>
             </div>
             <div className="sidebar-right">
                 <div style={{
@@ -149,7 +128,7 @@ const HomePage = () => {
                         alignItems: 'center'
                     }}>
                         <h3>Lời mời kết bạn</h3>
-                        <p>Tất cả</p>
+                        <Link to="/friend/request" className="link">Tất cả</Link>
                     </div>
                     <div style={{
                         display: 'flex',
@@ -187,10 +166,10 @@ const HomePage = () => {
                                                 gap: '10px',
                                                 width: '100%'
                                             }}>
-                                                <button className="confirm-button" onClick={() => acceptFriendRequest(friend)}>
+                                                <button className="confirm-button" onClick={() => acceptFriendRequest(friend, friendRequests, setFriendRequests)}>
                                                     Xác nhận
                                                 </button>
-                                                <button className="cancel-button" onClick={() => declineFriendRequest(friend)}>
+                                                <button className="cancel-button" onClick={() => declineFriendRequest(friend, friendRequests, setFriendRequests)}>
                                                     Xóa
                                                 </button>
                                             </div>
@@ -218,7 +197,15 @@ const HomePage = () => {
                             </div>
                         }
                     </div>
-                    <h3>Bạn bè</h3>
+                    <div style={{
+                        display: 'flex',
+                        justifyContent: 'space-between'
+                    }}>
+                        <h3>Bạn bè</h3>
+                        <Link to="/friend/list" className="link" style={{
+                            alignSelf: 'center'
+                        }}>Tất cá</Link>
+                    </div>
                     <div className="search-bounding">
                         <FontAwesomeIcon icon={faMagnifyingGlass} fontSize="18px"/>
                         <input

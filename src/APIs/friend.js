@@ -1,23 +1,20 @@
 import * as request from '../utils/request.js';
 
-export const findFriends = async (userId, keyword, pageNumber) => {
+export const findFriends = async (userId, keyword, pageNumber, pageSize) => {
     return request.get('/friend/getList/' + userId, {
         headers: {
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`
         },
         params: {
-            keyword, pageNumber
+            keyword, pageNumber, pageSize
         }}
     )
 }
 
-export const findAllFriends = async (keyword) => {
-    return request.get('/friend/getByCurrentUser', {
+export const checkFriend = async (opponentId) => {
+    return request.get('/friend/checkFriendship/' + opponentId, {
         headers: {
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`
-        },
-        params: {
-            keyword
         }
     })
 }

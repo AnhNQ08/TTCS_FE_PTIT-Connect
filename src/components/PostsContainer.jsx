@@ -1,11 +1,15 @@
 import React from 'react';
 import '../styles/Post.css';
-import {faComment, faEarthAsia, faShare, faXmark, faUserGroup} from "@fortawesome/free-solid-svg-icons";
+import { faEarthAsia, faXmark, faUserGroup} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {getImageMime} from "@/utils/format.js";
 import LikeButton from "@/components/LikeButton.jsx";
+import {useNavigate} from "react-router-dom";
+import {Link} from "react-router-dom";
 
-const PostsContainer = ({posts, setPosts}) => {
+const PostsContainer = ({posts, setPosts, ref}) => {
+    const navigate = useNavigate();
+
     const reactions = [
         {name: "LIKE", value: "/public/reactions/like.png"},
         {name: "LOVE", value: "/public/reactions/heart.png"},
@@ -26,14 +30,16 @@ const PostsContainer = ({posts, setPosts}) => {
                         padding: '15px'
                     }}>
                         <div className="post-header">
-                            <img className="post-creator-avatar" src={`data:${getImageMime(post.userSummary.avatar)};base64,${post.userSummary.avatar}`} alt=""/>
+                            <img className="post-creator-avatar" src={`data:${getImageMime(post.userSummary.avatar)};base64,${post.userSummary.avatar}`} alt="" onClick={
+                                () => navigate(`/profile/${post.userSummary.id}`)
+                            }/>
                             <div style={{
                                 display: 'flex',
                                 alignItems: 'flex-start',
                                 flexDirection: 'column',
                                 gap: '3px',
                             }}>
-                                <p className="post-creator-name">{post.userSummary.username}</p>
+                                <Link to={`/profile/${post.userSummary.id}`} className="post-creator-name">{post.userSummary.username}</Link>
                                 <div style={{
                                     display: 'flex',
                                     alignItems: 'center',
@@ -50,7 +56,6 @@ const PostsContainer = ({posts, setPosts}) => {
                         </div>
                         <FontAwesomeIcon icon={faXmark} fontSize="30px" cursor="pointer"/>
                     </div>
-                    {console.log(post.backgroundUrl)}
                     <div className="post-body" style={{
                         backgroundImage: post.backgroundUrl && `url(${post.backgroundUrl})`,
                         justifyContent: post.backgroundUrl && 'center',
@@ -75,7 +80,6 @@ const PostsContainer = ({posts, setPosts}) => {
                                 <div className="reactions">
                                     {post.reactionSummary.emotions.map((emotion, index) => {
                                         const reaction = reactions.find(r => r.name === emotion);
-                                        console.log(reaction);
                                         return (
                                             <img src={reaction.value} alt="" key={index} className="emoji"/>
                                         )
@@ -83,11 +87,11 @@ const PostsContainer = ({posts, setPosts}) => {
 
                                     {post.reactionSummary.total > 0 && <p style={{color: 'rgb(145,145,145)', marginLeft: '7px'}}>{post.reactionSummary.total}</p>}
                                 </div>
-                                <p style={{color: 'rgb(145,145,145)'}}>{post.totalComment} bình luận</p>
+                                <p style={{color: 'rgb(145,145,145)'}}>{post.totalComment > 0 && `${post.totalComment} bình luận`} </p>
                             </div>
                         }
                         <div className="post-function">
-                            <LikeButton reactions={reactions} currentReaction={post.currentUserReaction} setPosts={setPosts}/>
+                            <LikeButton reactions={reactions} currentReaction={post.currentUserReaction} setPosts={setPosts} postId={post.id} type={"POST"}/>
                             <div className="function-item">
                                 <img src="/public/comment-icon.png" alt="" className="emoji"/>
                                 <p>Bình luận</p>
@@ -100,6 +104,7 @@ const PostsContainer = ({posts, setPosts}) => {
                     </div>
                 </div>
             ))}
+            <div ref={ref}></div>
         </div>
     );
 };

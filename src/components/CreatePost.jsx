@@ -51,6 +51,7 @@ const CreatePost = ({opponent, setPosts}) => {
             const data = {
                 content: text,
                 privacy: isPublic ? "PUBLIC" : "PRIVATE",
+                wallId: opponent.id
             }
             formData.append('data', JSON.stringify(data));
             if(selectedBackground){

@@ -8,18 +8,24 @@ export const createNewPost = async (formData) => {
     });
 };
 
-export const getNewestPost = async () => {
+export const getNewestPost = async (pageNumber) => {
     return await request.get("/post/newest", {
         headers: {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+        params: {
+            pageNumber
         }
     })
 }
 
-export const getPostByUserId = async (userId) => {
+export const getPostByUserId = async (userId, pageNumber) => {
     return await request.get(`/post/user/${userId}`, {
         headers: {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+        params: {
+            pageNumber
         }
     })
 }

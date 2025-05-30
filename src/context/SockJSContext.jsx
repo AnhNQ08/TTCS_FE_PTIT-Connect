@@ -8,7 +8,7 @@ export const SockJSProvider = ({children}) => {
     const stompClientRef = useRef(null);
     const subscriptions = useRef({});
 
-    const setUpStompClient = (groupIds, userId, onMessageReceived, onNoticeReceived) => {
+    const setUpStompClient = (groupIds, userId, onMessageReceived, onChatNoticeReceived, onNotificationReceived) => {
         return new Promise((resolve, reject) => {
             const socket = new SockJS("http://100.114.40.116:8081/ws");
             const stompClient = new Client({
@@ -26,9 +26,15 @@ export const SockJSProvider = ({children}) => {
                                 `/user/${userId}/queue/messages`,
                                 onMessageReceived
                             );
-                            subscriptions.current[userId + "_notice"] = stompClient.subscribe(
-                                `/user/${userId}/queue/notices`,
-                                onNoticeReceived
+                            subscriptions.current[userId + "_chatNotice"] = stompClient.subscribe(
+                                `/user/${userId}/queue/chatNotices`,
+                                onChatNoticeReceived
+                            );
+                        }
+                        if (onNotificationReceived) {
+                            subscriptions.current[userId + "_notification"] = stompClient.subscribe(
+                                `/user/${userId}/queue/notification`,
+                                onNotificationReceived
                             );
                         }
                         if (groupIds && onMessageReceived) {

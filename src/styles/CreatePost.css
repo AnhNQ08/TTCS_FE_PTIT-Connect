@@ -8,6 +8,12 @@
 .post-creator-name{
     font-size: 18px;
     font-weight: bold;
+    text-decoration: none;
+    color: black;
+}
+
+.post-creator-name:hover{
+    text-decoration: underline;
 }
 
 .post-type{

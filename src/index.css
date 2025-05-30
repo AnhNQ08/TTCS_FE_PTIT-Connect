@@ -3,7 +3,7 @@
 }
 
 body{
-    width: 1920px;
+    width: 1905px;
     margin: 0 auto;
     background-color: #f8f8f8;
 }
@@ -68,8 +68,8 @@ p{
 }
 
 .center-body{
-    width: 1250px;
-    margin: 0 auto;
+    width: 1100px;
+    margin: 75px auto 0;
 }
 
 .status-dot.online{
@@ -117,4 +117,46 @@ p{
     padding: 1.5px;
     border-radius: 50%;
     background-color: lightgray;
+}
+
+.sidebar-left {
+    position: fixed;
+    top: 75px;
+    left: 0;
+    bottom: 0;
+    width: 300px;
+    background-color: white;
+    z-index: 99;
+    display: flex;
+    flex-direction: column;
+    padding: 15px 10px 15px 10px;
+}
+
+.sidebar-option{
+    width: 89%;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-size: 21px;
+    font-weight: bold;
+    padding: 15px;
+    transition: 0.1s ease-in-out;
+    border-radius: 10px;
+    text-decoration: none;
+    color: black;
+}
+
+.sidebar-option:hover{
+    background-color: lightgray;
+    cursor: pointer;
+}
+
+.link{
+    text-decoration: none;
+    color: #E53935;
+    font-size:15px;
+}
+
+.link:hover{
+    text-decoration: underline;
 }

@@ -1,4 +1,4 @@
-import React, {useContext} from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
 import '../styles/Header.css';
 import AuthContext from "@/context/AuthContext.jsx";
 import {getImageMime} from "../utils/format.js";
@@ -7,6 +7,24 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 
 const Header = () => {
     const {user} = useContext(AuthContext);
+    const containerRef = useRef(null);
+    const [showNotification, setShowNotification] = useState(false);
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (containerRef.current && !containerRef.current.contains(event.target)) {
+                setShowNotification(false);
+            }
+        };
+
+        if (showNotification) {
+            document.addEventListener("mousedown", handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [showNotification]);
 
     return user && (
         <div className="header">
@@ -35,14 +53,20 @@ const Header = () => {
             <div style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '15px'
+                gap: '15px',
+                position: 'relative'
             }}>
                 <FontAwesomeIcon icon={faComment} className="icon-gray-background" fontSize="25px"/>
-                <FontAwesomeIcon icon={faBell} className="icon-gray-background" fontSize="25px"/>
+                <FontAwesomeIcon icon={faBell} className="icon-gray-background" fontSize="25px" onClick={() => setShowNotification(prev => !prev)}/>
                 <div className="user-header-container">
                     <img src={`data:${getImageMime(user.avatar)};base64,${user.avatar}`} className="user-avatar" alt=""/>
                     <p style={{fontSize: '17px', fontWeight: 'bold'}}>{user.username}</p>
                 </div>
+                {showNotification &&
+                    <div className="notification-container">
+
+                    </div>
+                }
             </div>
         </div>
     );

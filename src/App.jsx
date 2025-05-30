@@ -4,6 +4,7 @@ import AppRoutes from "@/routes/AppRoutes.jsx";
 import {AuthProvider} from "@/context/AuthContext.jsx";
 import {SkeletonTheme} from "react-loading-skeleton";
 import {CurtainProvider} from "@/context/CurtainContext.jsx";
+import {FriendRequestProvider} from "@/context/FriendRequestContext.jsx";
 
 function App() {
 
@@ -12,7 +13,9 @@ function App() {
         <AuthProvider>
             <SockJSProvider>
                 <CurtainProvider>
-                    <AppRoutes />
+                    <FriendRequestProvider>
+                        <AppRoutes />
+                    </FriendRequestProvider>
                 </CurtainProvider>
             </SockJSProvider>
         </AuthProvider>

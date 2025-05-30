@@ -1,7 +1,7 @@
 import React, {useContext, useEffect, useState} from 'react';
 import {getImageMime} from "@/utils/format.js";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faCamera, faPen, faXmark} from "@fortawesome/free-solid-svg-icons";
+import {faCamera, faComment, faPen, faUserPlus, faXmark} from "@fortawesome/free-solid-svg-icons";
 import * as userService from '../APIs/user.js';
 import AuthContext from "@/context/AuthContext.jsx";
 
@@ -133,7 +133,7 @@ const ProfileHeader = ({isMine, userInfo, setUserInfo, selectedChoice, setSelect
                         <p style={{
                             color: 'black',
                             fontWeight: 'bold',
-                            fontSize: '30px',
+                            fontSize: '26px',
                             margin: 0
                         }}>
                             {userInfo.username}
@@ -141,7 +141,7 @@ const ProfileHeader = ({isMine, userInfo, setUserInfo, selectedChoice, setSelect
                         <p style={{
                             color: 'rgb(163,163,163)',
                             fontWeight: 'bold',
-                            fontSize: '20px',
+                            fontSize: '17px',
                             margin: 0
                         }}>
                             {userInfo.numberOfFriends} người bạn
@@ -152,9 +152,10 @@ const ProfileHeader = ({isMine, userInfo, setUserInfo, selectedChoice, setSelect
                         }}>
                             {!editBio ? (
                                 <p style={{
-                                    fontSize: '17px',
+                                    fontSize: '15px',
                                     display: '-webkit-box',
                                     WebkitLineClamp: 3,
+                                    maxWidth: '300px',
                                     WebkitBoxOrient: 'vertical',
                                     overflow: 'hidden',
                                     textOverflow: 'ellipsis',
@@ -196,7 +197,7 @@ const ProfileHeader = ({isMine, userInfo, setUserInfo, selectedChoice, setSelect
                                         style={{
                                             position: 'absolute',
                                             top: '-20px',
-                                            right: '-35px',
+                                            right: '-25px',
                                             pointerEvents: 'none',
                                             display: (!bio || bio.length === 0) && 'none'
                                         }}
@@ -211,11 +212,10 @@ const ProfileHeader = ({isMine, userInfo, setUserInfo, selectedChoice, setSelect
                                             strokeDasharray="4 4" // 👈 tạo nét đứt
                                         />
                                     </svg>
-
                                     <div style={{
                                         position: 'absolute',
                                         top: (!bio || bio.length === 0) ? '-20px' : '-40px',
-                                        right: (!bio || bio.length === 0) ? '-35px' : '-35px',
+                                        right: (!bio || bio.length === 0) ? '-35px' : '-25px',
                                         padding: '5px',
                                         border: '1px solid gray',
                                         backgroundColor: 'white',
@@ -246,9 +246,27 @@ const ProfileHeader = ({isMine, userInfo, setUserInfo, selectedChoice, setSelect
                 <div style={{
                     display: 'grid',
                     gridTemplateColumns: '1fr 1fr',
-                    gap: '20px',
+                    gap: '10px',
                     alignSelf: 'flex-end'
                 }}>
+                    {!isMine && (
+                        <React.Fragment>
+                            <div className="profile-function" style={{
+                                backgroundColor: 'white',
+                                border: '2px solid #E53935',
+                            }}>
+                                <FontAwesomeIcon icon={faUserPlus} />
+                                <p>Thêm bạn bè</p>
+                            </div>
+                            <div className="profile-function" style={{
+                                backgroundColor: 'white',
+                                border: '2px solid #E53935',
+                            }}>
+                                <FontAwesomeIcon icon={faComment} />
+                                <p>Nhắn tin</p>
+                            </div>
+                        </React.Fragment>
+                    )}
                     <button className={`profile-choice ${selectedChoice === 0 && 'selected'}`} onClick={() => setSelectedChoice(0)}>Bài viết</button>
                     <button className={`profile-choice ${selectedChoice === 1 && 'selected'}`} onClick={() => setSelectedChoice(1)}>Bạn bè</button>
                     <button className={`profile-choice ${selectedChoice === 2 && 'selected'}`} onClick={() => setSelectedChoice(2)}>Ảnh</button>
