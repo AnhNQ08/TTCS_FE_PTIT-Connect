@@ -1,19 +1,39 @@
 import React, {useContext, useEffect, useState} from 'react';
 import {getImageMime} from "@/utils/format.js";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faCamera, faComment, faPen, faUserPlus, faXmark} from "@fortawesome/free-solid-svg-icons";
+import {
+    faCamera,
+    faComment,
+    faPen,
+    faUserCheck,
+    faUserMinus,
+    faUserPlus, faUserXmark,
+    faXmark
+} from "@fortawesome/free-solid-svg-icons";
 import * as userService from '../APIs/user.js';
+import {checkFriend, checkFriendRequest, sendFriendRequest, deleteFriend, declineFriendRequest} from "@/APIs/friend.js";
 import AuthContext from "@/context/AuthContext.jsx";
 import {useNavigate} from "react-router-dom";
 
-const ProfileHeader = ({isMine, userInfo, setUserInfo, selectedChoice, setSelectedChoice}) => {
-    const {setUser} = useContext(AuthContext);
+const ProfileHeader = ({isMine, userInfo, setUserInfo, selectedChoice}) => {
+    const {user, setUser} = useContext(AuthContext);
     const [editBio, setEditBio] = useState(false);
+    const [isFriend, setIsFriend] = useState(false);
+    const [friendRequest, setFriendRequest] = useState(null);
     const [bio, setBio] = useState(null);
     const navigate = useNavigate();
 
     useEffect(() => {
         if(userInfo) setBio(userInfo.bio);
+        if(!isMine) {
+            checkFriendRequest(userInfo.id).then(response => {
+                console.log(response);
+                setFriendRequest(response);
+            })
+            checkFriend(userInfo.id).then(response => {
+                setIsFriend(response);
+            })
+        }
     }, [userInfo])
 
     const handleChangeAvatar = async (image) => {
@@ -60,6 +80,32 @@ const ProfileHeader = ({isMine, userInfo, setUserInfo, selectedChoice, setSelect
             const response = await userService.editBio(bio);
             if(response === "Bio changed"){
                 setUserInfo(prev => ({ ...prev, bio: bio }));
+            }
+        }catch (e){
+            console.log(e);
+        }
+    }
+
+    const handleClickFriendButton = async () => {
+        try {
+            if(friendRequest){
+                const response = await declineFriendRequest(friendRequest.senderId, friendRequest.recipientId);
+                if(response !== "Friend request deleted"){
+                    alert("Có lỗi xảy ra");
+                    return;
+                }
+                setFriendRequest(null);
+            }else if(isFriend){
+                const response = await deleteFriend(userInfo.id);
+                if(response !== "Friend deleted") alert("Có lỗi xảy ra");
+                setIsFriend(false);
+            }else{
+                const response = await sendFriendRequest(userInfo.id);
+                if(response !== "Request sent") alert("Có lỗi xảy ra");
+                setFriendRequest({
+                    senderId: user.id,
+                    recipientId: userInfo.id
+                })
             }
         }catch (e){
             console.log(e);
@@ -253,12 +299,36 @@ const ProfileHeader = ({isMine, userInfo, setUserInfo, selectedChoice, setSelect
                 }}>
                     {!isMine && (
                         <React.Fragment>
-                            <div className="profile-function" style={{
+                            <div className="profile-function" onClick={handleClickFriendButton} style={{
                                 backgroundColor: 'white',
-                                border: '2px solid #E53935',
+                                border: '2px solid #E53935'
                             }}>
-                                <FontAwesomeIcon icon={faUserPlus} />
-                                <p>Thêm bạn bè</p>
+                                {friendRequest ? (
+                                    friendRequest.senderId === user.id ? (
+                                        <React.Fragment>
+                                            <FontAwesomeIcon icon={faUserXmark} />
+                                            <p>Xóa lời mời</p>
+                                        </React.Fragment>
+                                    ) : (
+                                        <React.Fragment>
+                                            <FontAwesomeIcon icon={faUserCheck} />
+                                            <p>Phản hồi</p>
+                                        </React.Fragment>
+                                    )
+                                ) : (
+                                    isFriend ? (
+                                        <React.Fragment>
+                                            <FontAwesomeIcon icon={faUserXmark} />
+                                            <p>Hủy kết bạn</p>
+                                        </React.Fragment>
+                                    ) : (
+                                        <React.Fragment>
+                                            <FontAwesomeIcon icon={faUserPlus} />
+                                            <p>Thêm bạn bè</p>
+                                        </React.Fragment>
+                                    )
+                                )}
+
                             </div>
                             <div className="profile-function" style={{
                                 backgroundColor: 'white',

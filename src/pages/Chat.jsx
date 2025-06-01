@@ -532,7 +532,7 @@ const Chat = () => {
             sentAt: new Date()
         }
         if(!chatRoomsRef.current.find(chatRoom => chatRoom.id === chatRoomRef.current.id) && !filterChoice){
-            setChatRooms(prev => prev.concat(chatRoomRef.current));
+            setChatRooms(prev => [chatRoomRef.current, ...prev]);
         }
         setChatRooms(prev => prev.map(chatRoom => {
             if(chatRoom.id === chatRoomRef.current.id){

@@ -11,6 +11,14 @@ export const findFriends = async (userId, keyword, pageNumber, pageSize) => {
     )
 }
 
+export const checkFriendRequest = async (opponentId) => {
+    return request.get('/friendRequest/check/' + opponentId, {
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+        }
+    })
+}
+
 export const checkFriend = async (opponentId) => {
     return request.get('/friend/checkFriendship/' + opponentId, {
         headers: {
@@ -45,4 +53,20 @@ export const declineFriendRequest = async (senderId, recipientId) => {
             }
         }
     )
+}
+
+export const sendFriendRequest = async (opponentId) => {
+    return request.post('/friendRequest/send/' + opponentId, {}, {
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+        }
+    })
+}
+
+export const deleteFriend = async (opponentId) => {
+    return request.remove('/friend/delete/' + opponentId, {
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+        }
+    })
 }

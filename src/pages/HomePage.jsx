@@ -82,7 +82,7 @@ const HomePage = () => {
     return user && (
         <div style={{
             height: '100vh',
-            position: 'relative'
+            position: 'relative',
         }}>
             {showCurtain && <div className="curtain-background"></div>}
             <Header/>
@@ -110,7 +110,8 @@ const HomePage = () => {
                     flexDirection: 'column',
                     gap: '20px',
                     width: '700px',
-                    margin: '0 auto'
+                    margin: '0 auto',
+                    marginTop: '90px',
                 }}>
                     <CreatePostButton opponent={user} setPosts={setPosts}/>
                     <PostsContainer posts={posts} setPosts={setPosts} ref={ref}/>

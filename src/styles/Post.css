@@ -128,6 +128,10 @@
     font-size: 17px;
     padding-left: 15px;
     padding-right: 15px;
+    max-height: 30px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-clamp: 2;
 }
 
 .post-bottom{
@@ -163,7 +167,7 @@
     align-items: center;
     justify-content: space-around;
     border-top: 1px solid lightgray;
-    padding-bottom: 5px;
+    padding-bottom: 15px;
     padding-top: 5px;
 }
 

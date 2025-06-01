@@ -9,7 +9,7 @@ import {
     faXmark
 } from "@fortawesome/free-solid-svg-icons";
 import {getFileFromUrl, getImageMime} from "@/utils/format.js";
-import {createNewPost} from "@/APIs/post.js";
+import {createNewPost, sharePost} from "@/APIs/post.js";
 import AuthContext from "@/context/AuthContext.jsx";
 import CurtainContext from "@/context/CurtainContext.jsx";
 
@@ -45,7 +45,7 @@ const CreatePostPopup = ({opponent, setPosts, setShowCurtain}) => {
     const handleSubmit = async () => {
         try {
             const formData = new FormData()
-            const data = {
+            let data = {
                 content: text,
                 privacy: isPublic ? "PUBLIC" : "PRIVATE",
                 wallId: opponent.id
@@ -61,8 +61,17 @@ const CreatePostPopup = ({opponent, setPosts, setShowCurtain}) => {
                     formData.append('files', file);
                 }
             }
-            const response = await createNewPost(formData);
+            let response = null;
+            if(createPost) response = await createNewPost(formData);
+            else {
+                data = {
+                    content: text,
+                    privacy: isPublic ? "PUBLIC" : "PRIVATE"
+                }
+                response = await sharePost(localStorage.getItem('postId'), data);
+            }
             if(response !== null){
+                console.log(response);
                 setPosts(prev => [response, ...prev]);
                 alert("Đăng thành công");
                 setShowCurtain(false);

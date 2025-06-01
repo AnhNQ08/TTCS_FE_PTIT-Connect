@@ -15,8 +15,7 @@ const CreatePostButton = ({opponent}) => {
             gap: '20px',
             padding: '10px 15px 10px 15px',
             borderRadius: '10px',
-            backgroundColor: 'white',
-            marginTop: '10px',
+            backgroundColor: 'white'
         }}>
             <img src={`data:${getImageMime(user.avatar)};base64,${user.avatar}`} className="post-creator-avatar" alt=""/>
             <button className="create-post-button" onClick={() => {

@@ -10,6 +10,107 @@ const PostContainer = ({ post, reactions, setPosts, handleClickPost, setCurrentP
     const { showCurtain, setShowCurtain, setCreatePost } = useContext(CurtainContext);
     const navigate = useNavigate();
 
+    const getPostHeader = (tmpPost) => {
+        return (
+            <div className="post-header">
+                <img className="post-creator-avatar" src={`data:${getImageMime(tmpPost.userSummary.avatar)};base64,${tmpPost.userSummary.avatar}`} alt="" onClick={
+                    () => navigate(`/profile/${tmpPost.userSummary.id}`)
+                }/>
+                <div style={{
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    flexDirection: 'column',
+                    gap: '3px',
+                }}>
+                    <Link to={`/profile/${tmpPost.userSummary.id}`} className="post-creator-name">{tmpPost.userSummary.username}</Link>
+                    <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '5px',
+                        fontSize: '15px',
+                        color: 'rgb(179,179,179)',
+                        fontWeight: 'bold'
+                    }}>
+                        <p>{tmpPost.updatedAt ? tmpPost.updatedAt : tmpPost.createdAt}</p>
+                        <span className="spacing-dot"></span>
+                        {tmpPost.privacy === "PUBLIC" ? <FontAwesomeIcon icon={faEarthAsia} /> : <FontAwesomeIcon icon={faUserGroup} />}
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    const getPostBody = () => {
+        return (
+            <div className="post-body" style={{
+                backgroundImage: post.backgroundUrl && `url(${post.backgroundUrl})`,
+                justifyContent: post.backgroundUrl && 'center',
+                alignItems: post.backgroundUrl && 'center',
+                minHeight: post.backgroundUrl && '300px',
+            }}>
+                {!post.parentPost ? (
+                    <React.Fragment>
+                        <p className="post-content" style={{
+                            padding: post.backgroundUrl && '40px',
+                            fontWeight: post.backgroundUrl && 'bold',
+                            fontSize: post.backgroundUrl && '28px',
+                            color: post.backgroundUrl && 'white',
+                            textAlign: post.backgroundUrl && 'center'
+                        }}>{post.content}</p>
+                        {!post.backgroundUrl &&
+                            <div className={`post-media-grid post-media-count-${post.mediaList.length} ${post.mediaList.length}`}>
+                                {post.mediaList.map((media, index) => (
+                                    <img key={index} src={media.url} alt=""/>
+                                ))}
+                            </div>
+                        }
+                    </React.Fragment>
+                ) : (
+                    <div style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '10px',
+                        borderRadius: '15px',
+                        border: '1px solid #E5E5E5',
+                        overflow: 'hidden',
+                        margin: '0px  15px 0px 15px',
+                    }}>
+                        <div className={`post-media-grid post-media-count-${post.parentPost.mediaList.length} ${post.parentPost.mediaList.length}`}>
+                            {post.parentPost.mediaList.map((media, index) => (
+                                <img key={index} src={media.url} alt=""/>
+                            ))}
+                        </div>
+                        <div style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '7px'
+                        }}>
+                            <div style={{
+                                paddingLeft: '15px'
+                            }}>
+                                {getPostHeader(post.parentPost)}
+                            </div>
+                            <div className="post-body" style={{
+                                backgroundImage: post.parentPost.backgroundUrl && `url(${post.parentPost.backgroundUrl})`,
+                                justifyContent: post.parentPost.backgroundUrl && 'center',
+                                alignItems: post.parentPost.backgroundUrl && 'center',
+                                minHeight: post.parentPost.backgroundUrl && '300px',
+                            }}>
+                                <p className="post-content" style={{
+                                    padding: post.parentPost.backgroundUrl && '40px',
+                                    fontWeight: post.parentPost.backgroundUrl && 'bold',
+                                    fontSize: post.parentPost.backgroundUrl && '28px',
+                                    color: post.parentPost.backgroundUrl && 'white',
+                                    textAlign: post.parentPost.backgroundUrl && 'center'
+                                }}>{post.parentPost.content}</p>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
+        )
+    }
+
     return (
         <div className="post-container">
             <div style={{
@@ -18,52 +119,10 @@ const PostContainer = ({ post, reactions, setPosts, handleClickPost, setCurrentP
                 justifyContent: 'space-between',
                 padding: '15px'
             }}>
-                <div className="post-header">
-                    <img className="post-creator-avatar" src={`data:${getImageMime(post.userSummary.avatar)};base64,${post.userSummary.avatar}`} alt="" onClick={
-                        () => navigate(`/profile/${post.userSummary.id}`)
-                    }/>
-                    <div style={{
-                        display: 'flex',
-                        alignItems: 'flex-start',
-                        flexDirection: 'column',
-                        gap: '3px',
-                    }}>
-                        <Link to={`/profile/${post.userSummary.id}`} className="post-creator-name">{post.userSummary.username}</Link>
-                        <div style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '5px',
-                            fontSize: '15px',
-                            color: 'rgb(179,179,179)',
-                            fontWeight: 'bold'
-                        }}>
-                            <p>{post.updatedAt ? post.updatedAt : post.createdAt}</p>
-                            <span className="spacing-dot"></span>
-                            {post.privacy === "PUBLIC" ? <FontAwesomeIcon icon={faEarthAsia} /> : <FontAwesomeIcon icon={faUserGroup} />}
-                        </div>
-                    </div>
-                </div>
+                {getPostHeader(post)}
                 {!showCurtain && <FontAwesomeIcon icon={faXmark} fontSize="30px" cursor="pointer"/>}
             </div>
-            <div className="post-body" style={{
-                backgroundImage: post.backgroundUrl && `url(${post.backgroundUrl})`,
-                justifyContent: post.backgroundUrl && 'center',
-                alignItems: post.backgroundUrl && 'center',
-                minHeight: post.backgroundUrl && '300px',
-            }}>
-                <p className="post-content" style={{
-                    padding: post.backgroundUrl && '40px',
-                    fontWeight: post.backgroundUrl && 'bold',
-                    fontSize: post.backgroundUrl && '28px',
-                    color: post.backgroundUrl && 'white',
-                    textAlign: post.backgroundUrl && 'center'
-                }}>{post.content}</p>
-                <div className={`post-media-grid post-media-count-${post.mediaList.length} ${post.mediaList.length}`}>
-                    {post.mediaList.map((media, index) => (
-                        <img key={index} src={media.url} alt=""/>
-                    ))}
-                </div>
-            </div>
+            {getPostBody()}
             <div className="post-bottom">
                 {(post.reactionSummary.total !== 0 || post.totalComment !== 0) &&
                     <div className="reactions-comments">

@@ -8,6 +8,14 @@ export const createNewPost = async (formData) => {
     });
 };
 
+export const sharePost = async (postId, data) => {
+    return await request.post(`/post/share/${postId}`, data, {
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        }
+    })
+}
+
 export const getNewestPost = async (pageNumber) => {
     return await request.get("/post/newest", {
         headers: {

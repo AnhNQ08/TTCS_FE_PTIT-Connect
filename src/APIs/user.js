@@ -39,3 +39,14 @@ export const editBio = async (bio) => {
         }
     })
 }
+
+export const searchUser = async (keyword) => {
+    return await request.get("/user/search", {
+        headers: {
+            Authorization: `Bearer ` + localStorage.getItem("accessToken")
+        },
+        params: {
+            keyword
+        }
+    })
+}
