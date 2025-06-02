@@ -66,46 +66,55 @@ const PostContainer = ({ post, reactions, setPosts, handleClickPost, setCurrentP
                         }
                     </React.Fragment>
                 ) : (
-                    <div style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '10px',
-                        borderRadius: '15px',
-                        border: '1px solid #E5E5E5',
-                        overflow: 'hidden',
-                        margin: '0px  15px 0px 15px',
-                    }}>
-                        <div className={`post-media-grid post-media-count-${post.parentPost.mediaList.length} ${post.parentPost.mediaList.length}`}>
-                            {post.parentPost.mediaList.map((media, index) => (
-                                <img key={index} src={media.url} alt=""/>
-                            ))}
-                        </div>
+                    <React.Fragment>
+                        <p className="post-content" style={{
+                            padding: post.backgroundUrl && '40px',
+                            fontWeight: post.backgroundUrl && 'bold',
+                            fontSize: post.backgroundUrl && '28px',
+                            color: post.backgroundUrl && 'white',
+                            textAlign: post.backgroundUrl && 'center'
+                        }}>{post.content}</p>
                         <div style={{
                             display: 'flex',
                             flexDirection: 'column',
-                            gap: '7px'
+                            gap: '10px',
+                            borderRadius: '15px',
+                            border: '1px solid #E5E5E5',
+                            overflow: 'hidden',
+                            margin: '0px  15px 0px 15px',
                         }}>
-                            <div style={{
-                                paddingLeft: '15px'
-                            }}>
-                                {getPostHeader(post.parentPost)}
+                            <div className={`post-media-grid post-media-count-${post.parentPost.mediaList.length} ${post.parentPost.mediaList.length}`}>
+                                {post.parentPost.mediaList.map((media, index) => (
+                                    <img key={index} src={media.url} alt=""/>
+                                ))}
                             </div>
-                            <div className="post-body" style={{
-                                backgroundImage: post.parentPost.backgroundUrl && `url(${post.parentPost.backgroundUrl})`,
-                                justifyContent: post.parentPost.backgroundUrl && 'center',
-                                alignItems: post.parentPost.backgroundUrl && 'center',
-                                minHeight: post.parentPost.backgroundUrl && '300px',
+                            <div style={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: '7px'
                             }}>
-                                <p className="post-content" style={{
-                                    padding: post.parentPost.backgroundUrl && '40px',
-                                    fontWeight: post.parentPost.backgroundUrl && 'bold',
-                                    fontSize: post.parentPost.backgroundUrl && '28px',
-                                    color: post.parentPost.backgroundUrl && 'white',
-                                    textAlign: post.parentPost.backgroundUrl && 'center'
-                                }}>{post.parentPost.content}</p>
+                                <div style={{
+                                    paddingLeft: '15px'
+                                }}>
+                                    {getPostHeader(post.parentPost)}
+                                </div>
+                                <div className="post-body" style={{
+                                    backgroundImage: post.parentPost.backgroundUrl && `url(${post.parentPost.backgroundUrl})`,
+                                    justifyContent: post.parentPost.backgroundUrl && 'center',
+                                    alignItems: post.parentPost.backgroundUrl && 'center',
+                                    minHeight: post.parentPost.backgroundUrl && '300px',
+                                }}>
+                                    <p className="post-content" style={{
+                                        padding: post.parentPost.backgroundUrl && '40px',
+                                        fontWeight: post.parentPost.backgroundUrl && 'bold',
+                                        fontSize: post.parentPost.backgroundUrl && '28px',
+                                        color: post.parentPost.backgroundUrl && 'white',
+                                        textAlign: post.parentPost.backgroundUrl && 'center'
+                                    }}>{post.parentPost.content}</p>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    </React.Fragment>
                 )}
             </div>
         )

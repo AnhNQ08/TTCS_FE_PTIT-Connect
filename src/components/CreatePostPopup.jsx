@@ -71,9 +71,8 @@ const CreatePostPopup = ({opponent, setPosts, setShowCurtain}) => {
                 response = await sharePost(localStorage.getItem('postId'), data);
             }
             if(response !== null){
-                console.log(response);
-                setPosts(prev => [response, ...prev]);
                 alert("Đăng thành công");
+                if(opponent.id === user.id) setPosts(prev => [...prev, response]);
                 setShowCurtain(false);
                 setText("");
                 setPostMedia([]);

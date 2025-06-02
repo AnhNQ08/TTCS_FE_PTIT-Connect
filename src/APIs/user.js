@@ -16,6 +16,17 @@ export const getProfile = async (userId) => {
     });
 }
 
+export const getAllImages = async (userId, pageNumber, pageSize, sort) => {
+    return await request.get(`/user/image/${userId}`, {
+        headers: {
+          Authorization: `Bearer ` + localStorage.getItem("accessToken")
+        },
+        params: {
+            pageNumber, pageSize, sort
+        }
+    });
+}
+
 export const updateAvatar = async (avatar) => {
     return await request.put("/user/profile/update/avatar", avatar, {
         headers: {

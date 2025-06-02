@@ -1,29 +1,49 @@
-import React, {useEffect, useState} from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faChevronDown, faTrashCan} from "@fortawesome/free-solid-svg-icons";
+import {getAllImages} from "@/APIs/user.js";
+import AuthContext from "@/context/AuthContext.jsx";
+import {useInView} from "react-intersection-observer";
 
 const ProfilePhotos = () => {
+    const {user} = useContext(AuthContext);
     const [showDropdown, setShowDropdown] = useState(false);
+    const pageNumberRef = useRef(0);
+    const [images, setImages] = useState([]);
     const [selectedSort, setSelectedSort] = useState({
         name: "Ảnh mới nhất",
-        value: "newest"
+        value: "desc"
     });
+    const {ref, inView} = useInView();
     const option = [
         {
             name: "Ảnh mới nhất",
-            value: "newest"
+            value: "desc"
         },{
             name: "Ảnh cũ nhất",
-            value: "oldest"
-        },{
-            name: "Ảnh nhiều tương tác nhất",
-            value: "most-interaction"
+            value: "asc"
         }
     ]
 
     useEffect(() => {
+        if(inView) {
+            pageNumberRef.current = pageNumberRef.current + 1;
+            getAllImages(user.id, pageNumberRef.current, 15, selectedSort.value).then((res) => {
+                if(res.length > 0) {
+                    setImages(prev => [...prev, res]);
+                }
+            })
+        }
+    }, [inView])
 
-    })
+    useEffect(() => {
+        if(user) {
+            console.log(selectedSort.value);
+            getAllImages(user.id, pageNumberRef.current, 15, selectedSort.value).then((res) => {
+                setImages(res);
+            })
+        }
+    }, [selectedSort]);
 
     return (
         <div style={{
@@ -56,7 +76,7 @@ const ProfilePhotos = () => {
                     position: 'relative',
                     width: '210px'
                 }} onClick={() => setShowDropdown(prev => !prev)}>
-                    <p>Ảnh mới nhất</p>
+                    <p>{selectedSort.name}</p>
                     <FontAwesomeIcon icon={faChevronDown} fontSize="16px"/>
                     {showDropdown && (
                         <div style={{
@@ -76,8 +96,9 @@ const ProfilePhotos = () => {
                                     cursor: 'pointer',
                                     fontSize: '18px',
                                 }} onClick={() => {
-                                    setSelectedSort(option);
+                                    pageNumberRef.current = 0;
                                     setShowDropdown(false);
+                                    setSelectedSort(option);
                                 }}>
                                     <p>{option.name}</p>
                                 </div>
@@ -87,17 +108,20 @@ const ProfilePhotos = () => {
                 </div>
             </div>
             <div className="profile-photo-grid">
-                <div style={{
-                    position: 'relative'
-                }}>
-                    <img src="/public/avartar-anime-39.jpg" alt=""/>
-                    <FontAwesomeIcon icon={faTrashCan} className="icon-top-right-corner" fontSize="18px" style={{
-                        padding: '7px',
-                        backgroundColor: 'white',
-                        borderRadius: '50%',
-                        cursor: 'pointer'
-                    }}/>
-                </div>
+                {images.length > 0 && images.map((image, index) => (
+                    <div style={{
+                        position: 'relative'
+                    }} key={index}>
+                        <img src={image.url} alt=""/>
+                        <FontAwesomeIcon icon={faTrashCan} className="icon-top-right-corner" fontSize="18px" style={{
+                            padding: '7px',
+                            backgroundColor: 'white',
+                            borderRadius: '50%',
+                            cursor: 'pointer'
+                        }}/>
+                    </div>
+                ))}
+                <div ref={ref}></div>
             </div>
         </div>
     );
