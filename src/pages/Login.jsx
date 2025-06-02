@@ -7,7 +7,6 @@ import AuthContext from "@/context/AuthContext.jsx";
 
 const Login = () => {
   const {setUser} = useContext(AuthContext);
-  const [error, setError] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
@@ -15,15 +14,20 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await login(email, password);
-      localStorage.setItem("accessToken", res.accessToken);
-      localStorage.setItem("refreshToken", res.refreshToken);
-      const user = await userService.getCurrentUser();
-      setUser(user);
-      localStorage.setItem("user", JSON.stringify(user));
-      navigate("/");
-    } catch (err) {
-      setError(err.message || "Đăng nhập thất bại");
+      const response = await login(email, password);
+      if(response.message === "User not found!") alert("Tài khoản không tồn tại");
+      else if(response.message === "Wrong password!") alert("Sai mật khẩu");
+      else if(response.message === "User login successfully!"){
+        localStorage.setItem("accessToken", response.accessToken);
+        localStorage.setItem("refreshToken", response.refreshToken);
+        const user = await userService.getCurrentUser();
+        setUser(user);
+        localStorage.setItem("user", JSON.stringify(user));
+        navigate("/");
+      }else alert("Có lỗi xảy ra");
+    } catch (error) {
+      console.log(error);
+      alert("Có lỗi xảy ra")
     }
   };
 
@@ -67,7 +71,6 @@ const Login = () => {
           <button type="submit" className="login-btn">
             Đăng nhập
           </button>
-          {error && <p className="error">{error}</p>}
           <a href="#" className="forgot" onClick={handleForgotPassword}>
             Quên mật khẩu?
           </a>

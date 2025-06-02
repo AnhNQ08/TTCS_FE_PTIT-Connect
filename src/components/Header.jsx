@@ -26,6 +26,15 @@ const Header = () => {
     }, [searchDebounce]);
 
     useEffect(() => {
+        if(showNotification) {
+            console.log("show notification");
+            getNotifications(6, 1).then(res => {
+                setNotifications(res);
+            })
+        }
+    }, [showNotification]);
+
+    useEffect(() => {
         const handleClickOutside = (event) => {
             if (notificationRef.current && !notificationRef.current.contains(event.target)) {
                 setShowNotification(false);

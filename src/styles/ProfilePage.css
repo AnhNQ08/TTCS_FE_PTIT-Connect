@@ -126,3 +126,13 @@
     grid-auto-columns: 200px;
     gap: 10px;
 }
+
+.response-text{
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.1s ease-in-out;
+}
+
+.response-text:hover{
+    color: #E53935;
+}

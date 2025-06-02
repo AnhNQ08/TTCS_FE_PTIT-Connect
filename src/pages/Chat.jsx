@@ -445,8 +445,9 @@ const Chat = () => {
             }
             const tmpChatRooms = await fetchChatRooms();
             if(message.content.includes("đã đổi biệt danh") && chatRoomRef.current.id === message.conversationId){
-                console.log("DSFDSFDSF");
                 setMessages(await messageService.getMessages(message.conversationId, userRef.current.id));
+            }else if(message.content.includes("đã đổi ảnh nhóm")){
+                chatRoomRef.current.avatar = tmpChatRooms.find(chatRoom => chatRoom.id === message.conversationId).avatar;
             }
             setChatRooms(tmpChatRooms);
         }, 50);

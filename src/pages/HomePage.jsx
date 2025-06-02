@@ -14,11 +14,11 @@ import PostsContainer from "@/components/PostsContainer.jsx";
 import CreatePostButton from "@/components/CreatePostButton.jsx";
 import CurtainContext from "@/context/CurtainContext.jsx";
 import {useInView} from "react-intersection-observer";
+import {acceptFriendRequest, declineFriendRequest} from "@/APIs/friend.js";
 
 const HomePage = () => {
     const {user, handleLogout} = useContext(AuthContext);
     const {showCurtain} = useContext(CurtainContext);
-    const {acceptFriendRequest, declineFriendRequest} = useContext(CurtainContext);
     const [posts, setPosts] = useState([]);
     const [isSearching, setIsSearching] = useState(false);
     const [friendRequests, setFriendRequests] = useState([]);
@@ -58,6 +58,48 @@ const HomePage = () => {
         }
     }, [searchDebounce])
 
+    const handleAcceptFriendRequest = async (userId) => {
+        try {
+            const response = await acceptFriendRequest(userId);
+            if (response === "New friend request accepted") {
+                setFriendRequests(prev => prev.map(friend => {
+                    if (friend.userId === userId) {
+                        return {
+                            ...friend,
+                            status: 'accepted'
+                        };
+                    }
+                    return friend;
+                }));
+            }else{
+                alert("Có lỗi xảy ra");
+            }
+        }catch (e) {
+            console.log(e);
+            alert("Có lỗi xảy ra");
+        }
+    }
+
+    const handleDeclineFriendRequest = async (userId) => {
+        try {
+            const response = await declineFriendRequest(userId, user.id);
+            if (response === "Friend request deleted") {
+                setFriendRequests(prev => prev.map(friend => {
+                    if (friend.userId === userId) {
+                        return {
+                            ...friend,
+                            status: 'declined'
+                        };
+                    }
+                    return friend;
+                }));
+            }
+        }catch (e){
+            console.log(e);
+            alert("Có lỗi xảy ra");
+        }
+    }
+
     const fetchFriendRequests = async () => {
         return await friendService.getFriendRequests(0, 4);
     }
@@ -72,7 +114,7 @@ const HomePage = () => {
             const response2 = await fetchAllFriends();
             setFriendRequests(response1);
             setFriendList(response2);
-        }, [2000]);
+        }, [2500]);
         return (request.status === "accepted" ?
                 <p className="status-text">Đã chấp nhận lời mời</p> :
                 <p className="status-text">Đã từ chối lới mời</p>
@@ -140,6 +182,7 @@ const HomePage = () => {
                     }}>
                         {friendRequests.length > 0 ? friendRequests.map((friend, index) => (
                                 <div className="friend-request-container" key={index}>
+                                    {/*{console.log(friend)}*/}
                                     <img src={`data:${getImageMime(friend.avatar)};base64,${friend.avatar}`} alt="" style={{
                                         width: '55px',
                                         height: '55px',
@@ -167,10 +210,10 @@ const HomePage = () => {
                                                 gap: '10px',
                                                 width: '100%'
                                             }}>
-                                                <button className="confirm-button" onClick={() => acceptFriendRequest(friend, friendRequests, setFriendRequests)}>
+                                                <button className="confirm-button" onClick={() => handleAcceptFriendRequest(friend.userId)}>
                                                     Xác nhận
                                                 </button>
-                                                <button className="cancel-button" onClick={() => declineFriendRequest(friend, friendRequests, setFriendRequests)}>
+                                                <button className="cancel-button" onClick={() => handleDeclineFriendRequest(friend.userId)}>
                                                     Xóa
                                                 </button>
                                             </div>

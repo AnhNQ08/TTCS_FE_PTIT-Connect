@@ -1,28 +1,42 @@
-import { useState } from "react";
+import {useContext, useState} from "react";
 import "../styles/register.css";
+import {signUp} from "../APIs/authentication.js";
+import * as userService from "@/APIs/user.js";
+import AuthContext from "@/context/AuthContext.jsx";
 
 const Register = () => {
+  const {setUser} = useContext(AuthContext);
   const [form, setForm] = useState({
-    fullname: "",
     username: "",
     email: "",
     password: "",
     confirm: "",
   });
-  const [error, setError] = useState("");
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleRegister = (e) => {
-    e.preventDefault();
-    if (form.password !== form.confirm) {
-      setError("Mật khẩu không khớp!");
-      return;
+  const handleRegister = async () => {
+    try {
+      const response = await signUp(form.email, form.password, form.username);
+      if(response.message === "User already exists!") alert("Email đã tồn tại");
+      else if(response.message === "Signup successfully!") {
+        alert("Tạo tài khoản thành công");
+        const user = await userService.getCurrentUser();
+        setUser(user);
+        localStorage.setItem("user", JSON.stringify(user));
+        localStorage.setItem("accessToken", response.accessToken);
+        localStorage.setItem("refreshToken", response.accessToken);
+        // window.location.href = "/";
+      }
+      else{
+        alert("Có lỗi xảy ra");
+      }
+    }catch (error) {
+      console.log(error);
+      alert("Có lỗi xảy ra");
     }
-    alert(`Chào mừng ${form.fullname}! Bạn đã đăng ký thành công.`);
-    setError("");
   };
 
   return (
@@ -32,58 +46,49 @@ const Register = () => {
         <p>Đăng ký tài khoản để kết nối với cộng đồng sinh viên PTIT.</p>
       </div>
       <div className="login-right">
-        <form className="login-box" onSubmit={handleRegister}>
+        <div className="login-box">
           <h2 style={{ textAlign: "center", marginBottom: "20px" }}>
             Tạo tài khoản
           </h2>
           <input
-            type="text"
-            name="fullname"
-            placeholder="Họ và tên"
-            value={form.fullname}
-            onChange={handleChange}
-            required
+              type="text"
+              name="username"
+              placeholder="Tên người dùng"
+              value={form.username}
+              onChange={handleChange}
+              required
           />
           <input
-            type="text"
-            name="username"
-            placeholder="Tên người dùng"
-            value={form.username}
-            onChange={handleChange}
-            required
+              type="email"
+              name="email"
+              placeholder="Email"
+              value={form.email}
+              onChange={handleChange}
+              required
           />
           <input
-            type="email"
-            name="email"
-            placeholder="Email"
-            value={form.email}
-            onChange={handleChange}
-            required
+              type="password"
+              name="password"
+              placeholder="Mật khẩu"
+              value={form.password}
+              onChange={handleChange}
+              required
           />
           <input
-            type="password"
-            name="password"
-            placeholder="Mật khẩu"
-            value={form.password}
-            onChange={handleChange}
-            required
+              type="password"
+              name="confirm"
+              placeholder="Nhập lại mật khẩu"
+              value={form.confirm}
+              onChange={handleChange}
+              required
           />
-          <input
-            type="password"
-            name="confirm"
-            placeholder="Nhập lại mật khẩu"
-            value={form.confirm}
-            onChange={handleChange}
-            required
-          />
-          <button type="submit" className="register-btn">
+          <button type="submit" className="register-btn" onClick={handleRegister}>
             Đăng ký
           </button>
-          {error && <p className="error">{error}</p>}
           <a href="/login" className="forgot">
             Đã có tài khoản? Đăng nhập
           </a>
-        </form>
+        </div>
       </div>
     </div>
   );

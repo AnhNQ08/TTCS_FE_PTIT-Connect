@@ -35,7 +35,8 @@ const ProfilePost = ({posts, postedImages, friendList, userInfo, setPosts}) => {
                     <div style={{
                         display: 'flex',
                         alignItems: 'center',
-                        justifyContent: 'space-between'
+                        justifyContent: 'space-between',
+                        width: '400px'
                     }}>
                         <p style={{
                             fontSize: '24px',

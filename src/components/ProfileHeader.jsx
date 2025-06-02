@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
 import {getImageMime} from "@/utils/format.js";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {
@@ -6,19 +6,28 @@ import {
     faComment,
     faPen,
     faUserCheck,
-    faUserMinus,
     faUserPlus, faUserXmark,
     faXmark
 } from "@fortawesome/free-solid-svg-icons";
 import * as userService from '../APIs/user.js';
-import {checkFriend, checkFriendRequest, sendFriendRequest, deleteFriend, declineFriendRequest} from "@/APIs/friend.js";
+import {
+    checkFriend,
+    checkFriendRequest,
+    sendFriendRequest,
+    deleteFriend,
+    declineFriendRequest,
+    acceptFriendRequest
+} from "@/APIs/friend.js";
 import AuthContext from "@/context/AuthContext.jsx";
 import {useNavigate} from "react-router-dom";
 
 const ProfileHeader = ({isMine, userInfo, setUserInfo, selectedChoice}) => {
     const {user, setUser} = useContext(AuthContext);
+    const showOptionRef = useRef(null);
     const [editBio, setEditBio] = useState(false);
     const [isFriend, setIsFriend] = useState(false);
+    const [showOption, setShowOption] = useState(false);
+    const responseOptionRef = useRef(0);
     const [friendRequest, setFriendRequest] = useState(null);
     const [bio, setBio] = useState(null);
     const navigate = useNavigate();
@@ -35,6 +44,22 @@ const ProfileHeader = ({isMine, userInfo, setUserInfo, selectedChoice}) => {
             })
         }
     }, [userInfo])
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (showOptionRef.current && !showOptionRef.current.contains(event.target)) {
+                setShowOption(false);
+            }
+        };
+
+        if (showOption) {
+            document.addEventListener("mousedown", handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [showOption]);
 
     const handleChangeAvatar = async (image) => {
         try {
@@ -88,12 +113,23 @@ const ProfileHeader = ({isMine, userInfo, setUserInfo, selectedChoice}) => {
 
     const handleClickFriendButton = async () => {
         try {
-            if(friendRequest){
+            if(!showOption && friendRequest) setShowOption(true);
+            else if(responseOptionRef.current === 1){
                 const response = await declineFriendRequest(friendRequest.senderId, friendRequest.recipientId);
                 if(response !== "Friend request deleted"){
                     alert("Có lỗi xảy ra");
                     return;
                 }
+                responseOptionRef.current = 0;
+                setFriendRequest(null);
+            }else if(responseOptionRef.current === 2){
+                const response = await acceptFriendRequest(friendRequest.senderId);
+                if(response !== "New friend request accepted"){
+                    alert("Có lỗi xảy ra");
+                    return;
+                }
+                setIsFriend(true);
+                responseOptionRef.current = 0;
                 setFriendRequest(null);
             }else if(isFriend){
                 const response = await deleteFriend(userInfo.id);
@@ -257,7 +293,7 @@ const ProfileHeader = ({isMine, userInfo, setUserInfo, selectedChoice}) => {
                                             y2="0"
                                             stroke="gray"
                                             strokeWidth="1"
-                                            strokeDasharray="4 4" // 👈 tạo nét đứt
+                                            strokeDasharray="4 4"
                                         />
                                     </svg>
                                     <div style={{
@@ -299,36 +335,68 @@ const ProfileHeader = ({isMine, userInfo, setUserInfo, selectedChoice}) => {
                 }}>
                     {!isMine && (
                         <React.Fragment>
-                            <div className="profile-function" onClick={handleClickFriendButton} style={{
-                                backgroundColor: 'white',
-                                border: '2px solid #E53935'
+                            <div style={{
+                                position: 'relative'
                             }}>
-                                {friendRequest ? (
-                                    friendRequest.senderId === user.id ? (
-                                        <React.Fragment>
-                                            <FontAwesomeIcon icon={faUserXmark} />
-                                            <p>Xóa lời mời</p>
-                                        </React.Fragment>
+                                <div className="profile-function" onClick={handleClickFriendButton} style={{
+                                    backgroundColor: 'white',
+                                    border: '2px solid #E53935'
+                                }}>
+                                    {friendRequest ? (
+                                        friendRequest.senderId === user.id ? (
+                                            <React.Fragment>
+                                                <FontAwesomeIcon icon={faUserXmark} />
+                                                <p>Xóa lời mời</p>
+                                            </React.Fragment>
+                                        ) : (
+                                            <React.Fragment>
+                                                <FontAwesomeIcon icon={faUserCheck} />
+                                                <p>Phản hồi</p>
+                                            </React.Fragment>
+                                        )
                                     ) : (
-                                        <React.Fragment>
-                                            <FontAwesomeIcon icon={faUserCheck} />
-                                            <p>Phản hồi</p>
-                                        </React.Fragment>
-                                    )
-                                ) : (
-                                    isFriend ? (
-                                        <React.Fragment>
-                                            <FontAwesomeIcon icon={faUserXmark} />
-                                            <p>Hủy kết bạn</p>
-                                        </React.Fragment>
-                                    ) : (
-                                        <React.Fragment>
-                                            <FontAwesomeIcon icon={faUserPlus} />
-                                            <p>Thêm bạn bè</p>
-                                        </React.Fragment>
-                                    )
+                                        isFriend ? (
+                                            <React.Fragment>
+                                                <FontAwesomeIcon icon={faUserXmark} />
+                                                <p>Hủy kết bạn</p>
+                                            </React.Fragment>
+                                        ) : (
+                                            <React.Fragment>
+                                                <FontAwesomeIcon icon={faUserPlus} />
+                                                <p>Thêm bạn bè</p>
+                                            </React.Fragment>
+                                        )
+                                    )}
+                                </div>
+                                {showOption && (
+                                    <div
+                                        ref={showOptionRef}
+                                        style={{
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            gap: '5px',
+                                            position: 'absolute',
+                                            top: '100%',
+                                            left: '0',
+                                            right: '0',
+                                            backgroundColor: 'rgb(209,209,209)',
+                                            borderRadius: '10px',
+                                            padding: '10px',
+                                            zIndex: '100',
+                                            cursor: 'pointer'
+                                    }}>
+                                        <p className="response-text" onClick={() => {
+                                            responseOptionRef.current = 2;
+                                            handleClickFriendButton();
+                                            setShowOption(false);
+                                        }}>Chấp nhận lời mời</p>
+                                        <p className="response-text" onClick={() => {
+                                            responseOptionRef.current = 1;
+                                            handleClickFriendButton();
+                                            setShowOption(false);
+                                        }}>Từ chối lời mời</p>
+                                    </div>
                                 )}
-
                             </div>
                             <div className="profile-function" style={{
                                 backgroundColor: 'white',

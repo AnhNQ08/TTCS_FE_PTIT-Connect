@@ -30,7 +30,7 @@ const SendCommentInput = ({postId, setPosts, setPostComments, comment, setShowRe
     const handleSubmitComment = async () => {
         try {
             if(textInput === "" && !commentMedia) return;
-            if(!comment.id){
+            if(!comment){
                 const formData = getFormData();
                 const response = await createPostComment(postId, formData);
                 response.commentedAt = formatTimeAgo(response.commentedAt);
