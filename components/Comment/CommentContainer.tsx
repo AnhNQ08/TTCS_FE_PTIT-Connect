@@ -22,19 +22,17 @@ export default function CommentContainer({ isVisible, onClose, postId }: any) {
 
     useEffect(() => {
         const fetchComments = async () => {
+            if (!postId) return; // tránh gọi khi chưa có postId
             try {
                 const response = await getPostComment(postId);
-                console.log("refresFlag :", refreshFlag);
+                console.log("Lấy lại comment:", response);
                 setListComment(response);
             } catch (e) {
                 console.log("Lỗi getPostComment: ", e);
             }
         };
-
-        if (postId) {
-            fetchComments();
-        }
-    }, [postId, refreshFlag, isVisible, onClose]);
+        fetchComments();
+    }, [postId, refreshFlag]);
 
     const handleImagePickerPress = async () => {
         const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -102,7 +100,6 @@ export default function CommentContainer({ isVisible, onClose, postId }: any) {
         setRefreshFlag(!refreshFlag);
     }
 
-    console.log("PostID: ", postId);
 
     return (
         <Modal
@@ -127,8 +124,7 @@ export default function CommentContainer({ isVisible, onClose, postId }: any) {
                             currentUserReaction={cmt.currentUserReaction}
                             reactionDTO={cmt.reactionDTO}
                             haveResponses={cmt.haveResponses}
-                            setRefreshFlag = {setRefreshFlag(!refreshFlag)}
-                        />
+                            setRefreshFlag={() => setRefreshFlag(prev => !prev)} />
                     ))}
                 </ScrollView>
                 <View>

@@ -7,23 +7,13 @@ type LastMessageType = {
     senderName?: string | null;
 };
 
-type ParticipantsType = {
-    id: string | null,
-    participantId: string | null,
-    nickname: string | null,
-    username: string | null,
-    avatar: string | null,
-    role: string | null,
-}
-
 type ConversationType = {
-    id: string | null,
-    name: string | null,
-    avatar: string | null,
-    type: string | null,
-    participants: ParticipantsType[] | null,
-    lastMessage?: LastMessageType | null;
-    displayName: string | null
+    id: string,
+    name?: string | null,
+    avatar: string,
+    type: string,
+    lastMessage?: LastMessageType | null,
+    displayName?: string | null
 };
 
 type Props = {
@@ -47,11 +37,11 @@ export default function Conversation({ conversation }: Props) {
     const [conversationId, setConversationId] = useState<string>();
     const [conversationAvatar, setConversationAvatar] = useState<string>();
     const [conversationName, setConversationName] = useState<string>();
+    const [conversationType, setConversationType] = useState<String>();
     const [conversationLastMessnger, setConversationLastMessenger] = useState<string>();
 
 
     useEffect(() => {
-        console.log("-----------conversationId: ", conversation.id);
         if (conversation.id) {
             setConversationId(conversation.id);
         }
@@ -72,13 +62,18 @@ export default function Conversation({ conversation }: Props) {
         } else {
             setConversationLastMessenger("Chưa có tin nhắn")
         }
+        if (conversation.type) {
+            setConversationType(conversation.type);
+        }
     }, [])
 
     const handlePadConversation = () => {
+        console.log("----------------------conversationId: ", conversationId, "conversationName: ", conversationName)
         navigation.navigate("MessengerBox", {
             conversationId: conversationId,
             conversationAvatar: conversationAvatar,
-            conversationName: conversationName
+            conversationName: conversationName,
+            conversationType: conversationType
         });
     }
 

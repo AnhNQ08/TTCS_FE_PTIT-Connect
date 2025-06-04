@@ -1,18 +1,39 @@
 import React from "react";
 import { View, Text, Image, StyleSheet } from "react-native";
 
-export default function SentMessengerLine() {
+type SenderType = {
+    id: number,
+    username: string,
+    avatar: string
+}
+
+
+type PropsType = {
+    id: string,
+    content: string,
+    type: string,
+    conversationId: string,
+    sender: SenderType,
+    sentAt: string | null,
+    mediaList: []
+}
+
+export default function SentMessengerLine(
+    { id, content, type, conversationId, sender, sentAt, mediaList }: PropsType
+) {
     return (
         <View style={styles.container}>
             <View>
+                <Text style={{ marginLeft: 60, marginBottom: 3 }}>
+                    {sender.username}
+                </Text>
+            </View>
+            <View style={{ flexDirection: "row" }}>
                 <Image
                     source={require(`../../assets/picture/avatar/avatardefault.jpg`)}
                     style={styles.avatar}
                 />
-            </View>
-            <View style={styles.containerContent}>
-                <Text style={styles.content}>E Bien</Text>
-                <Text style={styles.content}>M co tien khong cho t vay mot it adfadfadfadf adfadfadfads</Text>
+                <Text style={styles.content}>{content}</Text>
             </View>
         </View>
     )
@@ -20,10 +41,7 @@ export default function SentMessengerLine() {
 
 const styles = StyleSheet.create({
     container: {
-        display: "flex",
-        flexDirection: "row",
-        height: "auto",
-        alignItems: "flex-end",
+        marginTop: 10
     },
     avatar: {
         height: 35,
@@ -31,10 +49,8 @@ const styles = StyleSheet.create({
         borderRadius: 50,
         marginLeft: 10,
     },
-    containerContent: {
-        marginLeft: 10
-    },
     content: {
+        marginLeft: 10,
         alignSelf: "flex-start",
         maxWidth: 300,
         paddingVertical: 6,

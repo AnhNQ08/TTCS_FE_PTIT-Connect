@@ -161,29 +161,25 @@ export default function Post(props: any) {
     const renderPostWithoutBackground = () => {
         return (
             <>
-                {/*Content*/}
                 <Text style={style.content}>{props.post.content}</Text>
-                {/*ImgPost*/}
-                {props.post.postMediaList.map((item: any, index: any) => {
-                    return (
-                        <Image
-                            source={{ uri: item.url }}
-                            key={index}
-                            style={{ width: "100%", height: 400, marginTop: 10 }}
-                        />
-                    );
-                })}</>
+                {renderSharedPost()}
+                {props.post.mediaList.map((item: any, index: any) => (
+                    <Image
+                        source={{ uri: item.url }}
+                        key={index}
+                        style={{ width: "100%", height: 400, marginTop: 10 }}
+                    />
+                ))}
+            </>
         )
     }
-
     const renderPostBackground = () => {
-        { console.log("backgroundUrl: ", props.post.backgroundUrl) };
         return (
             <ImageBackground
                 source={{ uri: encodeURI(props.post.backgroundUrl) }}
                 style={{
                     width: '100%',
-                    minHeight: 200, // số, không có dấu ngoặc kép
+                    minHeight: 200,
                     alignItems: "center",
                     justifyContent: "center"
                 }}
@@ -191,10 +187,75 @@ export default function Post(props: any) {
             >
                 <View style={{ width: "80%", alignItems: "center", justifyContent: "center" }}>
                     <Text style={{ color: "white", fontSize: 20 }}>{props.post.content}</Text>
+                    {renderSharedPost()}
                 </View>
             </ImageBackground>
         );
     };
+
+
+    const renderSharedPost = () => {
+        const sharedPost = props.post.parentPost;
+        if (!sharedPost) return null;
+
+        return (
+            <View style={{
+                borderWidth: 1,
+                borderColor: '#ccc',
+                borderRadius: 10,
+                padding: 10,
+                marginTop: 10,
+                backgroundColor: '#f9f9f9'
+            }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <Image
+                        style={{ width: 40, height: 40, borderRadius: 20 }}
+                        source={{ uri: `data:${getImageMime(sharedPost.userSummary.avatar)};base64,${sharedPost.userSummary.avatar}` }}
+                    />
+                    <View style={{ marginLeft: 10 }}>
+                        <Text style={{ fontWeight: 'bold' }}>{sharedPost.userSummary.username}</Text>
+                        <Text>{sharedPost.createdAt}</Text>
+                    </View>
+                </View>
+
+                {
+                    sharedPost.backgroundUrl === null &&
+                    <View>
+                        <Text style={{ marginTop: 10 }}>{sharedPost.content}</Text>
+
+
+                        {sharedPost.mediaList?.length > 0 &&
+                            sharedPost.mediaList.map((item: any, index: number) => (
+                                <Image
+                                    key={index}
+                                    source={{ uri: item.url }}
+                                    style={{ width: "100%", height: 200, marginTop: 10 }}
+                                />
+                            ))
+                        }
+                    </View>
+                }
+                {
+                    sharedPost.backgroundUrl !== null &&
+                    <ImageBackground
+                        source={{ uri: encodeURI(sharedPost.backgroundUrl) }}
+                        style={{
+                            width: '100%',
+                            minHeight: 200,
+                            alignItems: "center",
+                            justifyContent: "center"
+                        }}
+                        resizeMode="cover"
+                    >
+                        <View style={{ width: "80%", alignItems: "center", justifyContent: "center" }}>
+                            <Text style={{ color: "white", fontSize: 20 }}>{sharedPost.content}</Text>
+                        </View>
+                    </ImageBackground>
+                }
+            </View>
+        );
+    };
+
 
     return (
         <View style={style.container}>
@@ -220,11 +281,11 @@ export default function Post(props: any) {
                 props.post.backgroundUrl !== null && renderPostBackground()
             }
             {/*Number Post*/}
-            <View style={style.numberPost}>
+            {/* <View style={style.numberPost}>
                 <Text style={style.numberLike}>{props.post.reactionSummary.total}</Text>
                 <Text style={style.numberComment}>1,9k bình luận</Text>
                 <Text style={style.numberShare}>126 lượt chia sẻ</Text>
-            </View>
+            </View> */}
             {/*Post Button*/}
             <View style={style.postButton}>
                 <View>
@@ -275,10 +336,10 @@ export default function Post(props: any) {
                         <Text style={style.textButton}>Bình luận</Text>
                     </TouchableOpacity>
                 </View>
-                <View style={style.share}>
+                <TouchableOpacity style={style.share} onPress={props.padShare}>
                     <AntDesign name="sharealt" size={30} color="black" />
-                    <Text style={style.textButton}>Chia sẻ</Text>
-                </View>
+                    <Text style={style.textButton} >Chia sẻ</Text>
+                </TouchableOpacity>
             </View>
         </View>
     )

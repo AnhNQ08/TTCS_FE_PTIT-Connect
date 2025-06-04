@@ -7,6 +7,7 @@ import { getAllNotification } from '../services/userAPI';
 export default function Notification() {
 
     const [notificationList, setNotificationList] = useState([]);
+    const [haveData, setHaveData] = useState<true | false>(true);
 
 
     useEffect(() => {
@@ -14,6 +15,7 @@ export default function Notification() {
             try {
                 const response = await getAllNotification();
                 setNotificationList(response);
+                setHaveData(true)
             } catch (e) {
                 console.log("Loi getAllNotification: ", e);
             }
@@ -23,22 +25,27 @@ export default function Notification() {
 
     return (
         <View>
-            <Header></Header>
+            <Header />
             <Text style={styles.screenName}>Thông báo</Text>
-            <FlatList
-                data={notificationList}
-                keyExtractor={(item: any, index) => index.toString()}
-                renderItem={({ item }) => (
-                    <NotificationBox
-                        id={item.id}
-                        type={item.type}
-                        content={item.content}
-                        read={item.read}
-                        author={item.author}
-                        noticeAt={item.noticeAt}
-                    />
-                )}
-            />
+
+            {notificationList.length > 0 ? (
+                <FlatList
+                    data={notificationList}
+                    keyExtractor={(item: any, index) => index.toString()}
+                    renderItem={({ item }) => (
+                        <NotificationBox
+                            id={item.id}
+                            type={item.type}
+                            content={item.content}
+                            read={item.read}
+                            author={item.author}
+                            noticeAt={item.noticeAt}
+                        />
+                    )}
+                />
+            ) : (
+                <Text style={styles.emptyText}>Không có thông báo nào</Text>
+            )}
         </View>
     );
 }
@@ -50,5 +57,11 @@ const styles = StyleSheet.create({
         marginTop: 15,
         marginLeft: 15,
         marginBottom: 10
+    },
+    emptyText: {
+        textAlign: 'center',
+        marginTop: 50,
+        fontSize: 16,
+        color: 'gray'
     }
 })

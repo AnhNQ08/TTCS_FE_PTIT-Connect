@@ -1,6 +1,7 @@
 import React, { createContext, useRef } from 'react';
 import SockJS from "sockjs-client";
 import { Client } from '@stomp/stompjs';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const SockJSContext = createContext();
 
@@ -18,8 +19,8 @@ export const SockJSProvider = ({ children }) => {
                 heartbeatOutgoing: 4000,
                 onConnect: () => {
                     try {
-                        if (localStorage.getItem('subscriptions')) {
-                            subscriptions.current = JSON.parse(localStorage.getItem('subscriptions'));
+                        if (AsyncStorage.getItem('subscriptions')) {
+                            subscriptions.current = JSON.parse(AsyncStorage.getItem('subscriptions'));
                         }
                         if (userId) {
                             subscriptions.current[userId + "_message"] = stompClient.subscribe(
@@ -40,7 +41,7 @@ export const SockJSProvider = ({ children }) => {
                             });
                         }
                         stompClientRef.current = stompClient;
-                        localStorage.setItem('subscriptions', JSON.stringify(subscriptions.current));
+                        AsyncStorage.setItem('subscriptions', JSON.stringify(subscriptions.current));
                         resolve(true);
                     } catch (err) {
                         reject(err);

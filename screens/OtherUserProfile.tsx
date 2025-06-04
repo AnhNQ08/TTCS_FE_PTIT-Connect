@@ -23,28 +23,23 @@ import Post from "../components/Post";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function OtherUserProfile() {
-    const [dataUser, setDataUser] = useState<UserProfile | null>(null);
+    const [dataUser, setDataUser] = useState<any>();
     const [userName, setUserName] = useState<string>("");
     const [avatar, setAvatar] = useState<Uint8Array>();
     const [background, setBackground] = useState<Uint8Array>();
     const [bio, setBio] = useState<string>("");
+    const [numberOfFriends, setNumberOfFriends] = useState<number>();
     const [isFriendShip, setFriendShip] = useState<true | false | null>(null);
     const [isFriendRequest, setFriendRequest] = useState<true | false | null>(null);
     const [isPersonMakeFriendRequest, setPersonMakeFrindRequsest] = useState<true | false | null>(null);
     const [isShowAcceptOrDenyBox, setShowAcceptOrDenyBox] = useState(false);
     const [isShowUnFriendBox, setShowUnFriendBox] = useState(false);
-    const [postList, setPostList] = useState();
+    const [postList, setPostList] = useState<any>([]);
     const [isShowCommentContainer, setShowCommentContainer] = useState(false);
     const [selectedPostId, setSelectedPostId] = useState<number>();
     const [isfetchAll, setFetchAll] = useState<true | false>(false);
-
-    type UserProfile = {
-        id: number;
-        username: string;
-        bio: string;
-        avatar: Uint8Array;
-        backgroundImage: Uint8Array;
-    };
+    const [pageNumber, setPageNumber] = useState<number>(1);
+    const [isFetching, setIsFetching] = useState(false);
 
     type ParamList = {
         OtherUserProfile: {
@@ -65,14 +60,24 @@ export default function OtherUserProfile() {
             try {
                 const { userID } = route.params;
                 try {
+                    console.log("abc");
                     const user = await getUserProfile(userID);
-                    setDataUser(user);
-                    setUserName(user.username);
-                    setAvatar(user.avatar);
-                    setBackground(user.backgroundImage);
-                    setBio(user.bio);
-                } catch (e) {
-                    console.log("Loi getUserProfile: ", e);
+                    if (user) {
+                        setDataUser(user);
+                        setUserName(user.username);
+                        setAvatar(user.avatar);
+                        setBackground(user.backgroundImage);
+                        setBio(user.bio);
+                        setNumberOfFriends(user.numberOfFriends);
+                    }
+                    console.log("Run getUserProfile");
+                } catch (error) {
+                    const err = error as AxiosError;
+                    if (err.response) {
+                        console.error("Lỗi FetchAll: ", err.response.data);
+                    } else {
+                        console.error("Lỗi FetchAll (no response): ", err.message);
+                    }
                 }
 
                 let isFriendTmp;
@@ -98,21 +103,41 @@ export default function OtherUserProfile() {
                         }
                     } else setFriendRequest(false);
                 }
-
-                try {
-                    const posts = await getPostUserId(userID);
-                    setPostList(posts);
-                } catch (e) {
-                    console.log("Loi getPostUserId");
-                }
             } catch (error) {
                 const err = error as AxiosError;
-                console.error("Lỗi FetchAll: ", err.response?.data || err.message);
+
+                if (err.response) {
+                    console.error("Lỗi FetchAll (có phản hồi):", err.response.data);
+                } else if (err.request) {
+                    console.error("Lỗi FetchAll (request gửi đi nhưng không có phản hồi):", err.request);
+                } else {
+                    console.error("Lỗi FetchAll (lỗi khác):", err.message);
+                }
+
+                throw err; // hoặc return null, hoặc xử lý tuỳ trường hợp
             }
             setFetchAll(true);
         };
         fetchAll();
     }, []);
+
+    useEffect(() => {
+        const fetchNewestPost = async () => {
+            if (isFetching) return;
+            setIsFetching(true);
+            try {
+                if (dataUser) {
+                    const postTmp = await getPostUserId(dataUser.id, pageNumber);
+                    setPostList((prev: any) => [...prev, ...postTmp]);
+                }
+            } catch (e) {
+                console.log("Lỗi lấy bài viết mới nhất: ", e);
+            } finally {
+                setIsFetching(false);
+            }
+        };
+        fetchNewestPost();
+    }, [pageNumber, dataUser?.id]);
 
     const handlePadSendAddFriend = async () => {
         const { userID } = route.params;
@@ -198,6 +223,9 @@ export default function OtherUserProfile() {
                                 }
                                 <View style={styles.content}>
                                     <Text style={styles.userName}>{userName}</Text>
+                                    <TouchableOpacity>
+                                        <Text style={{ fontSize: 17, fontWeight: 500 }}>{numberOfFriends} người bạn</Text>
+                                    </TouchableOpacity>
                                     <View style={styles.action}>
                                         {isPersonMakeFriendRequest && isFriendRequest &&
                                             <TouchableOpacity style={styles.friend} onPress={() => handlePadDeleteRequestFriend(false)}>
@@ -236,6 +264,11 @@ export default function OtherUserProfile() {
                         renderItem={({ item }) => (
                             <Post post={item} padComment={() => padComment(item.id)} />
                         )}
+                        onEndReached={() => {
+                            console.log("Reached end of list. Load more...");
+                            setPageNumber(prev => prev + 1);
+                        }}
+                        onEndReachedThreshold={0.5}
                     />
 
                     {/* Modal Accept / Deny */}

@@ -1,25 +1,14 @@
-import * as request from '../utils/request.js';
+import * as request from './request';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export const getMessages = async (conversationId) => {
-    return request.get(`/message/getMessages/${conversationId}`, {
-        headers: {
-            Authorization: `Bearer ${AsyncStorage.getItem('accessToken')}`
+export const getAllMessenger = async (conversationId) => {
+    const accessToken = await AsyncStorage.getItem('accessToken');
+    return await request.get(
+        `message/getMessages/${conversationId}`,
+        {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+            },
         }
-    })
-}
-
-export const getLastMessageIdByConversationId = async (conversationId, senderId) => {
-    return request.get(`/message/lastMessageId/${conversationId}/${senderId}`, {
-        headers: {
-            Authorization: `Bearer ${AsyncStorage.getItem('accessToken')}`
-        }
-    })
-}
-
-export const uploadMessageFile = (files) => {
-    return request.post('/message/upload/file', files, {
-        headers: {
-            Authorization: `Bearer ${AsyncStorage.getItem('accessToken')}`
-        }
-    })
+    );
 }

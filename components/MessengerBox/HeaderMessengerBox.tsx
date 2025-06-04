@@ -4,8 +4,24 @@ import IconAntDesign from 'react-native-vector-icons/AntDesign';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
+type HeaderMessengerBoxProps = {
+    conversationAvatar: string;
+    conversationName: string;
+};
 
-export default function HeaderMessengerBox() {
+export default function HeaderMessengerBox({
+    conversationAvatar,
+    conversationName
+}: HeaderMessengerBoxProps) {
+
+
+    function getImageMime(base64String: string): string {
+        if (base64String.startsWith('/9j')) return 'image/jpeg';      // JPEG
+        if (base64String.startsWith('iVBOR')) return 'image/png';     // PNG
+        if (base64String.startsWith('R0lGOD')) return 'image/gif';    // GIF
+        return 'image/jpeg'; // fallback nếu không khớp
+    }
+
     return (
         <View style={styles.container}>
             <TouchableOpacity>
@@ -15,7 +31,9 @@ export default function HeaderMessengerBox() {
                 <View>
                     <Image
                         style={styles.avatar}
-                        source={require(`../../assets/picture/avatar/avatardefault.jpg`)}
+                        source={{
+                            uri: `data:${getImageMime(conversationAvatar)};base64,${conversationAvatar}`
+                        }}
                     />
                 </View>
                 <View style={styles.inforMesBoxText}>
@@ -24,7 +42,7 @@ export default function HeaderMessengerBox() {
                         numberOfLines={1}
                         ellipsizeMode="tail"
                     >
-                        Hua Duy Anh
+                        {conversationName}
                     </Text>
                     <Text
                         numberOfLines={1}

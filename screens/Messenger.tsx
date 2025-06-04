@@ -4,60 +4,63 @@ import Header from '../components/Header';
 import Conversation from '../components/Conversation';
 import { getAllConversation } from '../services/conversation';
 import { useFocusEffect } from '@react-navigation/native';
+import { getCurrentUser } from '../services/userAPI';
 
 type LastMessageType = {
     content?: string | null;
     senderName?: string | null;
 };
 
-type ParticipantsType = {
-    id: string | null,
-    participantId: string | null,
-    nickname: string | null,
-    username: string | null,
-    avatar: string | null,
-    role: string | null,
-}
-
 type ConversationType = {
-    id: string | null,
-    name: string | null,
-    avatar: string | null,
-    type: string | null,
-    participants: ParticipantsType[] | null,
-    lastMessage?: LastMessageType | null;
-    displayName: string | null
+    id: string,
+    name?: string | null,
+    avatar: string,
+    type: string,
+    lastMessage?: LastMessageType | null,
+    displayName?: string | null
 };
+
+type userCurrentType = {
+    id: number,
+    username: string,
+    avatar: string
+}
 
 
 export default function Messenger() {
 
     const [conversations, setConversations] = useState<ConversationType[] | null>(null);
     const [haveData, setHaveData] = useState<true | false>(false);
-
-
-    const fetchConversations = async () => {
-        try {
-            const response = await getAllConversation();
-            console.log("conversations: ", response);
-            setConversations(response);
-            setHaveData(true);
-        } catch (e) {
-            console.log('Lỗi fetchConversations:', e);
-        }
-    };
+    const [userCurrent, setUserCurrent] = useState<userCurrentType>();
 
     useEffect(() => {
+        const fetchUserCurrent = async () => {
+            try {
+                const response: userCurrentType = await getCurrentUser();
+                setUserCurrent(response);
+            } catch (e) {
+                console.log("Loi fetchUserCurrent: ", e);
+            }
+        }
+        fetchUserCurrent();
+    }, [])
+
+    useEffect(() => {
+        const fetchConversations = async () => {
+            try {
+                const response = await getAllConversation();
+                if (response !== undefined) {
+                    console.log("conversations: ", response);
+                    setConversations(response);
+                }
+                setHaveData(true);
+            } catch (e) {
+                console.log('Lỗi fetchConversations:', e);
+            }
+        };
         fetchConversations();
     }, []);
 
-    // useFocusEffect(
-    //     useCallback(() => {
-    //         // setConversations([]);
-    //         // setHaveData(false);
-    //         fetchConversations();
-    //     }, [])
-    // );
 
     return (
         <View>
@@ -89,4 +92,5 @@ const styles = StyleSheet.create({
         marginBottom: 10,
     },
 });
+
 

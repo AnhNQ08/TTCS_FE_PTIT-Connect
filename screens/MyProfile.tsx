@@ -6,17 +6,17 @@ import {
     TouchableOpacity,
     ScrollView,
     Alert,
-    Image
+    Image,
+    FlatList
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as ImagePicker from "expo-image-picker";
 import { ImagePickerAsset } from "expo-image-picker";
 
 import AvatarAndBackground from "../components/AvatarAndBackground";
-import MyImages from "../components/MyImages";
-import MyVideos from "../components/MyVideos";
-import { getUserProfile, updateUserAvatar, updateUserBackground } from "../services/userAPI";
+import { getPostUserId, getUserProfile, updateUserAvatar, updateUserBackground } from "../services/userAPI";
 import { useNavigation } from "@react-navigation/native";
+import Post from "../components/Post";
 
 export default function MyProFile() {
     const [userId, setUserId] = useState<number | null>(null)
@@ -25,6 +25,9 @@ export default function MyProFile() {
     const [showUpdateTmp, setShowUpdateTmp] = useState<"avatar" | "background" | null>(null);
     const [user, setUser] = useState<UserProfile | null>(null);
     const [imageSelected, setImageSelected] = useState<ImagePickerAsset | null>(null);
+    const [pageNumber, setPageNumber] = useState<number>(0);
+    const [isFetching, setIsFetching] = useState(false);
+    const [postList, setPostList] = useState<any>([]);
 
     const navigation = useNavigation<any>();
 
@@ -53,21 +56,36 @@ export default function MyProFile() {
         fetchUserProfile();
     }, []);
 
+    const [hasMore, setHasMore] = useState(true);
 
-    const renderSection = () => {
-        switch (section) {
-            case "post":
-                return <Text>My post</Text>;
-            case "image":
-                return <MyImages />;
-            case "video":
-                return <MyVideos />;
-            default:
-                return null;
-        }
-    };
+    useEffect(() => {
+        console.log("abcde");
+        const fetchPosts = async () => {
+            if (isFetching || !hasMore) return;
+            setIsFetching(true);
+            try {
+                console.log("abcd");
+                if (!user) return
+                const newPosts = await getPostUserId(user.id, pageNumber);
+                console.log("newPost: ", newPosts);
+                console.log("myID", user.id);
+                console.log("pageNumber", pageNumber);
+                console.log("abc");
+                if (newPosts.length === 0) {
+                    setHasMore(false); // Không còn dữ liệu
+                } else {
+                    setPostList((prev: any) => [...prev, ...newPosts]);
+                }
+            } catch (e) {
+                console.log("Lỗi lấy bài viết:", e);
+            } finally {
+                setIsFetching(false);
+            }
+        };
+        fetchPosts();
+    }, [pageNumber, user]);
 
-    const handleTabSelect = (tab: string) => setSection(tab);
+
     const handleAvatarPress = () => {
         setShowUpdate("avatar");
         setShowUpdateTmp("avatar")
@@ -198,19 +216,27 @@ export default function MyProFile() {
 
     return (
         <View style={{ flex: 1 }} >
-            <ScrollView style={styles.container}>
-                {user && (
-                    <>
-                        <AvatarAndBackground
-                            userAvatar={user.avatar}
-                            userBackground={user.backgroundImage}
-                            onAvatarPress={handleAvatarPress}
-                            onBackgroundPress={handleBackgroundPress}
-                        />
+            <FlatList
+                ListHeaderComponent={
+                    <View style={{ marginBottom: 20 }}>
+                        {
+                            user &&
+                            <AvatarAndBackground
+                                userAvatar={user.avatar}
+                                userBackground={user.backgroundImage}
+                                onAvatarPress={handleAvatarPress}
+                                onBackgroundPress={handleBackgroundPress}
+                            />
+                        }
                         <View style={styles.content}>
-                            <Text style={styles.userName}>{user.username}</Text>
-                            <Text>{user.bio}</Text>
+                            {
+                                user &&
+                                <>
+                                    <Text style={styles.userName}>{user.username}</Text>
+                                    <Text>{user.bio}</Text>
+                                </>
 
+                            }
                             <TouchableOpacity style={styles.buttonAddPost} onPress={padAddPost}>
                                 <Text style={styles.textButtonAddPost}>+ Thêm bài viết</Text>
                             </TouchableOpacity>
@@ -219,41 +245,22 @@ export default function MyProFile() {
                                 <Text style={styles.textButtonEditProfile}>Chỉnh sửa trang cá nhân</Text>
                             </TouchableOpacity>
 
-                            <View style={styles.section}>
-                                <TouchableOpacity
-                                    onPress={() => handleTabSelect("post")}
-                                    style={[
-                                        styles.nameSection,
-                                        section === "post" && styles.activeTab,
-                                    ]}
-                                >
-                                    <Text style={styles.textSection}>Bài viết</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity
-                                    onPress={() => handleTabSelect("image")}
-                                    style={[
-                                        styles.nameSection,
-                                        section === "image" && styles.activeTab,
-                                    ]}
-                                >
-                                    <Text style={styles.textSection}>Ảnh</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity
-                                    onPress={() => handleTabSelect("video")}
-                                    style={[
-                                        styles.nameSection,
-                                        section === "video" && styles.activeTab,
-                                    ]}
-                                >
-                                    <Text style={styles.textSection}>Video</Text>
-                                </TouchableOpacity>
-                            </View>
-
-                            {renderSection()}
                         </View>
-                    </>
+                    </View>
+                }
+                data={postList}
+                keyExtractor={(item) => item.id.toString()}
+                renderItem={({ item }) => (
+                    <Post post={item} />
                 )}
-            </ScrollView>
+                onEndReached={() => {
+                    console.log("Reached end of list. Load more...");
+                    setPageNumber(prev => prev + 1);
+                }}
+                onEndReachedThreshold={0.5}
+            />
+
+
             {imageSelected && (
                 <View style={styles.previewContainer}>
                     <TouchableOpacity style={styles.exitButton} onPress={() => setImageSelected(null)}>
@@ -276,8 +283,7 @@ export default function MyProFile() {
                     activeOpacity={1}
                     onPress={() => {
                         setShowUpdate(null);
-                    }
-                    }
+                    }}
                 >
                     <View style={styles.fixedBottom}>
                         <TouchableOpacity

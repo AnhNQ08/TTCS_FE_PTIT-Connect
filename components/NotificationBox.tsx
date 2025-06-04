@@ -1,17 +1,29 @@
+import { useNavigation } from "@react-navigation/native";
 import React, { useEffect, useState } from "react";
-import { View, Text, Image, StyleSheet } from "react-native";
+import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 
 export default function NotificationBox(props: any) {
+
+    const navigation = useNavigation<any>()
 
     const [id, setId] = useState();
     const [type, setType] = useState();
     const [read, setRead] = useState();
+    const [authorId, setAuthorId] = useState<string>();
 
     useEffect(() => {
         setId(props.id);
         setType(props.type);
         setRead(props.read);
-    })
+        setAuthorId(props.author.id);
+    }, [])
+
+    const handlePadNotificationBox = async () => {
+        if (type === "FRIEND_REQUEST") {
+            navigation.navigate("OtherUserProfile", { userID: authorId });
+        }
+        
+    }
 
 
     function getImageMime(base64String: string): string {
@@ -22,10 +34,13 @@ export default function NotificationBox(props: any) {
     }
 
     return (
-        <View style={[
-            styles.container,
-            read === false && styles.unreadContainer
-        ]}>
+        <TouchableOpacity
+            style={[
+                styles.container,
+                read === false && styles.unreadContainer
+            ]}
+            onPress={handlePadNotificationBox}
+        >
             <Image
                 style={styles.avatar}
                 source={{ uri: `data:${getImageMime(props.author.avatar)};base64,${props.author.avatar}` }}
@@ -34,7 +49,7 @@ export default function NotificationBox(props: any) {
                 <Text style={styles.userName}>{props.author.username} </Text>
                 <Text style={styles.notification}>{props.content}</Text>
             </Text>
-        </View>
+        </TouchableOpacity>
     )
 }
 

@@ -67,6 +67,21 @@ export const createNewPost = async (formData) => {
     )
 }
 
+export const sharePost = async (postId, formData) => {
+    const accessToken = await AsyncStorage.getItem('accessToken');
+
+    return await request.post(
+        `post/share/${postId}`,
+        formData,
+        {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+            },
+        }
+    )
+}
+
 export const syncPublicPost = async () => {
     const accessToken = await AsyncStorage.getItem('accessToken');
     return await request.post(
@@ -81,22 +96,23 @@ export const syncPublicPost = async () => {
     )
 }
 
-export const getNewestPost = async () => {
+export const getNewestPost = async (pageNumber) => {
+    console.log("getNewPost");
     const accessToken = await AsyncStorage.getItem('accessToken');
-    return await request.get(
-        'post/newestPost',
-        {
-            headers: {
-                Authorization: "Bearer " + accessToken
-            }
+    return await request.get("/post/newest", {
+        headers: {
+            Authorization: "Bearer " + accessToken
+        },
+        params: {
+            pageNumber
         }
-    )
+    })
 }
 
 export const searchUser = async (userName) => {
     const accessToken = await AsyncStorage.getItem('accessToken');
     return await request.get(
-        `user/search?username=${userName}`,
+        `user/search?keyword=${userName}`,
         {
             headers: {
                 Authorization: "Bearer " + accessToken
@@ -279,26 +295,46 @@ export const getResponsesComment = async (commentId) => {
     )
 }
 
-export const getPostUserId = async (userId) => {
+export const getPostUserId = async (userId, pageNumber) => {
     const accessToken = await AsyncStorage.getItem('accessToken');
-    return await request.get(
-        `post/user/${userId}`,
-        {
-            headers: {
-                Authorization: "Bearer " + accessToken
-            }
+    return await request.get(`/post/user/${userId}`, {
+        headers: {
+            Authorization: "Bearer " + accessToken
+        },
+        params: {
+            pageNumber
         }
-    )
+    })
 }
 
 export const getAllNotification = async () => {
     const accessToken = await AsyncStorage.getItem('accessToken');
     return await request.get(
-        `notification/get`,
+        `notification/getList`,
         {
             headers: {
                 Authorization: "Bearer " + accessToken
+            },
+            params: {
+                pageNumber: 1,
+                pageSize: 5,
             }
         }
+
     )
+}
+
+export const changeStatusNotification = async (notificationId) => {
+    const accessToken = await AsyncStorage.getItem('accessToken');
+
+    return await request.put(
+        `notification/changeStatus/${notificationId}`,
+        {},
+        {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                'Content-Type': 'multipart/form-data',
+            },
+        }
+    );
 }

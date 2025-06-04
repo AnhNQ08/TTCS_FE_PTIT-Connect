@@ -4,14 +4,14 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 export const getAllConversation = async () => {
     const accessToken = await AsyncStorage.getItem('accessToken');
     return await request.get(
-        '/conversation/getAll',
+        `conversation/getAll`,
         {
             headers: {
                 Authorization: `Bearer ${accessToken}`,
             },
         }
     );
-}
+};
 
 
 // export const updateLastMessageStatus = async (conversationId, userId) => {

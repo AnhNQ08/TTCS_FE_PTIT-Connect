@@ -1,12 +1,20 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, StyleSheet, TouchableOpacity } from "react-native";
 import { TextInput } from "react-native-paper";
 
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import Entypo from '@expo/vector-icons/Entypo';
 import AntDesign from '@expo/vector-icons/AntDesign';
+import { Feather } from "@expo/vector-icons";
 
-export default function BottomMessenger() {
+type PropsType = {
+    handleSendMessenger: (message: string) => void
+}
+
+export default function BottomMessenger({ handleSendMessenger }: PropsType) {
+
+    const [textInput, setTextInput] = useState<string>("");
+
     return (
         <View style={styles.container}>
             <TouchableOpacity>
@@ -25,17 +33,31 @@ export default function BottomMessenger() {
             <View style={styles.inputWrapper}>
                 <TextInput
                     placeholder="Nhắn tin"
+                    value={textInput}
                     underlineColorAndroid="transparent"
                     mode="flat"
                     style={styles.textInput}
                     theme={{ colors: { primary: 'transparent' } }}
+                    onChangeText={setTextInput}
                 />
             </View>
+            {
+                textInput.trim().length !== 0 ?
+                    <TouchableOpacity
+                        onPress={() => {
+                            handleSendMessenger(textInput);
+                            setTextInput(""); // Xoá sau khi gửi
+                        }}
+                    >
+                        <Feather name="send" size={24} color="#007AFF" />
+                    </TouchableOpacity>
 
-            <TouchableOpacity>
-                <AntDesign name="like1" size={24} color="#007AFF" />
-            </TouchableOpacity>
-        </View>
+                    :
+                    <TouchableOpacity>
+                        <AntDesign name="like1" size={24} color="#007AFF" />
+                    </TouchableOpacity>
+            }
+        </View >
     );
 }
 

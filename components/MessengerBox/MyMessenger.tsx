@@ -1,11 +1,30 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 
-export default function MyMessengerLine() {
+type SenderType = {
+    id: number,
+    username: string,
+    avatar: string
+}
+
+
+type PropsType = {
+    id: string,
+    content: string,
+    type: string,
+    conversationId: string,
+    sender: SenderType,
+    sentAt: string | null,
+    mediaList: []
+}
+
+export default function MyMessengerLine(
+    { id, content, type, conversationId, sender, sentAt, mediaList }: PropsType
+) {
     return (
         <View style={styles.container}>
             <View>
-                <Text style={styles.text}>Khong</Text>
+                <Text style={styles.text}>{content}</Text>
             </View>
         </View>
     )
